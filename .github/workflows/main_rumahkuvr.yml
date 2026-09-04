@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy PHP app to Azure Web App - rumahkuvr
+name: Build and deploy Laravel + React app to Azure Web App - rumahkuvr
 
 on:
   push:
@@ -9,62 +9,134 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup PHP
+      # -----------------------------
+      # PHP / Laravel
+      # -----------------------------
+      - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: mbstring, xml, ctype, json, bcmath, fileinfo, openssl, pdo, pdo_mysql, tokenizer
+          coverage: none
 
-      - name: Check if composer.json exists
-        id: check_files
-        uses: andstor/file-existence-action@v1
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      - name: Install Composer dependencies
+        run: |
+          composer install \
+            --prefer-dist \
+            --no-progress \
+            --no-interaction \
+            --no-dev \
+            --optimize-autoloader
+
+      # Ensure Laravel runtime folders exist
+      - name: Prepare Laravel runtime directories
+        run: |
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+
+      # -----------------------------
+      # Node / React / Vite
+      # -----------------------------
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          files: 'composer.json'
+          node-version: '22'
+          cache: 'npm'
 
-      - name: Run composer install if composer.json exists
-        if: steps.check_files.outputs.files_exists == 'true'
-        run: composer validate --no-check-publish && composer install --prefer-dist --no-progress
+      - name: Install frontend dependencies
+        run: npm ci
 
+      - name: Build React frontend
+        run: npm run build
 
-      - name: Upload artifact for deployment job
+      # -----------------------------
+      # Sanity checks
+      # -----------------------------
+      - name: Verify production build
+        run: |
+          echo "Checking Laravel files..."
+          test -f artisan
+          test -f composer.json
+          test -f public/index.php
+
+          echo "Checking Vite build..."
+          test -d public/build
+          test -f public/build/manifest.json
+
+          echo "Build verification successful."
+
+      # -----------------------------
+      # Upload deployment artifact
+      # -----------------------------
+      - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
         with:
-          name: php-app
-          path: .
+          name: rumahkuvr-app
+          path: |
+            .
+            !node_modules/
+            !.git/
+            !.github/
+            !tests/
+          retention-days: 1
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      contents: read
+      id-token: write
 
     steps:
-      - name: Download artifact from build job
+      - name: Download deployment artifact
         uses: actions/download-artifact@v4
         with:
-          name: php-app
-      
+          name: rumahkuvr-app
+          path: .
+
+      # ==========================================================
+      # IMPORTANT:
+      # KEEP THESE 3 SECRET NAMES EXACTLY AS AZURE GENERATED THEM.
+      #
+      # Example only:
+      # secrets.AZUREAPPSERVICE_CLIENTID_XXXX
+      # secrets.AZUREAPPSERVICE_TENANTID_XXXX
+      # secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXXX
+      # ==========================================================
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D74EC0367F3C4F9EA55D12CA8A731822 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2B7F874164234ACFBE78FCEC668510AF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_55AED18B7EFC4CDB9817334FF6BEE427 }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
         with:
           app-name: 'rumahkuvr'
           slot-name: 'Production'
           package: .
+
+      - name: Azure logout
+        run: az logout
           
