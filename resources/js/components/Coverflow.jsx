@@ -20,6 +20,7 @@ const ANGLE = 34; // degrees of rotateY per step
 const DEPTH = 130; // px pushed back per step
 const SHRINK = 0.09; // scale lost per step
 const VISIBLE = 3; // steps rendered either side of centre
+const DRAG_THRESHOLD = 5; // px of travel before a press counts as a drag
 
 export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' }) {
   const [index, setIndex] = useState(0);
@@ -31,7 +32,10 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
   const stageRef = useRef(null);
   const slideRefs = useRef([]);
   const posRef = useRef(0);
-  const dragRef = useRef({ active: false, startX: 0, startPos: 0, moved: false, width: 1, frame: 0 });
+  const dragRef = useRef({
+    active: false, moved: false, captured: false,
+    pointerId: -1, startX: 0, startPos: 0, width: 1, frame: 0
+  });
 
   const count = items.length;
 
@@ -96,7 +100,18 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
     }
   };
 
-  /* ---- drag / swipe ---------------------------------------------------- */
+  /* ---- drag / swipe ----------------------------------------------------
+
+     Pointer capture is taken LATE, and only once the pointer has actually
+     travelled DRAG_THRESHOLD px.
+
+     Capturing on pointerdown — which is the obvious place to do it — silently
+     breaks clicking. Once the stage holds the capture, every later pointer
+     event for that pointer is retargeted to the stage, so pointerup no longer
+     lands on the card. The browser derives the click target from the nearest
+     common ancestor of pointerdown and pointerup, which is then the stage, and
+     the nested <button> never receives a click at all. Deferring the capture
+     leaves a plain press untouched, so the native button click still fires. */
   const onPointerDown = e => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const stage = stageRef.current;
@@ -105,19 +120,40 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
     const d = dragRef.current;
     d.active = true;
     d.moved = false;
+    d.captured = false;
+    d.pointerId = e.pointerId;
     d.startX = e.clientX;
     d.startPos = posRef.current;
-    d.width = stage.getBoundingClientRect().width * SPACING;
-    stage.setPointerCapture?.(e.pointerId);
-    setDragging(true);
+    // One step of travel is SPACING x the SLIDE width (that is what the
+    // transform uses), not the stage width. The stage runs the full viewport,
+    // so measuring against it made a drag roughly three times less responsive
+    // than the cards it was moving. offsetWidth is the untransformed layout
+    // width, which is what the percentage translate resolves against.
+    const slide = slideRefs.current.find(Boolean);
+    d.width = (slide?.offsetWidth || stage.offsetWidth) * SPACING;
+    // Deliberately no setPointerCapture here — see the note above.
   };
 
   const onPointerMove = e => {
     const d = dragRef.current;
-    if (!d.active) return;
+    if (!d.active || e.pointerId !== d.pointerId) return;
 
     const dx = e.clientX - d.startX;
-    if (Math.abs(dx) > 4) d.moved = true;
+
+    // Below the threshold this is still a click in progress: stay out of the
+    // way entirely so the button keeps its own event sequence.
+    if (!d.moved) {
+      if (Math.abs(dx) < DRAG_THRESHOLD) return;
+      d.moved = true;
+      try {
+        stageRef.current?.setPointerCapture?.(e.pointerId);
+        d.captured = true;
+      } catch {
+        d.captured = false; // capture is an optimisation, not a requirement
+      }
+      setDragging(true);
+    }
+
     posRef.current = d.startPos - dx / Math.max(1, d.width);
 
     if (!d.frame) {
@@ -128,6 +164,18 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
     }
   };
 
+  const releaseCapture = pointerId => {
+    const d = dragRef.current;
+    if (!d.captured) return;
+    const stage = stageRef.current;
+    try {
+      if (stage?.hasPointerCapture?.(pointerId)) stage.releasePointerCapture(pointerId);
+    } catch {
+      /* pointer already gone (cancelled, or the element was detached) */
+    }
+    d.captured = false;
+  };
+
   const endDrag = e => {
     const d = dragRef.current;
     if (!d.active) return;
@@ -136,9 +184,13 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
       cancelAnimationFrame(d.frame);
       d.frame = 0;
     }
-    stageRef.current?.releasePointerCapture?.(e.pointerId);
-    setDragging(false);
+    releaseCapture(e.pointerId);
 
+    // A press that never crossed the threshold changed no position and must
+    // not be snapped — the click that follows is the user's actual intent.
+    if (!d.moved) return;
+
+    setDragging(false);
     const settled = Math.round(posRef.current);
     if (settled === index) applyLayout(index);
     goTo(settled);
@@ -157,6 +209,35 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
     else goTo(i);
   };
 
+  /* Chrome will not hit-test the off-centre slides: they are rotated in 3D
+     inside a perspective context, and only the untransformed centre slide
+     resolves through elementFromPoint. Their bounding rectangles are correct
+     though, so the same test is done here by hand — nearest card on top wins,
+     matching the painted z-order. Without this a side card cannot be selected
+     by pointer at all, only by keyboard or the arrow buttons. */
+  const slideIndexAt = (clientX, clientY) => {
+    let best = null;
+    let bestZ = -Infinity;
+    slideRefs.current.forEach((node, i) => {
+      if (!node || node.style.visibility === 'hidden') return;
+      const r = node.getBoundingClientRect();
+      if (clientX < r.left || clientX > r.right || clientY < r.top || clientY > r.bottom) return;
+      const z = Number(node.style.zIndex) || 0;
+      if (z > bestZ) {
+        bestZ = z;
+        best = i;
+      }
+    });
+    return best;
+  };
+
+  const onStageClick = e => {
+    if (dragRef.current.moved) return; // the click that trails a drag
+    if (e.target.closest?.('.coverflow-card')) return; // the centre card handled itself
+    const i = slideIndexAt(e.clientX, e.clientY);
+    if (i !== null && i !== index) goTo(i);
+  };
+
   const current = items[index];
 
   return (
@@ -173,6 +254,7 @@ export default function Coverflow({ items, onOpen, label = 'Gameplay gallery' })
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
+        onClick={onStageClick}
       >
         <div className="coverflow-track">
           {items.map((item, i) => (
