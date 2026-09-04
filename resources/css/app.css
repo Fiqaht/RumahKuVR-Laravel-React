@@ -1645,6 +1645,70 @@ p {
   letter-spacing: 0.01em;
 }
 
+/* --------------------------------------------------------------------------
+   ZOOM TRIGGER
+   A transparent, full-size button placed between an image and its container,
+   so every existing `.container img` rule and hover transition still applies.
+   -------------------------------------------------------------------------- */
+.zoom-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  position: relative;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.zoom-hint {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(8, 12, 15, 0.74);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 0.65625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+  pointer-events: none;
+}
+
+.zoom-trigger:hover .zoom-hint,
+.zoom-trigger:focus-visible .zoom-hint {
+  opacity: 1;
+  transform: none;
+}
+
+/* Touch has no hover to reveal the hint, so it stays visible — just quieter.
+   Narrow viewports are included as well: they are overwhelmingly touch, and
+   unlike the hover feature they can be verified in an automated browser. */
+@media (hover: none), (max-width: 720px) {
+  .zoom-hint {
+    opacity: 0.9;
+    transform: none;
+    padding: 5px 9px;
+  }
+}
+
 /* ==========================================================================
    04 COVERFLOW
    ========================================================================== */
@@ -1927,7 +1991,7 @@ p {
 .lightbox {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 300; /* above nav (110), progress bar (120) and the a11y dock (90) */
   background: var(--overlay-bg);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
@@ -1946,9 +2010,9 @@ p {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  max-width: 1040px;
-  width: 100%;
-  max-height: 92vh;
+  max-width: 94vw;
+  width: auto;
+  max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   display: flex;
@@ -1967,15 +2031,79 @@ p {
   place-items: center;
   overflow: hidden;
   min-height: 0;
+  flex: 1 1 auto;
+  position: relative;
+  touch-action: none; /* the viewer owns pan and pinch while it is open */
 }
 
+/* Fit to the frame without ever cropping; zoom and pan ride on top as a
+   transform so the source pixels are never resampled by layout. */
 .lightbox-media img {
-  max-height: 64vh;
-  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  transform-origin: center center;
+  transition: transform 0.2s var(--ease);
+  will-change: transform;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.lightbox-media.is-zoomed {
+  cursor: grab;
+}
+
+.lightbox-media.is-zoomed:active {
+  cursor: grabbing;
+}
+
+/* Panning should track the finger exactly, with no easing lag. */
+.lightbox-media.is-zoomed img {
+  transition: none;
+}
+
+.lightbox-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  margin-right: 4px;
+}
+
+.lightbox-zoom .btn-icon {
+  width: 32px;
+  height: 32px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.lightbox-zoom .btn-icon:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+.lightbox-zoom .btn-icon:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.lightbox-zoom-level {
+  min-width: 34px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .lightbox-footer {
+  flex: 0 0 auto;
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -3096,12 +3224,31 @@ p {
   .coverflow-count {
     display: none;
   }
+  .lightbox-panel {
+    max-width: 96vw;
+    max-height: 94vh;
+  }
+  .lightbox-media {
+    min-height: 42vh;
+  }
   .lightbox-footer {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+  /* Three lines of context is plenty on a phone; the image is the point. */
+  .lightbox-copy p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .lightbox-actions {
-    justify-content: flex-end;
+    justify-content: space-between;
+  }
+  .lightbox-zoom {
+    margin-right: 0;
   }
   .a11y-dock {
     bottom: 12px;

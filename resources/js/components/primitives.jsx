@@ -3,7 +3,9 @@
    -------------------------------------------------------------------------- */
 
 import React, { useCallback, useState } from 'react';
+import { Maximize2 } from 'lucide-react';
 import { useCountUp, useInView, useTilt, useCanHover, usePrefersReducedMotion } from '../lib/motion';
+import Lightbox from './Lightbox';
 
 /* --------------------------------------------------------------------------
    SPLIT TEXT
@@ -68,6 +70,41 @@ export function Counter({ value, suffix = '', pad = true }) {
 }
 
 /* --------------------------------------------------------------------------
+   ZOOM TRIGGER
+
+   Wraps an existing <img> in a real <button> without changing the surrounding
+   layout: the button is a transparent, full-size block, so the container keeps
+   its own sizing, aspect-ratio and hover transitions and the image keeps
+   matching every `.parent img` rule already written for it.
+
+   Used for the captures that carry small in-headset Malay text, where reading
+   the screenshot is the point. Decorative and product imagery is left alone.
+   -------------------------------------------------------------------------- */
+export function ZoomTrigger({ item, label, children, className = '' }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`zoom-trigger ${className}`.trim()}
+        onClick={() => setOpen(true)}
+        aria-label={`View ${label} full size`}
+        aria-haspopup="dialog"
+      >
+        {children}
+        <span className="zoom-hint" aria-hidden="true">
+          <Maximize2 size={13} strokeWidth={2.2} />
+          <span>View full size</span>
+        </span>
+      </button>
+
+      <Lightbox item={open ? item : null} onClose={() => setOpen(false)} />
+    </>
+  );
+}
+
+/* --------------------------------------------------------------------------
    FIGURE
    An image that fades and un-blurs the moment it decodes, wrapped in a frame
    that can carry a clip-path reveal. Prevents the "grey box snaps to photo"
@@ -80,6 +117,9 @@ export function Figure({
   className = '',
   reveal = 'clip',
   eager = false,
+  zoomable = false,
+  zoomTag,
+  zoomDesc,
   width,
   height,
   sizes,
@@ -93,22 +133,35 @@ export function Figure({
     if (node?.complete) setLoaded(true);
   }, []);
 
+  const image = (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      sizes={sizes}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding={eager ? 'sync' : 'async'}
+      fetchPriority={eager ? 'high' : undefined}
+      onLoad={() => setLoaded(true)}
+      className={loaded ? 'is-loaded' : ''}
+    />
+  );
+
   return (
     <figure className={`figure ${className}`.trim()} data-reveal={reveal}>
       <div className="figure-media">
-        <img
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          sizes={sizes}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding={eager ? 'sync' : 'async'}
-          fetchPriority={eager ? 'high' : undefined}
-          onLoad={() => setLoaded(true)}
-          className={loaded ? 'is-loaded' : ''}
-        />
+        {zoomable ? (
+          <ZoomTrigger
+            label={caption || alt}
+            item={{ file: src, alt, title: caption || alt, tag: zoomTag, desc: zoomDesc }}
+          >
+            {image}
+          </ZoomTrigger>
+        ) : (
+          image
+        )}
         {children}
       </div>
       {caption ? <figcaption>{caption}</figcaption> : null}

@@ -16,7 +16,7 @@ import {
   useScrollProgress, useScrollReveal, useTilt
 } from './lib/motion';
 
-import { Counter, Figure, SectionHead, SplitText, TiltCard } from './components/primitives';
+import { Counter, Figure, SectionHead, SplitText, TiltCard, ZoomTrigger } from './components/primitives';
 import Coverflow from './components/Coverflow';
 import Lightbox from './components/Lightbox';
 
@@ -314,7 +314,13 @@ function Overview() {
             {CASE_STEPS.map((step, i) => (
               <li className="case-step" key={step.num} data-reveal="up" style={{ '--i': i }}>
                 <div className="case-step-media">
-                  <img src={step.image} alt={`${step.title}: ${step.desc}`} loading="lazy" decoding="async" />
+                  <ZoomTrigger
+                    label={`${step.tag} — ${step.title}`}
+                    item={{ file: step.image, alt: `${step.title}: ${step.desc}`,
+                            title: `Meal transport — ${step.title}`, tag: step.tag, desc: step.desc }}
+                  >
+                    <img src={step.image} alt={`${step.title}: ${step.desc}`} loading="lazy" decoding="async" />
+                  </ZoomTrigger>
                 </div>
                 <div className="case-step-copy">
                   <span className="case-step-tag">{step.tag}</span>
@@ -354,7 +360,13 @@ function Training() {
           {TIERS.map((tier, i) => (
             <TiltCard as="article" className="training-card" key={tier.id} data-reveal="up" style={{ '--i': i }}>
               <div className="training-card-media">
-                <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" />
+                <ZoomTrigger
+                  label={`${tier.tier} mode — ${tier.malay}`}
+                  item={{ file: tier.image, alt: tier.alt, title: `${tier.title} — ${tier.malay}`,
+                          tag: `${tier.tier} · ${tier.stat}`, desc: tier.desc }}
+                >
+                  <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" />
+                </ZoomTrigger>
                 <span className={`training-badge ${tier.badgeClass}`}>
                   {tier.tier} · {tier.malay}
                 </span>
@@ -429,6 +441,8 @@ function Training() {
           <Figure
             className="hazard-figure"
             reveal="right"
+            zoomable
+            zoomTag="Difficulty selection"
             src="/images/ui/difficulty-select.webp"
             alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
             caption="Pilih Mod Simulasi — the tier panel as it appears in the headset"
@@ -544,12 +558,23 @@ function Platform() {
 
         <div className="platform-choice" data-reveal="up">
           <div className="platform-choice-media">
-            <img
-              src="/images/ui/mode-select.webp"
-              alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller"
-              loading="lazy"
-              decoding="async"
-            />
+            <ZoomTrigger
+              label="Pilih Mod Permainan"
+              item={{
+                file: '/images/ui/mode-select.webp',
+                alt: 'RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller',
+                title: 'Pilih Mod Permainan — mode selection',
+                tag: 'In-headset UI',
+                desc: 'The first screen of the app: Mod VR for Meta Quest 3, or Mod Kawalan for an Xbox or PlayStation controller.'
+              }}
+            >
+              <img
+                src="/images/ui/mode-select.webp"
+                alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller"
+                loading="lazy"
+                decoding="async"
+              />
+            </ZoomTrigger>
           </div>
           <div className="platform-choice-copy">
             <span className="kicker">Pilih Mod Permainan</span>
@@ -618,7 +643,14 @@ function Platform() {
             </div>
 
             <div className="platform-media platform-media-pad">
-              <img key={pad} src={current.src} alt={current.alt} loading="lazy" decoding="async" />
+              <ZoomTrigger
+                label={`${current.label} controller guide`}
+                item={{ file: current.src, alt: current.alt,
+                        title: `Panduan Alat Kawalan — ${current.label}`, tag: 'Controller guide',
+                        desc: current.note }}
+              >
+                <img key={pad} src={current.src} alt={current.alt} loading="lazy" decoding="async" />
+              </ZoomTrigger>
             </div>
 
             <p className="platform-note">
@@ -726,7 +758,13 @@ function Roles() {
           </div>
 
           <div className="roles-media" key={`media-${role}`}>
-            <img src={current.image} alt={current.alt} loading="lazy" decoding="async" />
+            <ZoomTrigger
+              label={current.caption}
+              item={{ file: current.image, alt: current.alt, title: current.caption,
+                      tag: `${current.label} · ${current.malay}`, desc: current.body }}
+            >
+              <img src={current.image} alt={current.alt} loading="lazy" decoding="async" />
+            </ZoomTrigger>
             <span className="roles-media-caption">{current.caption}</span>
           </div>
         </div>
@@ -756,6 +794,8 @@ function Roles() {
               alt={shot.alt}
               caption={shot.caption}
               reveal="up"
+              zoomable
+              zoomTag="Caregiver portal"
             />
           ))}
         </div>
@@ -825,6 +865,8 @@ function System() {
           <Figure
             className="system-figure"
             reveal="left"
+            zoomable
+            zoomTag="Caregiver portal"
             src="/images/caregiver/iris-trend.webp"
             alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, noting that safety and attention improved across the last three sessions"
             caption="Trend Prestasi — computed from the last three saved sessions"
