@@ -14,21 +14,28 @@ permissions:
   id-token: write
 
 jobs:
+  # ============================================================
+  # BUILD JOB
+  # Laravel + React/Vite
+  # ============================================================
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # ----------------------------------------------------------
+      # Checkout repository
+      # ----------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -----------------------------
+      # ----------------------------------------------------------
       # PHP / Laravel
-      # -----------------------------
+      # ----------------------------------------------------------
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, xml, ctype, json, bcmath, fileinfo, openssl, pdo, pdo_mysql, tokenizer
+          extensions: mbstring, xml, ctype, bcmath, fileinfo, openssl, pdo, pdo_mysql, tokenizer
           coverage: none
 
       - name: Validate composer.json
@@ -43,7 +50,9 @@ jobs:
             --no-dev \
             --optimize-autoloader
 
-      # Ensure Laravel runtime folders exist
+      # ----------------------------------------------------------
+      # Laravel runtime directories
+      # ----------------------------------------------------------
       - name: Prepare Laravel runtime directories
         run: |
           mkdir -p storage/framework/cache
@@ -52,9 +61,9 @@ jobs:
           mkdir -p storage/logs
           mkdir -p bootstrap/cache
 
-      # -----------------------------
-      # Node / React / Vite
-      # -----------------------------
+      # ----------------------------------------------------------
+      # Node.js / React / Vite
+      # ----------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -67,25 +76,27 @@ jobs:
       - name: Build React frontend
         run: npm run build
 
-      # -----------------------------
-      # Sanity checks
-      # -----------------------------
+      # ----------------------------------------------------------
+      # Verify production build
+      # ----------------------------------------------------------
       - name: Verify production build
         run: |
           echo "Checking Laravel files..."
+
           test -f artisan
           test -f composer.json
           test -f public/index.php
 
-          echo "Checking Vite build..."
+          echo "Checking Vite production build..."
+
           test -d public/build
           test -f public/build/manifest.json
 
-          echo "Build verification successful."
+          echo "Laravel + React production build verified successfully."
 
-      # -----------------------------
-      # Upload deployment artifact
-      # -----------------------------
+      # ----------------------------------------------------------
+      # Upload artifact
+      # ----------------------------------------------------------
       - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
         with:
@@ -98,6 +109,10 @@ jobs:
             !tests/
           retention-days: 1
 
+  # ============================================================
+  # DEPLOY JOB
+  # Azure App Service
+  # ============================================================
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -107,29 +122,29 @@ jobs:
       id-token: write
 
     steps:
+      # ----------------------------------------------------------
+      # Download build artifact
+      # ----------------------------------------------------------
       - name: Download deployment artifact
         uses: actions/download-artifact@v4
         with:
           name: rumahkuvr-app
           path: .
 
-      # ==========================================================
-      # IMPORTANT:
-      # KEEP THESE 3 SECRET NAMES EXACTLY AS AZURE GENERATED THEM.
-      #
-      # Example only:
-      # secrets.AZUREAPPSERVICE_CLIENTID_XXXX
-      # secrets.AZUREAPPSERVICE_TENANTID_XXXX
-      # secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXXX
-      # ==========================================================
-
+      # ----------------------------------------------------------
+      # Azure OIDC Login
+      # These secret names were created by Azure Deployment Center
+      # ----------------------------------------------------------
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.__clientidsecretname__ }}
-          tenant-id: ${{ secrets.__tenantidsecretname__ }}
-          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D74EC0367F3C4F9EA55D12CA8A731822 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2B7F874164234ACFBE78FCEC668510AF }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_55AED18B7EFC4CDB9817334FF6BEE427 }}
 
+      # ----------------------------------------------------------
+      # Deploy Laravel + built React assets
+      # ----------------------------------------------------------
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
@@ -137,6 +152,9 @@ jobs:
           slot-name: 'Production'
           package: .
 
+      # ----------------------------------------------------------
+      # Logout
+      # ----------------------------------------------------------
       - name: Azure logout
         run: az logout
           
