@@ -4,6 +4,9 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/framework/lsp-*.php
 /vendor
 .env
 .env.backup
