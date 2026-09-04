@@ -1,14 +1,40 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  Accessibility, ArrowRight, ArrowUpRight, Check, ChevronRight, Eye,
-  Gamepad2, Gauge, GraduationCap, Layers, Mail, Menu, MonitorPlay,
-  Moon, Move3D, ShieldAlert, ShieldCheck, Sun, UserCheck, Users,
-  Volume2, X, Zap
+  Accessibility, ArrowRight, ArrowUpRight, Check, Cpu, Gamepad2, GraduationCap,
+  Layers, ListChecks, Menu, MonitorPlay, Moon, Radar, ShieldAlert, ShieldCheck,
+  Sun, Timer, Volume2, X
 } from 'lucide-react';
 
+import {
+  A11Y_PRINCIPLES, CASE_STEPS, GALLERY, HAZARDS, HERO_METRICS,
+  JOURNEY, PIPELINE, PROJECT, ROLES, TIERS
+} from './data/project';
+
+import {
+  useActiveSection, useCanHover, useInView, useParallax, usePrefersReducedMotion,
+  useScrollProgress, useScrollReveal, useTilt
+} from './lib/motion';
+
+import { Counter, Figure, SectionHead, SplitText, TiltCard } from './components/primitives';
+import Coverflow from './components/Coverflow';
+import Lightbox from './components/Lightbox';
+
+const NAV_LINKS = [
+  ['home', 'Home'],
+  ['overview', 'Overview'],
+  ['training', 'Training'],
+  ['gameplay', 'Gameplay'],
+  ['platform', 'Platform'],
+  ['roles', 'Roles'],
+  ['system', 'System'],
+  ['contact', 'Contact']
+];
+
+const NAV_IDS = NAV_LINKS.map(([id]) => id);
+
 /* --------------------------------------------------------------------------
-   THEME MANAGER HOOK
+   THEME
    -------------------------------------------------------------------------- */
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -20,174 +46,133 @@ function useTheme() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('rumahkuvr-theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#f8faf7' : '#090b0d');
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-
-  return { theme, toggleTheme };
+  return { theme, toggleTheme: () => setTheme(t => (t === 'dark' ? 'light' : 'dark')) };
 }
 
 /* --------------------------------------------------------------------------
-   SCROLL PROGRESS TRACKER HOOK
-   -------------------------------------------------------------------------- */
-function useScrollProgress() {
-  const [progress, setProgress] = useState(0);
+   NAVIGATION
 
-  useEffect(() => {
-    const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      if (total > 0) {
-        setProgress(Math.min(100, Math.max(0, (window.scrollY / total) * 100)));
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  return progress;
-}
-
-/* --------------------------------------------------------------------------
-   GLOBAL SCROLL REVEAL (IntersectionObserver)
-   -------------------------------------------------------------------------- */
-function useScrollReveal() {
-  useEffect(() => {
-    const elements = document.querySelectorAll('[data-reveal], .stagger-group');
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target); // Reveal once
-          }
-        });
-      },
-      { rootMargin: '0px 0px -10% 0px', threshold: 0.12 }
-    );
-
-    elements.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
-
-/* --------------------------------------------------------------------------
-   ACTIVE SECTION TRACKER
-   -------------------------------------------------------------------------- */
-function useActiveSection() {
-  const [active, setActive] = useState('home');
-
-  useEffect(() => {
-    const sections = [...document.querySelectorAll('main section[id]')];
-    const io = new IntersectionObserver(
-      entries => {
-        const visible = entries
-          .filter(x => x.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActive(visible.target.id);
-      },
-      { rootMargin: '-20% 0px -40% 0px', threshold: [0, 0.2, 0.5] }
-    );
-    sections.forEach(s => io.observe(s));
-    return () => io.disconnect();
-  }, []);
-
-  return active;
-}
-
-/* --------------------------------------------------------------------------
-   NAVIGATION COMPONENT
+   The active pill is a single element that slides between links. Its position
+   is measured from the live DOM rather than assumed, so it stays correct after
+   a font swap, a resize or a language change.
    -------------------------------------------------------------------------- */
 function Nav({ theme, toggleTheme }) {
-  const active = useActiveSection();
-  const progress = useScrollProgress();
+  const active = useActiveSection(NAV_IDS);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const links = [
-    ['home', 'Home'],
-    ['overview', 'Overview'],
-    ['training', 'Training'],
-    ['gameplay', 'Gameplay'],
-    ['platform', 'Platform'],
-    ['roles', 'Roles'],
-    ['system', 'System'],
-    ['contact', 'Contact']
-  ];
+  const progressRef = useRef(null);
+  const menuRef = useRef(null);
+  const linkRefs = useRef({});
+  useScrollProgress(progressRef);
+
+  const moveIndicator = useCallback(() => {
+    const menu = menuRef.current;
+    const link = linkRefs.current[active];
+    if (!menu || !link) return;
+    menu.style.setProperty('--pill-x', `${link.offsetLeft}px`);
+    menu.style.setProperty('--pill-w', `${link.offsetWidth}px`);
+    menu.classList.add('has-pill');
+  }, [active]);
+
+  useLayoutEffect(moveIndicator, [moveIndicator]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    const onResize = () => setOpen(false);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
+    const onResize = () => {
+      moveIndicator();
+      setOpen(false);
     };
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    document.fonts?.ready.then(moveIndicator).catch(() => {});
+    window.addEventListener('resize', onResize);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [moveIndicator]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = e => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   return (
     <>
       <div
+        ref={progressRef}
         className="scroll-progress-bar"
-        style={{ width: `${progress}%` }}
         role="progressbar"
-        aria-valuenow={Math.round(progress)}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label="Reading progress"
       />
+
       <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-shell">
-          <a href="#home" className="brand-link" aria-label="RumahKuVR home">
-            <img
-              src="/images/rumahkuvr-logo-white.png"
-              alt="RumahKuVR"
-              className="brand-logo-img"
-            />
-            <span>RumahKuVR</span>
+          <a href="#home" className="brand-link" aria-label={`${PROJECT.name} — back to top`}>
+            <span className="brand-mark" aria-hidden="true" />
+            <span className="brand-word">RumahKuVR</span>
           </a>
 
-          <nav className={`nav-menu ${open ? 'open' : ''}`} aria-label="Main Navigation">
-            {links.map(([id, label]) => (
+          <nav
+            ref={menuRef}
+            className={`nav-menu ${open ? 'open' : ''}`}
+            aria-label="Sections"
+            id="primary-navigation"
+          >
+            {NAV_LINKS.map(([id, labelText]) => (
               <a
                 key={id}
                 href={`#${id}`}
+                ref={el => {
+                  linkRefs.current[id] = el;
+                }}
                 className={`nav-link ${active === id ? 'active' : ''}`}
+                aria-current={active === id ? 'true' : undefined}
                 onClick={() => setOpen(false)}
               >
-                {label}
+                {labelText}
               </a>
             ))}
+            <span className="nav-pill" aria-hidden="true" />
           </nav>
 
           <div className="nav-actions">
             <button
               type="button"
-              className="btn-icon"
+              className="btn-icon theme-toggle"
               onClick={toggleTheme}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} appearance`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} appearance`}
             >
-              {theme === 'dark' ? (
-                <Sun size={17} className="theme-toggle-icon" />
-              ) : (
-                <Moon size={17} className="theme-toggle-icon" />
-              )}
+              <span className="theme-toggle-inner">
+                <Sun size={18} strokeWidth={1.9} />
+                <Moon size={18} strokeWidth={1.9} />
+              </span>
             </button>
 
-            <a href="#gameplay" className="btn btn-primary" style={{ padding: '8px 14px', fontSize: '13px' }}>
-              <span>View Demo</span>
-              <ArrowRight size={14} />
+            <a href="#gameplay" className="btn btn-primary btn-sm nav-cta">
+              <span>View gameplay</span>
+              <ArrowRight size={14} strokeWidth={2.2} />
             </a>
 
             <button
               type="button"
               className="btn-icon nav-toggle"
               onClick={() => setOpen(v => !v)}
-              aria-label="Toggle navigation menu"
+              aria-label={open ? 'Close menu' : 'Open menu'}
               aria-expanded={open}
+              aria-controls="primary-navigation"
             >
-              {open ? <X size={18} /> : <Menu size={18} />}
+              {open ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -197,87 +182,78 @@ function Nav({ theme, toggleTheme }) {
 }
 
 /* --------------------------------------------------------------------------
-   01 HERO SECTION (Orchestrated Entrance & Subtle Pointer Parallax)
+   01 HERO
    -------------------------------------------------------------------------- */
 function Hero() {
-  const visualRef = useRef(null);
-
-  const handleMouseMove = e => {
-    if (!visualRef.current || window.innerWidth < 1024) return;
-    const rect = visualRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    visualRef.current.style.transform = `perspective(1000px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg) scale(1.01)`;
-  };
-
-  const handleMouseLeave = () => {
-    if (!visualRef.current) return;
-    visualRef.current.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)';
-  };
+  const canHover = useCanHover();
+  const reduced = usePrefersReducedMotion();
+  const tilt = useTilt({ max: 4.5, scale: 1.012, enabled: canHover && !reduced });
+  const parallaxRef = useParallax(22, canHover && !reduced);
 
   return (
     <section id="home" className="hero-section">
+      <div className="hero-glow" aria-hidden="true" />
       <div className="container">
         <div className="hero-grid">
           <div className="hero-copy">
-            <div className="hero-top-badge hero-badge-reveal">
-              <span></span>
-              Final Year Project · 2026 · Unity 6.3 XR
-            </div>
-
-            <h1 className="hero-title-reveal">
-              A safer Malaysian home begins with immersive practice.
-            </h1>
-
-            <p className="lede hero-lede-reveal">
-              RumahKuVR transforms familiar household risks into hands-on VR training for seniors —
-              reinforcing hazard awareness, safe movement, and corrective habits across Meta Quest 3
-              and controller modes.
+            <p className="hero-badge" data-reveal="up">
+              <span className="pulse-dot" aria-hidden="true" />
+              Final Year Project · {PROJECT.year} · {PROJECT.engine}
             </p>
 
-            <div className="hero-actions hero-actions-reveal">
+            <SplitText
+              as="h1"
+              text="A safer Malaysian home begins with practice, not a pamphlet."
+              delay={120}
+              step={38}
+            />
+
+            <p className="lede" data-reveal="up" style={{ transitionDelay: '520ms' }}>
+              RumahKuVR puts seniors inside a familiar kampung home and asks them to find the hazards
+              themselves — a wet floor, a live wire, a burner left running — then fix each one with their
+              own hands, on {PROJECT.headset} or an ordinary gamepad.
+            </p>
+
+            <div className="hero-actions" data-reveal="up" style={{ transitionDelay: '600ms' }}>
               <a href="#training" className="btn btn-primary">
-                <span>Explore Training</span>
-                <ArrowRight size={15} />
+                <span>Explore the training</span>
+                <ArrowRight size={16} strokeWidth={2.2} />
               </a>
               <a href="#gameplay" className="btn btn-secondary">
-                <MonitorPlay size={16} />
-                <span>View Gameplay</span>
+                <MonitorPlay size={16} strokeWidth={2} />
+                <span>See it running</span>
               </a>
             </div>
 
-            <div className="hero-metrics hero-metrics-reveal">
-              <div className="hero-metric-item">
-                <strong>18 Hazards</strong>
-                <span>Kitchen, yard & living scenarios</span>
-              </div>
-              <div className="hero-metric-item">
-                <strong>03 Tiers</strong>
-                <span>Guided to independent practice</span>
-              </div>
-              <div className="hero-metric-item">
-                <strong>02 Modes</strong>
-                <span>Meta Quest 3 & Gamepad</span>
-              </div>
-            </div>
+            <dl className="hero-metrics" data-reveal="up" style={{ transitionDelay: '680ms' }}>
+              {HERO_METRICS.map(metric => (
+                <div className="hero-metric" key={metric.label}>
+                  <dt>
+                    <Counter value={metric.value} suffix={metric.suffix} />
+                    <span>{metric.label}</span>
+                  </dt>
+                  <dd>{metric.sub}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          <div
-            className="hero-visual hero-visual-reveal"
-            ref={visualRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            <img
-              src="/images/project/rumahkuvr-hero-hud.webp"
-              alt="RumahKuVR in-engine VR view showing Malaysian home environment with 1.3m senior eye-level HUD"
-              width={1920}
-              height={1200}
-              loading="eager"
-            />
-            <div className="hero-visual-badge">
-              <span>In-Engine VR View · 1.3m Senior Eye Level HUD</span>
-              <small>Unity 6.3 LTS</small>
+          <div className="hero-visual-wrap" ref={parallaxRef}>
+            <div className="hero-visual tilt" {...tilt} data-reveal="clip">
+              <img
+                src="/images/project/hero-hazard-scan.webp"
+                alt="First-person view inside RumahKuVR: a kampung kitchen with three hazard markers, the senior's hands in frame, and the session HUD showing hazards cleared and time remaining"
+                width={1920}
+                height={1080}
+                loading="eager"
+                decoding="sync"
+                fetchPriority="high"
+              />
+              <span className="hero-visual-sheen" aria-hidden="true" />
+              <div className="hero-visual-badge">
+                <span>In-engine capture · senior eye level</span>
+                <small>{PROJECT.engine}</small>
+              </div>
             </div>
           </div>
         </div>
@@ -287,88 +263,67 @@ function Hero() {
 }
 
 /* --------------------------------------------------------------------------
-   02 PROBLEM & EXPERIENCE WALKTHROUGH (Progressive Meal Transport Story)
+   02 OVERVIEW — intent and the meal-transport case study
    -------------------------------------------------------------------------- */
-function ProblemExperience() {
-  const steps = [
-    {
-      num: '01',
-      title: 'Identify Risk',
-      tag: 'Step 01 / Detection',
-      desc: 'Spot the unassisted hot meal risk on the dining table.',
-      image: '/images/gameplay/hazard-meal-01.webp'
-    },
-    {
-      num: '02',
-      title: 'Physical Action',
-      tag: 'Step 02 / Correction',
-      desc: 'Retrieve and guide the stable meal transport trolley.',
-      image: '/images/gameplay/hazard-meal-02.webp'
-    },
-    {
-      num: '03',
-      title: 'Safe Habit',
-      tag: 'Step 03 / Resolution',
-      desc: 'Complete safe delivery without strain or spill hazard.',
-      image: '/images/gameplay/hazard-meal-03.webp'
-    }
+function Overview() {
+  const loop = [
+    { num: '01', label: 'Spot', title: 'Identify', icon: Radar, desc: 'Recognise a fall or burn risk where it actually lives — in the room, not on a poster.' },
+    { num: '02', label: 'Act', title: 'Handle', icon: Gamepad2, desc: 'Perform the correction physically: move it, mop it, switch it off, put it away.' },
+    { num: '03', label: 'Learn', title: 'Reinforce', icon: ListChecks, desc: 'Read the graded breakdown the headset works out on its own, then repeat until the safe choice is automatic.' }
   ];
 
   return (
     <section id="overview" className="section section-alt">
       <div className="container">
-        <div className="intent-grid" data-reveal="up">
-          <div className="section-head" style={{ marginBottom: 0 }}>
-            <span className="kicker">01 / Intent</span>
-            <h2>From abstract safety advice to physical corrective habit.</h2>
-            <p>
-              Traditional safety pamphlets explain what not to do. RumahKuVR places seniors inside a
-              familiar Malaysian home to actively notice risks, handle safety tools, and build muscle memory.
-            </p>
-          </div>
+        <div className="intent-grid">
+          <SectionHead kicker="01 · Intent" title="Safety advice tells you what not to do. It rarely changes what you do.">
+            A pamphlet is read once and filed away. RumahKuVR asks a senior to walk their own house, notice
+            what is wrong, and put it right — the loop that turns knowledge into habit.
+          </SectionHead>
 
-          <div className="intent-loop stagger-group">
-            <div className="intent-card">
-              <span className="intent-card-num">01 / SPOT</span>
-              <h4>Identify</h4>
-              <p>Recognize household fall and burn hazards in context.</p>
-            </div>
-            <div className="intent-card">
-              <span className="intent-card-num">02 / ACT</span>
-              <h4>Handle</h4>
-              <p>Perform the correct physical interaction in VR.</p>
-            </div>
-            <div className="intent-card">
-              <span className="intent-card-num">03 / LEARN</span>
-              <h4>Reinforce</h4>
-              <p>Review performance metrics to lock in safer habits.</p>
-            </div>
+          <div className="intent-loop">
+            {loop.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <TiltCard className="intent-card" key={item.num} data-reveal="up" style={{ '--i': i }}>
+                  <span className="intent-card-icon" aria-hidden="true">
+                    <Icon size={18} strokeWidth={1.9} />
+                  </span>
+                  <span className="intent-card-num">
+                    {item.num} · {item.label}
+                  </span>
+                  <h3>{item.title}</h3>
+                  <p>{item.desc}</p>
+                </TiltCard>
+              );
+            })}
           </div>
         </div>
 
         <div className="case-walkthrough" data-reveal="up">
           <div className="case-head">
-            <div className="case-head-info">
-              <h3>Case Study: Meal Transport Safety</h3>
-              <p>Demonstrating progressive hazard detection, physical tool handling, and safe completion.</p>
+            <div>
+              <span className="kicker">Case study</span>
+              <h3>Carrying a meal, the safe way</h3>
+              <p>One hazard, followed end to end — from noticing the loaded tray to delivering it without strain.</p>
             </div>
-            <span className="hero-top-badge" style={{ margin: 0 }}>In-Engine Walkthrough</span>
+            <span className="chip">In-engine walkthrough</span>
           </div>
 
-          <div className="case-steps-grid stagger-group">
-            {steps.map(step => (
-              <div className="case-step-card" key={step.num}>
-                <div className="case-step-image">
-                  <img src={step.image} alt={step.title} loading="lazy" />
+          <ol className="case-steps">
+            {CASE_STEPS.map((step, i) => (
+              <li className="case-step" key={step.num} data-reveal="up" style={{ '--i': i }}>
+                <div className="case-step-media">
+                  <img src={step.image} alt={`${step.title}: ${step.desc}`} loading="lazy" decoding="async" />
                 </div>
                 <div className="case-step-copy">
                   <span className="case-step-tag">{step.tag}</span>
                   <strong>{step.title}</strong>
                   <p>{step.desc}</p>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </div>
     </section>
@@ -376,113 +331,146 @@ function ProblemExperience() {
 }
 
 /* --------------------------------------------------------------------------
-   03 PROGRESSIVE TRAINING & TUTORIAL PHILOSOPHY
+   03 TRAINING — tiers, hazard catalogue, tutorial philosophy
    -------------------------------------------------------------------------- */
-function TrainingProgression() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  const levels = [
-    {
-      tier: 'Easy',
-      badgeClass: 'badge-easy',
-      title: 'Guided Learning',
-      stat: '3 Core Hazards',
-      image: '/images/gameplay/training-easy.webp',
-      desc: 'Voice prompts, visual spotlights, and single-step cues guide first-time seniors comfortably.',
-      features: ['Malay voice guidance', 'Direct spotlight cues', 'Safe trial repetition']
-    },
-    {
-      tier: 'Medium',
-      badgeClass: 'badge-med',
-      title: 'Independent Practice',
-      stat: '5 Core Hazards',
-      image: '/images/gameplay/training-medium.webp',
-      desc: 'Guidance appears only when requested. Encourages unprompted exploration and hazard recognition.',
-      features: ['Contextual help on demand', 'Reduced visual markers', 'House hazard map access']
-    },
-    {
-      tier: 'Hard',
-      badgeClass: 'badge-hard',
-      title: 'Full Challenge',
-      stat: '10 Scenarios',
-      image: '/images/gameplay/training-hard.webp',
-      desc: 'Minimal assistance with compound risk chains testing situational awareness and fast decisions.',
-      features: ['Full house hazard scan', 'Zero automatic hints', 'Detailed performance audit']
-    }
-  ];
-
+function Training() {
+  const [step, setStep] = useState(0);
   const tutorialSteps = [
-    { num: '01', title: 'SEE', label: 'Observe hazard' },
-    { num: '02', title: 'TRY', label: 'Perform action' },
-    { num: '03', title: 'SUCCEED', label: 'Clear hazard' },
-    { num: '04', title: 'NEXT', label: 'Advance stage' }
+    { num: '01', title: 'See', label: 'A hazard announces itself on a readable card.' },
+    { num: '02', title: 'Try', label: 'A coachmark points at the one control that matters.' },
+    { num: '03', title: 'Succeed', label: 'The correction registers and the counter moves.' },
+    { num: '04', title: 'Next', label: 'The prompt clears and the next hazard is on you.' }
   ];
 
   return (
     <section id="training" className="section">
       <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">02 / Training</span>
-          <h2>Guidance fades as confidence grows.</h2>
-          <p>
-            Difficulty is structured around cognitive support levels rather than artificial time pressure,
-            ensuring seniors learn at their own comfortable pace.
-          </p>
-        </div>
+        <SectionHead centered kicker="02 · Training" title="Guidance fades as confidence grows.">
+          Difficulty is not speed. It is how much help remains on screen — spelled out in the game's own
+          tier panel, and stepped down deliberately across three modes.
+        </SectionHead>
 
-        <div className="training-grid stagger-group">
-          {levels.map(lvl => (
-            <article className="training-card" key={lvl.tier}>
-              <div className="training-card-image">
-                <img src={lvl.image} alt={`${lvl.tier} mode training in RumahKuVR`} loading="lazy" />
-                <span className={`training-badge ${lvl.badgeClass}`}>{lvl.tier} Mode</span>
+        <div className="training-grid">
+          {TIERS.map((tier, i) => (
+            <TiltCard as="article" className="training-card" key={tier.id} data-reveal="up" style={{ '--i': i }}>
+              <div className="training-card-media">
+                <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" />
+                <span className={`training-badge ${tier.badgeClass}`}>
+                  {tier.tier} · {tier.malay}
+                </span>
               </div>
               <div className="training-card-body">
                 <div className="training-card-head">
-                  <h3>{lvl.title}</h3>
-                  <span className="training-stat-num">{lvl.stat}</span>
+                  <h3>{tier.title}</h3>
+                  <span className="training-count">
+                    <Counter value={tier.count} pad={false} /> hazards
+                  </span>
                 </div>
-                <p>{lvl.desc}</p>
-                <ul className="training-card-features">
-                  {lvl.features.map(f => (
-                    <li key={f}><Check size={14} /> {f}</li>
+                <p>{tier.desc}</p>
+                <ul className="feature-list">
+                  {tier.features.map(f => (
+                    <li key={f}>
+                      <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+                      {f}
+                    </li>
                   ))}
                 </ul>
               </div>
-            </article>
+            </TiltCard>
           ))}
+        </div>
+
+        <div className="hazard-block">
+          <div className="hazard-copy" data-reveal="left">
+            <span className="kicker">Hazard catalogue</span>
+            <h3>Eight hazards a Malaysian home actually has.</h3>
+            <p>
+              Each one is modelled where it belongs and named in Malay on screen, so the label a senior reads
+              in the headset is the label they would use at home.
+            </p>
+
+            <div className="hazard-groups">
+              <div className="hazard-group">
+                <h4>
+                  <span className="dot dot-easy" aria-hidden="true" /> Easy · Mod Mudah
+                </h4>
+                <ul>
+                  {HAZARDS.easy.map(h => (
+                    <li key={h.en}>
+                      <strong>{h.en}</strong>
+                      <span>{h.ms}</span>
+                      <em>{h.room}</em>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="hazard-group">
+                <h4>
+                  <span className="dot dot-med" aria-hidden="true" /> Medium · Mod Sederhana
+                </h4>
+                <ul>
+                  {HAZARDS.medium.map(h => (
+                    <li key={h.en}>
+                      <strong>{h.en}</strong>
+                      <span>{h.ms}</span>
+                      <em>{h.room}</em>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <p className="footnote">
+              Hard mode draws ten hazards from across the house, under reduced lighting and a running clock.
+            </p>
+          </div>
+
+          <Figure
+            className="hazard-figure"
+            reveal="right"
+            src="/images/ui/difficulty-select.webp"
+            alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
+            caption="Pilih Mod Simulasi — the tier panel as it appears in the headset"
+            width={1100}
+            height={619}
+          />
         </div>
 
         <div className="tutorial-banner" data-reveal="up">
           <div className="tutorial-copy">
-            <span className="kicker" style={{ marginBottom: '6px' }}>Tutorial Philosophy</span>
+            <span className="kicker">Tutorial philosophy</span>
             <h3>See. Try. Succeed. Next.</h3>
             <p>
-              Tutorials teach through direct physical interaction. Visual coachmarks highlight controls only
-              when focus is required, keeping interfaces unobtrusive.
+              Nothing is taught with a wall of text. A coachmark highlights one control, the senior performs
+              the action once, and the prompt gets out of the way.
             </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span className="hero-top-badge">In-Engine Coachmarks</span>
-              <span className="hero-top-badge">Non-blocking Guidance</span>
+            <div className="chip-row">
+              <span className="chip">In-engine coachmarks</span>
+              <span className="chip">Non-blocking guidance</span>
             </div>
           </div>
 
-          <div className="tutorial-steps-row">
-            {tutorialSteps.map((step, idx) => (
-              <div
-                key={step.num}
-                className={`tutorial-step-box ${activeStep === idx ? 'active' : ''}`}
-                onClick={() => setActiveStep(idx)}
-                onMouseEnter={() => setActiveStep(idx)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Step ${step.num}: ${step.title} - ${step.label}`}
-              >
-                <small>{step.num}</small>
-                <strong>{step.title}</strong>
-                <p style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{step.label}</p>
-              </div>
-            ))}
+          <div className="tutorial-steps">
+            <div className="tutorial-step-row" role="group" aria-label="Tutorial loop">
+              {tutorialSteps.map((s, idx) => (
+                <button
+                  type="button"
+                  key={s.num}
+                  aria-pressed={step === idx}
+                  className={`tutorial-step ${step === idx ? 'active' : ''}`}
+                  onClick={() => setStep(idx)}
+                  onMouseEnter={() => setStep(idx)}
+                  onFocus={() => setStep(idx)}
+                >
+                  <small>{s.num}</small>
+                  <strong>{s.title}</strong>
+                </button>
+              ))}
+            </div>
+            <p className="tutorial-step-caption" aria-live="polite" key={step}>
+              {tutorialSteps[step].label}
+            </p>
           </div>
         </div>
       </div>
@@ -491,304 +479,152 @@ function TrainingProgression() {
 }
 
 /* --------------------------------------------------------------------------
-   04 GAMEPLAY & PROJECT EVIDENCE (Bento Gallery with Accessible Modal)
+   04 GAMEPLAY — coverflow evidence gallery
    -------------------------------------------------------------------------- */
-function GameplayShowcase() {
-  const [activeItem, setActiveItem] = useState(null);
+function Gameplay() {
+  const [openIndex, setOpenIndex] = useState(null);
+  const item = openIndex === null ? null : GALLERY[openIndex];
 
-  const galleryItems = [
-    {
-      file: '/images/project/peta-bahaya-map.webp',
-      title: 'House Hazard Map (Peta Bahaya)',
-      tag: 'System Navigation',
-      desc: 'Interactive architectural layout tracking identified and cleared hazards across the Malaysian home.'
-    },
-    {
-      file: '/images/gameplay/hazard-kitchen-storage.webp',
-      title: 'Kitchen High Storage Hazard',
-      tag: 'Fall Risk Detection',
-      desc: 'Detecting overhead storage risks and practicing safe footstool repositioning in the kitchen.'
-    },
-    {
-      file: '/images/gameplay/hazard-cat-walkway.webp',
-      title: 'Pet Walkway Tripping Hazard',
-      tag: 'Obstacle Management',
-      desc: 'Identifying floor obstacles and safely relocating pet bowls to prevent senior stumbling.'
-    },
-    {
-      file: '/images/project/session-result.webp',
-      title: 'Session Result Scorecard',
-      tag: 'Performance Feedback',
-      desc: 'Immediate feedback screen showing hazards solved, completion time, and safety rating.'
-    },
-    {
-      file: '/images/project/caregiver-dashboard.webp',
-      title: 'Caregiver Oversight Portal',
-      tag: 'Caregiver Portal',
-      desc: 'Caregiver view showing monitored senior session history, hazard trends, and guided setups.'
-    },
-    {
-      file: '/images/dashboard-senior.jpg',
-      title: 'Senior Login & Mode Portal',
-      tag: 'Accessible Interface',
-      desc: 'High-contrast, low-cognitive-load portal for starting simulations and reviewing progress.'
-    }
-  ];
-
-  // Close modal on Escape key
-  useEffect(() => {
-    const handleKeyDown = e => {
-      if (e.key === 'Escape' && activeItem) {
-        setActiveItem(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeItem]);
+  const move = dir => setOpenIndex(i => (i === null ? null : (i + dir + GALLERY.length) % GALLERY.length));
 
   return (
     <section id="gameplay" className="section section-alt">
       <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">03 / Evidence</span>
-          <h2>Inside RumahKuVR.</h2>
-          <p>
-            Curated in-engine captures demonstrating actual gameplay mechanics, senior-friendly interfaces,
-            and caregiver telemetry built in Unity 6.3.
-          </p>
-        </div>
+        <SectionHead centered kicker="03 · Evidence" title="Inside RumahKuVR.">
+          Ten captures taken from the running Unity build — hazard cards, corrective actions, the house map
+          and the session breakdown. No mock-ups, no renders.
+        </SectionHead>
 
-        <div className="gallery-grid stagger-group">
-          {galleryItems.map((item, idx) => (
-            <div
-              key={idx}
-              className="gallery-card"
-              onClick={() => setActiveItem(item)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => e.key === 'Enter' && setActiveItem(item)}
-              aria-label={`View ${item.title}`}
-            >
-              <img src={item.file} alt={item.title} loading="lazy" />
-              <div className="gallery-card-overlay">
-                <div className="gallery-card-info">
-                  <small>{item.tag}</small>
-                  <b>{item.title}</b>
-                </div>
-                <ArrowUpRight size={16} />
-              </div>
-            </div>
-          ))}
+        <div data-reveal="up">
+          <Coverflow items={GALLERY} onOpen={(_, i) => setOpenIndex(i)} label="RumahKuVR in-engine captures" />
         </div>
-
-        {activeItem && (
-          <div
-            className="modal-backdrop"
-            onClick={() => setActiveItem(null)}
-            role="dialog"
-            aria-modal="true"
-            aria-label={activeItem.title}
-          >
-            <div className="modal-container" onClick={e => e.stopPropagation()}>
-              <div className="modal-media">
-                <img src={activeItem.file} alt={activeItem.title} />
-              </div>
-              <div className="modal-footer">
-                <div className="modal-footer-copy">
-                  <small>{activeItem.tag}</small>
-                  <h4>{activeItem.title}</h4>
-                  <p style={{ fontSize: '13px', margin: 0 }}>{activeItem.desc}</p>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setActiveItem(null)}
-                  style={{ padding: '8px 14px' }}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      <Lightbox
+        item={item}
+        position={openIndex === null ? null : `${openIndex + 1} / ${GALLERY.length}`}
+        onClose={() => setOpenIndex(null)}
+        onPrev={() => move(-1)}
+        onNext={() => move(1)}
+      />
     </section>
   );
 }
 
 /* --------------------------------------------------------------------------
-   05 PLATFORM: VR + CONTROLLER MODE
+   05 PLATFORM — headset and gamepad
    -------------------------------------------------------------------------- */
-function PlatformHardware() {
-  return (
-    <section id="platform" className="section">
-      <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">04 / Ecosystem</span>
-          <h2>Two ways to enter the same safe home.</h2>
-          <p>
-            RumahKuVR adapts to the user’s physical mobility. Experience full spatial immersion with
-            Meta Quest 3 or train comfortably seated using universal gamepad controls.
-          </p>
-        </div>
+function Platform() {
+  const [pad, setPad] = useState('ps');
 
-        <div className="platform-grid">
-          <article className="platform-card" data-reveal="left">
-            <div className="platform-card-header">
-              <span className="kicker" style={{ marginBottom: 0 }}>Immersive Mode</span>
-              <h3>Meta Quest 3 Headset</h3>
-              <p>
-                Room-scale VR training with direct two-handed environmental interaction, spatial depth cues,
-                and physical hazard handling.
-              </p>
-            </div>
-            <div className="platform-card-media">
-              <img
-                src="/images/meta-quest-3-real.webp"
-                alt="Meta Quest 3 headset and Touch Plus controllers"
-                loading="lazy"
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span className="hero-top-badge">6DoF Room Scale</span>
-              <span className="hero-top-badge">Senior Eye-Level HUD</span>
-              <span className="hero-top-badge">Natural Grasp Physics</span>
-            </div>
-          </article>
-
-          <article className="platform-card" data-reveal="right">
-            <div className="platform-card-header">
-              <span className="kicker" style={{ marginBottom: 0 }}>Accessible Seated Mode</span>
-              <h3>Universal Gamepad Support</h3>
-              <p>
-                Full safety training accessibility for seniors who prefer seated training. Standardized actions
-                across symmetrical and offset controller layouts.
-              </p>
-            </div>
-
-            <div className="controllers-duo">
-              <div className="controller-subcard">
-                <img
-                  src="/images/controller-ps4-real.webp"
-                  alt="PlayStation style controller layout reference"
-                  loading="lazy"
-                />
-                <strong>PS-Style Layout</strong>
-                <span>Symmetrical thumbsticks</span>
-              </div>
-
-              <div className="controller-subcard">
-                <img
-                  src="/images/controller-xbox-real.webp"
-                  alt="Xbox style controller layout reference"
-                  loading="lazy"
-                />
-                <strong>Xbox-Style Layout</strong>
-                <span>Offset thumbsticks</span>
-              </div>
-            </div>
-
-            <p style={{ fontSize: '11px', color: 'var(--text-faint)', margin: 0 }}>
-              *Controller references illustrate standardized button mapping. RumahKuVR supports generic Bluetooth gamepads.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* --------------------------------------------------------------------------
-   06 MULTI-ROLE SYSTEM (Smooth Crossfade Tabs)
-   -------------------------------------------------------------------------- */
-function RolePerspectives() {
-  const [role, setRole] = useState('senior');
-
-  const roleData = {
-    senior: {
-      kicker: '01 / Senior User',
-      title: 'Train with clarity & low cognitive load.',
-      body: 'Large text interfaces, intuitive voice prompts, and direct hazard feedback ensure older adults can train independently without feeling overwhelmed.',
-      image: '/images/dashboard-senior.jpg',
-      points: [
-        'Accessible, large-format navigation',
-        'Malay voice guidance and visual cues',
-        'Personal progress and hazard checklist'
-      ]
+  const pads = {
+    ps: {
+      src: '/images/platform/controller-ps.webp',
+      alt: 'RumahKuVR in-headset controller guide for a PlayStation-style pad, mapping the left stick to movement, the right stick to looking around, and O, X, triangle and the d-pad to interact, cancel, pause and navigate',
+      label: 'PlayStation layout',
+      note: 'Symmetrical sticks · O to interact, X to go back'
     },
-    caregiver: {
-      kicker: '02 / Caregiver Support',
-      title: 'Monitor progress & guide sessions.',
-      body: 'Caregivers review session completion logs, monitor recurring hazard vulnerabilities, and configure guided scenarios tailored to the senior’s needs.',
-      image: '/images/project/caregiver-dashboard.webp',
-      points: [
-        'Monitored session history & timestamps',
-        'Vulnerability breakdown by room area',
-        'Customized hazard guidance setup'
-      ]
-    },
-    admin: {
-      kicker: '03 / Administrator',
-      title: 'System telemetry & hazard catalogue.',
-      body: 'Maintain system integrity, inspect session telemetry, manage user credentials, and update hazard thresholds across the training catalogue.',
-      image: '/images/performance-report.jpg',
-      points: [
-        'User and session account management',
-        'Hazard catalogue and asset controls',
-        'System reporting and data integrity'
-      ]
+    xbox: {
+      src: '/images/platform/controller-xbox.webp',
+      alt: 'RumahKuVR in-headset controller guide for an Xbox-style pad, mapping the left stick to movement, the right stick to looking around, and A, B, Y and the d-pad to interact, cancel, pause and navigate',
+      label: 'Xbox layout',
+      note: 'Offset sticks · A to interact, B to go back'
     }
   };
 
-  const current = roleData[role];
+  const current = pads[pad];
 
   return (
-    <section id="roles" className="section section-alt">
+    <section id="platform" className="section">
       <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">05 / Stakeholders</span>
-          <h2>One system, three tailored perspectives.</h2>
-          <p>
-            RumahKuVR connects seniors, family caregivers, and administrators inside a collaborative safety ecosystem.
-          </p>
+        <SectionHead centered kicker="04 · Platform" title="Two ways into the same house.">
+          Not every senior can stand for twenty minutes. The controller build runs the identical scenarios
+          seated, with the same hazards and the same scoring.
+        </SectionHead>
+
+        <div className="platform-choice" data-reveal="up">
+          <div className="platform-choice-media">
+            <img
+              src="/images/ui/mode-select.webp"
+              alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div className="platform-choice-copy">
+            <span className="kicker">Pilih Mod Permainan</span>
+            <h3>The choice is the first screen, not a settings menu.</h3>
+            <p>
+              Before anything else the app asks how the senior wants to play. Both routes lead to the same
+              scenarios, the same hazard list and the same session record.
+            </p>
+          </div>
         </div>
 
-        <div className="roles-wrapper" data-reveal="scale">
-          <div className="roles-copy-side">
-            <div className="role-tab-buttons" role="tablist" aria-label="User Roles">
-              {['senior', 'caregiver', 'admin'].map(key => (
+        <div className="platform-grid">
+          <TiltCard as="article" className="platform-card" data-reveal="left" max={3}>
+            <header className="platform-card-head">
+              <span className="kicker">VR Mode · Mod VR</span>
+              <h3>{PROJECT.headset}</h3>
+              <p>
+                Room-scale training with two-handed interaction and real depth — the senior reaches for the
+                stool, the mop and the burner dial rather than pressing a button labelled “fix”.
+              </p>
+            </header>
+
+            <div className="platform-media platform-media-device">
+              <img
+                src="/images/meta-quest-3-real.webp"
+                alt="A Meta Quest 3 headset with its two Touch Plus controllers"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+
+            <div className="chip-row">
+              <span className="chip">6DoF room scale</span>
+              <span className="chip">Senior eye-level HUD</span>
+              <span className="chip">Direct grab physics</span>
+            </div>
+
+            <p className="platform-note">
+              Device photograph by Roy.wonder.cohen, Wikimedia Commons, CC BY-SA 4.0. Meta Quest is a
+              trademark of its owner and is referenced here for identification only.
+            </p>
+          </TiltCard>
+
+          <TiltCard as="article" className="platform-card" data-reveal="right" max={3}>
+            <header className="platform-card-head">
+              <span className="kicker">Controller Mode · Mod Kawalan</span>
+              <h3>Gamepad mode</h3>
+              <p>
+                The in-headset control guide is built into the app: pick your pad, and every button is
+                labelled in Malay with the action it performs.
+              </p>
+            </header>
+
+            <div className="pad-switch" role="group" aria-label="Controller layout">
+              {Object.entries(pads).map(([key, value]) => (
                 <button
                   type="button"
                   key={key}
-                  className={`role-tab-btn ${role === key ? 'active' : ''}`}
-                  onClick={() => setRole(key)}
-                  role="tab"
-                  aria-selected={role === key}
+                  aria-pressed={pad === key}
+                  className={`pad-switch-btn ${pad === key ? 'active' : ''}`}
+                  onClick={() => setPad(key)}
                 >
-                  {key}
+                  {value.label}
                 </button>
               ))}
             </div>
 
-            <div className="role-details" key={role}>
-              <span className="kicker">{current.kicker}</span>
-              <h3>{current.title}</h3>
-              <p>{current.body}</p>
-
-              <ul className="role-points-list">
-                {current.points.map((pt, i) => (
-                  <li key={i}>
-                    <Check size={15} />
-                    <span>{pt}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="platform-media platform-media-pad">
+              <img key={pad} src={current.src} alt={current.alt} loading="lazy" decoding="async" />
             </div>
-          </div>
 
-          <div className="roles-media-side" key={`media-${role}`}>
-            <img src={current.image} alt={`${role} interface in RumahKuVR`} loading="lazy" />
-          </div>
+            <p className="platform-note">
+              {current.note} — RumahKuVR accepts generic Bluetooth gamepads using the same mapping.
+            </p>
+          </TiltCard>
         </div>
       </div>
     </section>
@@ -796,64 +632,131 @@ function RolePerspectives() {
 }
 
 /* --------------------------------------------------------------------------
-   07 SENIOR-FIRST ACCESSIBILITY
+   06 ROLES
    -------------------------------------------------------------------------- */
-function SeniorAccessibility() {
-  const principles = [
-    {
-      num: '01',
-      title: 'Senior-Calibrated Typography',
-      desc: 'Minimum 15px body copy, generous line-height, and strong contrast ratios exceeding WCAG AAA standards.'
-    },
-    {
-      num: '02',
-      title: 'Malay Voice Guidance',
-      desc: 'Spoken Malay audio instructions reinforce visual spotlights without forcing excessive text reading.'
-    },
-    {
-      num: '03',
-      title: 'High Contrast Mode',
-      desc: 'One-click contrast toggles adapt UI elements to varying visual acuity and lighting environments.'
-    },
-    {
-      num: '04',
-      title: 'Predictable Controller Mapping',
-      desc: 'Standardized interactions with no rapid button-mashing or complex multi-key combinations.'
-    },
-    {
-      num: '05',
-      title: 'Controlled Near-Fall Feedback',
-      desc: 'Safe audio and visual alerts replace violent camera shakes to prevent dizziness and disorientation.'
-    },
-    {
-      num: '06',
-      title: 'Progressive Guidance Fading',
-      desc: 'Visual cues automatically adjust across Easy, Medium, and Hard tiers to foster independent mastery.'
+function Roles() {
+  const keys = ['senior', 'caregiver', 'guest'];
+  const [role, setRole] = useState('senior');
+  const current = ROLES[role];
+
+  const tabsRef = useRef(null);
+  const btnRefs = useRef({});
+
+  useLayoutEffect(() => {
+    const wrap = tabsRef.current;
+    const btn = btnRefs.current[role];
+    if (!wrap || !btn) return;
+    wrap.style.setProperty('--pill-x', `${btn.offsetLeft}px`);
+    wrap.style.setProperty('--pill-w', `${btn.offsetWidth}px`);
+  }, [role]);
+
+  const onTabKeyDown = e => {
+    const i = keys.indexOf(role);
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setRole(keys[(i + 1) % keys.length]);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setRole(keys[(i - 1 + keys.length) % keys.length]);
     }
-  ];
+  };
 
   return (
-    <section id="accessibility" className="section">
+    <section id="roles" className="section section-alt">
       <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">06 / Ergonomics</span>
-          <h2>Designed to be understood, not decoded.</h2>
-          <p>
-            Every interface element, audio cue, and VR interaction was refined to accommodate the sensory
-            and physical needs of older adults.
-          </p>
+        <SectionHead centered kicker="05 · Stakeholders" title="One system, three ways in.">
+          The role is picked on the sign-in screen and checked against the account behind it. A senior trains,
+          a caregiver watches for the hazards that keep recurring, and a guest can try the whole thing without
+          creating an account at all.
+        </SectionHead>
+
+        <div className="roles-wrapper" data-reveal="scale">
+          <div className="roles-copy">
+            <div className="role-tabs" ref={tabsRef} role="tablist" aria-label="User roles" onKeyDown={onTabKeyDown}>
+              {keys.map(key => (
+                <button
+                  type="button"
+                  key={key}
+                  role="tab"
+                  ref={el => {
+                    btnRefs.current[key] = el;
+                  }}
+                  id={`role-tab-${key}`}
+                  aria-selected={role === key}
+                  aria-controls="role-panel"
+                  tabIndex={role === key ? 0 : -1}
+                  className={`role-tab ${role === key ? 'active' : ''}`}
+                  onClick={() => setRole(key)}
+                >
+                  {ROLES[key].label}
+                  <small>{ROLES[key].malay}</small>
+                </button>
+              ))}
+              <span className="role-tab-pill" aria-hidden="true" />
+            </div>
+
+            <div
+              className="role-detail"
+              key={role}
+              id="role-panel"
+              role="tabpanel"
+              aria-labelledby={`role-tab-${role}`}
+              tabIndex={-1}
+            >
+              <span className="kicker">{current.kicker}</span>
+              <h3>{current.title}</h3>
+              <p>{current.body}</p>
+
+              <ul className="feature-list feature-list-lg">
+                {current.points.map((point, i) => (
+                  <li key={point} style={{ '--i': i }}>
+                    <Check size={16} strokeWidth={2.4} aria-hidden="true" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {current.note ? (
+                <p className="role-note">
+                  <ShieldAlert size={16} strokeWidth={2} aria-hidden="true" />
+                  <span>{current.note}</span>
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="roles-media" key={`media-${role}`}>
+            <img src={current.image} alt={current.alt} loading="lazy" decoding="async" />
+            <span className="roles-media-caption">{current.caption}</span>
+          </div>
         </div>
 
-        <div className="a11y-principles-grid stagger-group">
-          {principles.map(item => (
-            <div className="a11y-principle-card" key={item.num}>
-              <div className="a11y-principle-header">
-                <strong>{item.num}</strong>
-                <Accessibility size={16} style={{ color: 'var(--accent)' }} />
-              </div>
-              <h4>{item.title}</h4>
-              <p>{item.desc}</p>
-            </div>
+        <div className="roles-extra">
+          {[
+            {
+              src: '/images/caregiver/alerts.webp',
+              alt: 'RumahKuVR caregiver alerts table listing recent sessions with tier, score, date and a one-line summary',
+              caption: 'Makluman — recent session alerts'
+            },
+            {
+              src: '/images/caregiver/tier-performance.webp',
+              alt: 'Average score per tier in the caregiver portal: 66 out of 100 for Mudah, 98 for Sederhana and 100 for Sukar',
+              caption: 'Prestasi Ikut Tahap — average score per tier'
+            },
+            {
+              src: '/images/caregiver/hazard-map.webp',
+              alt: 'The caregiver Peta Bahaya screen listing folded carpet, blocked walkway, bathroom safety and hot water hazards against a house plan',
+              caption: 'Peta Bahaya — hazard status by room'
+            }
+          ].map(shot => (
+            <Figure
+              key={shot.src}
+              className="roles-extra-figure"
+              src={shot.src}
+              alt={shot.alt}
+              caption={shot.caption}
+              reveal="up"
+            />
           ))}
         </div>
       </div>
@@ -862,89 +765,153 @@ function SeniorAccessibility() {
 }
 
 /* --------------------------------------------------------------------------
-   08 SYSTEM ARCHITECTURE & DEVELOPMENT JOURNEY
+   07 SENIOR-FIRST DESIGN
    -------------------------------------------------------------------------- */
-function SystemAndJourney() {
-  const pipeline = [
-    { step: '01', title: 'User Input', sub: 'Meta Quest / Gamepad' },
-    { step: '02', title: 'Unity XR Engine', sub: 'Physics & 6DoF' },
-    { step: '03', title: 'Hazard Detection', sub: 'Proximity & Scanning' },
-    { step: '04', title: 'Corrective Logic', sub: 'Action Verification' },
-    { step: '05', title: 'Session Telemetry', sub: 'Score & Time Data' },
-    { step: '06', title: 'IRIS Reporting', sub: 'Caregiver Portal' }
-  ];
+function SeniorDesign() {
+  return (
+    <section id="accessibility" className="section">
+      <div className="container">
+        <SectionHead centered kicker="06 · Ergonomics" title="Built to be understood, not decoded.">
+          Every screen, prompt and interaction was tuned around one question: could someone who has never
+          worn a headset finish a session without being told what to do?
+        </SectionHead>
 
-  const journey = [
-    { step: '01', title: 'Planning', desc: 'Problem framing, senior safety literature review, and hazard cataloging.' },
-    { step: '02', title: 'UX Design', desc: 'Low-cognitive load UI wireframes, Malay audio script, and controller layout.' },
-    { step: '03', title: 'Unity Build', desc: 'Malaysian home environment, OpenXR integration, and hazard state logic.' },
-    { step: '04', title: 'Flow Testing', desc: 'VR grab affordances, near-fall feedback safety, and difficulty tuning.' },
-    { step: '05', title: 'Refinement', desc: 'Visual polish, tutorial coachmark cues, and caregiver telemetry integration.' },
-    { step: '06', title: 'Presentation', desc: 'Final project showcase, documentation, and evaluator demonstration.' }
-  ];
+        <div className="principles-grid">
+          {A11Y_PRINCIPLES.map((item, i) => (
+            <TiltCard className="principle-card" key={item.num} data-reveal="up" style={{ '--i': i }} max={3}>
+              <div className="principle-head">
+                <strong>{item.num}</strong>
+                <Accessibility size={16} strokeWidth={2} aria-hidden="true" />
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.desc}</p>
+            </TiltCard>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------------------------------------------------------
+   08 SYSTEM
+   -------------------------------------------------------------------------- */
+function System() {
+  const [railRef, railIn] = useInView({ threshold: 0.3 });
 
   return (
     <section id="system" className="section section-alt">
       <div className="container">
-        <div className="section-head centered" data-reveal="up">
-          <span className="kicker">07 / Architecture</span>
-          <h2>Built as an interaction system, not a slideshow.</h2>
-          <p>
-            RumahKuVR ties together player input, physical interaction, hazard verification, and caregiver
-            telemetry inside one robust Unity XR architecture.
-          </p>
-        </div>
+        <SectionHead centered kicker="07 · Architecture" title="An interaction system, not a slideshow.">
+          Input, physics, hazard state, verification and telemetry are one chain. What a senior does with
+          their hands is what ends up in the caregiver's report.
+        </SectionHead>
 
-        <div className="architecture-box" data-reveal="scale">
-          <span className="kicker">Interaction Pipeline</span>
-          <div className="pipeline-flow stagger-group">
-            {pipeline.map(node => (
-              <div className="pipeline-node" key={node.step}>
+        <div className="architecture" data-reveal="scale">
+          <span className="kicker">Interaction pipeline</span>
+          <div ref={railRef} className={`pipeline ${railIn ? 'is-live' : ''}`}>
+            <span className="pipeline-rail" aria-hidden="true" />
+            {PIPELINE.map((node, i) => (
+              <div className="pipeline-node" key={node.step} style={{ '--i': i }}>
                 <small>{node.step}</small>
                 <strong>{node.title}</strong>
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{node.sub}</span>
+                <span>{node.sub}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="section-head" style={{ marginBottom: '20px' }} data-reveal="up">
-          <span className="kicker">Development Journey</span>
-          <h3>Milestone Progression</h3>
+        <div className="system-split">
+          <Figure
+            className="system-figure"
+            reveal="left"
+            src="/images/caregiver/iris-trend.webp"
+            alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, noting that safety and attention improved across the last three sessions"
+            caption="Trend Prestasi — computed from the last three saved sessions"
+          />
+
+          <div className="system-copy" data-reveal="right">
+            <span className="kicker">Offline behaviour analysis</span>
+            <h3>The feedback is reasoned, not thresholded.</h3>
+            <p>
+              When a session ends, a Sugeno-style fuzzy expert system runs on the headset and grades four
+              dimensions — safety performance, independence, attention and recovery. Each input is mapped onto
+              overlapping low, medium and high sets, every rule fires in proportion to how true it is, and the
+              score is the weighted average of what fired. One missed hazard nudges the result; it never flips it.
+            </p>
+            <p>
+              Across sessions the same stored records drive the caregiver trend, which only ever compares like
+              with like — one difficulty at a time, and it says on screen which one it chose.
+            </p>
+            <ul className="feature-list">
+              <li>
+                <Cpu size={14} strokeWidth={2.4} aria-hidden="true" />
+                Entirely on-device — no API, no network, no model file
+              </li>
+              <li>
+                <Radar size={14} strokeWidth={2.4} aria-hidden="true" />
+                Four graded dimensions rather than one pass or fail
+              </li>
+              <li>
+                <Timer size={14} strokeWidth={2.4} aria-hidden="true" />
+                Slow sessions are never penalised
+              </li>
+              <li>
+                <Volume2 size={14} strokeWidth={2.4} aria-hidden="true" />
+                Four plain-Malay lines: band, strength, attention, suggestion
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div className="timeline-row stagger-group">
-          {journey.map(item => (
-            <div className="timeline-step-item" key={item.step}>
-              <small>{item.step} / PHASE</small>
+        <div className="section-head journey-head" data-reveal="up">
+          <span className="kicker">Development journey</span>
+          <h3>How it was built</h3>
+        </div>
+
+        <ol className="timeline">
+          {JOURNEY.map((item, i) => (
+            <li className="timeline-item" key={item.step} data-reveal="up" style={{ '--i': i }}>
+              <small>{item.step} · Phase</small>
               <strong>{item.title}</strong>
               <p>{item.desc}</p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
 
-        <div className="iris-disclaimer" data-reveal="up">
-          <ShieldAlert size={20} />
-          <p>
-            <strong>Academic Evaluation Note:</strong> Performance dashboards represent verified system demonstration
-            prototypes for the Final Year Project showcase.
-          </p>
-        </div>
+        <p className="honesty-note" data-reveal="up">
+          <ShieldAlert size={20} strokeWidth={2} aria-hidden="true" />
+          <span>
+            <strong>Evaluation note:</strong> every screen on this page is a capture from the working Unity
+            build. Session figures shown in those captures come from demonstration accounts recorded during
+            development, not from a deployed study.
+          </span>
+        </p>
       </div>
     </section>
   );
 }
 
 /* --------------------------------------------------------------------------
-   09 PROJECT INFORMATION & CONTACT
+   09 CONTACT
    -------------------------------------------------------------------------- */
-function ProjectContact() {
+function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [state, setState] = useState({ status: 'idle', message: '' });
 
+  // Disabling the button is not enough on its own: requestSubmit(), and Enter
+  // pressed twice quickly, both fire the form's submit event without touching
+  // the button, and React has not re-rendered the disabled state yet. A ref
+  // flips synchronously, so the second submit is dropped before it can POST.
+  const inFlight = useRef(false);
+
+  const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }));
+
   async function handleSubmit(e) {
     e.preventDefault();
-    setState({ status: 'loading', message: 'Saving message…' });
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setState({ status: 'loading', message: 'Sending…' });
 
     try {
       const token = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -952,17 +919,38 @@ function ProjectContact() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'X-CSRF-TOKEN': token
         },
         body: JSON.stringify(form)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Unable to save message.');
-      setState({ status: 'success', message: 'Message sent successfully. Thank you!' });
+
+      // An expired session or a proxy error can answer with HTML, so never
+      // assume the body parses — a thrown SyntaxError would read as a bug.
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const fieldErrors = data?.errors ? Object.values(data.errors).flat() : [];
+        throw new Error(
+          fieldErrors[0] ||
+            data?.message ||
+            (res.status === 429
+              ? 'Too many messages just now. Please try again in a minute.'
+              : res.status === 419
+                ? 'This page has been open a while. Please refresh and try again.'
+                : `Unable to send this message (error ${res.status}).`)
+        );
+      }
+
+      setState({ status: 'success', message: data?.message || 'Message sent. Thank you!' });
       setForm({ name: '', email: '', subject: '', message: '' });
     } catch (err) {
-      setState({ status: 'error', message: err.message || 'Error sending message.' });
+      setState({
+        status: 'error',
+        message: err?.message || 'Something went wrong. Please check your connection and try again.'
+      });
+    } finally {
+      inFlight.current = false;
     }
   }
 
@@ -970,96 +958,64 @@ function ProjectContact() {
     <section id="contact" className="section">
       <div className="container">
         <div className="contact-grid">
-          <div className="contact-info-side" data-reveal="left">
-            <span className="kicker">08 / Project Information</span>
-            <h2>Safer habits through immersive learning.</h2>
-            <p>
-              RumahKuVR is developed as a Final Year Project by <strong>Muhammad Thaqif Fahmi Bin Rafie'e</strong>,
-              Diploma in Information Technology (Software Application Development).
+          <div className="contact-info" data-reveal="left">
+            <span className="kicker">08 · Project information</span>
+            <SplitText as="h2" text="Safer habits through immersive practice." />
+            <p className="lede">
+              RumahKuVR is a Final Year Project by <strong>{PROJECT.author}</strong>, {PROJECT.programme}.
             </p>
 
-            <div className="contact-meta-card">
+            <div className="contact-meta">
               <div className="contact-meta-row">
-                <GraduationCap size={18} />
+                <GraduationCap size={18} strokeWidth={1.9} aria-hidden="true" />
                 <span>Final Year Project · Software Application Development</span>
               </div>
               <div className="contact-meta-row">
-                <Layers size={18} />
-                <span>Unity 6.3 LTS · Meta Quest 3 · Laravel · React</span>
+                <Layers size={18} strokeWidth={1.9} aria-hidden="true" />
+                <span>
+                  {PROJECT.engine} · {PROJECT.headset} · Laravel · React
+                </span>
               </div>
               <div className="contact-meta-row">
-                <ShieldCheck size={18} />
-                <span>Malaysian Home Safety & Senior Fall Prevention</span>
+                <ShieldCheck size={18} strokeWidth={1.9} aria-hidden="true" />
+                <span>Malaysian home safety &amp; senior fall prevention</span>
               </div>
             </div>
           </div>
 
-          <div className="contact-form-side" data-reveal="right">
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="form-group-row">
+          <div className="contact-form-card" data-reveal="right">
+            <form className="contact-form" onSubmit={handleSubmit} aria-busy={state.status === 'loading'}>
+              <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="name">Name</label>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    maxLength={100}
-                    value={form.name}
-                    onChange={e => setForm({ ...form, name: e.target.value })}
-                  />
+                  <input id="name" name="name" type="text" required maxLength={100} autoComplete="name" value={form.name} onChange={set('name')} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    maxLength={160}
-                    value={form.email}
-                    onChange={e => setForm({ ...form, email: e.target.value })}
-                  />
+                  <input id="email" name="email" type="email" required maxLength={160} autoComplete="email" value={form.email} onChange={set('email')} />
                 </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="subject">Subject</label>
-                <input
-                  id="subject"
-                  type="text"
-                  required
-                  maxLength={160}
-                  value={form.subject}
-                  onChange={e => setForm({ ...form, subject: e.target.value })}
-                />
+                <input id="subject" name="subject" type="text" required maxLength={160} value={form.subject} onChange={set('subject')} />
               </div>
 
               <div className="form-group">
                 <label htmlFor="message">Message</label>
-                <textarea
-                  id="message"
-                  rows={4}
-                  required
-                  maxLength={3000}
-                  value={form.message}
-                  onChange={e => setForm({ ...form, message: e.target.value })}
-                />
+                <textarea id="message" name="message" rows={4} required maxLength={3000} value={form.message} onChange={set('message')} />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={state.status === 'loading'}
-                style={{ width: '100%' }}
-              >
-                <span>{state.status === 'loading' ? 'Sending…' : 'Send Message'}</span>
-                <ArrowRight size={15} />
+              <button type="submit" className="btn btn-primary btn-block" disabled={state.status === 'loading'}>
+                <span>{state.status === 'loading' ? 'Sending…' : 'Send message'}</span>
+                <ArrowRight size={16} strokeWidth={2.2} />
               </button>
 
-              {state.message && (
-                <div className={`form-status ${state.status}`} role="status">
+              {state.message ? (
+                <p className={`form-status ${state.status}`} role="status">
                   {state.message}
-                </div>
-              )}
+                </p>
+              ) : null}
             </form>
           </div>
         </div>
@@ -1069,30 +1025,32 @@ function ProjectContact() {
 }
 
 /* --------------------------------------------------------------------------
-   ACCESSIBILITY DOCK (Contrast & Large Text Toggles)
+   ACCESSIBILITY DOCK
    -------------------------------------------------------------------------- */
 function AccessibilityDock() {
-  const [contrast, setContrast] = useState(false);
-  const [large, setLarge] = useState(false);
+  const [contrast, setContrast] = useState(() => localStorage.getItem('rumahkuvr-contrast') === '1');
+  const [large, setLarge] = useState(() => localStorage.getItem('rumahkuvr-large') === '1');
 
   useEffect(() => {
     document.documentElement.classList.toggle('high-contrast', contrast);
+    localStorage.setItem('rumahkuvr-contrast', contrast ? '1' : '0');
   }, [contrast]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('large-type', large);
+    localStorage.setItem('rumahkuvr-large', large ? '1' : '0');
   }, [large]);
 
   return (
-    <div className="a11y-dock">
+    <div className="a11y-dock" role="group" aria-label="Display options">
       <button
         type="button"
         className="a11y-dock-btn"
         onClick={() => setContrast(v => !v)}
         aria-pressed={contrast}
-        title="Toggle High Contrast Mode"
+        title="Toggle high contrast"
       >
-        <Accessibility size={15} />
+        <Accessibility size={16} strokeWidth={2} aria-hidden="true" />
         <span>Contrast</span>
       </button>
 
@@ -1101,9 +1059,11 @@ function AccessibilityDock() {
         className="a11y-dock-btn"
         onClick={() => setLarge(v => !v)}
         aria-pressed={large}
-        title="Toggle Larger Text Mode"
+        title="Toggle larger text"
       >
-        <span style={{ fontWeight: 700 }}>Aa</span>
+        <span className="a11y-aa" aria-hidden="true">
+          Aa
+        </span>
         <span>Text</span>
       </button>
     </div>
@@ -1111,35 +1071,49 @@ function AccessibilityDock() {
 }
 
 /* --------------------------------------------------------------------------
-   ROOT APP COMPONENT
+   ROOT
    -------------------------------------------------------------------------- */
 function App() {
   const { theme, toggleTheme } = useTheme();
-  useScrollReveal();
+  useScrollReveal('#app');
+
+  useEffect(() => {
+    document.documentElement.classList.add('is-ready');
+  }, []);
 
   return (
     <>
+      <a className="skip-link" href="#overview">
+        Skip to content
+      </a>
+
       <Nav theme={theme} toggleTheme={toggleTheme} />
+
       <main>
         <Hero />
-        <ProblemExperience />
-        <TrainingProgression />
-        <GameplayShowcase />
-        <PlatformHardware />
-        <RolePerspectives />
-        <SeniorAccessibility />
-        <SystemAndJourney />
-        <ProjectContact />
+        <Overview />
+        <Training />
+        <Gameplay />
+        <Platform />
+        <Roles />
+        <SeniorDesign />
+        <System />
+        <Contact />
       </main>
+
       <footer className="site-footer">
         <div className="footer-inner">
-          <span>RumahKuVR · Final Year Project · 2026</span>
-          <a href="#home" className="btn-link" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span className="footer-brand">
+            <span className="brand-mark brand-mark-sm" aria-hidden="true" />
+            RumahKuVR · Final Year Project · {PROJECT.year}
+          </span>
+          <a href="#home" className="footer-top">
             <span>Back to top</span>
-            <ArrowRight size={13} style={{ transform: 'rotate(-90deg)' }} />
+            <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden="true" />
           </a>
         </div>
       </footer>
+
       <AccessibilityDock />
     </>
   );

@@ -12,15 +12,22 @@ Route::get('/api/project', function () {
         'platform' => 'Meta Quest 3',
         'engine' => 'Unity 6.3 LTS',
         'modes' => ['VR Mode', 'Controller Mode'],
+        'roles' => ['Warga Emas', 'Penjaga', 'Tetamu'],
         'difficulty' => [
-            ['name' => 'Easy', 'hazards' => 3],
-            ['name' => 'Medium', 'hazards' => 5],
-            ['name' => 'Hard', 'hazards' => 10],
+            ['name' => 'Easy', 'malay' => 'Mod Mudah', 'hazards' => 3],
+            ['name' => 'Medium', 'malay' => 'Mod Sederhana', 'hazards' => 5],
+            ['name' => 'Hard', 'malay' => 'Mod Sukar', 'hazards' => 10],
         ],
         'tutorial' => [
             'easy' => 'complete',
             'medium' => 'complete',
-            'hard' => 'planned',
+            'hard' => 'complete',
+        ],
+        'analysis' => [
+            'type' => 'fuzzy expert system',
+            'runs' => 'on-device',
+            'network' => false,
+            'dimensions' => ['safety', 'independence', 'attention', 'recovery'],
         ],
     ]);
 });
