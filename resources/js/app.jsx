@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  Accessibility, ArrowRight, ArrowUpRight, Check, Cpu, Gamepad2, GraduationCap,
-  Layers, ListChecks, Menu, MonitorPlay, Moon, Radar, ShieldAlert, ShieldCheck,
+  Accessibility, ArrowRight, ArrowUpRight, Check, Cpu, GraduationCap,
+  Layers, Menu, MonitorPlay, Moon, Radar, ShieldAlert, ShieldCheck,
   Sun, Timer, Volume2, X
 } from 'lucide-react';
 
@@ -238,22 +238,73 @@ function Hero() {
             </dl>
           </div>
 
+          {/* Three layers on one stage: the capture, an inset of the difficulty
+              panel overhanging the lower right, and a stat card on the lower
+              left. Both layers sit in the bottom band of the frame, which is
+              floor in this capture — the in-headset HUD across the top of the
+              screenshot is never covered. */}
           <div className="hero-visual-wrap" ref={parallaxRef}>
-            <div className="hero-visual tilt" {...tilt} data-reveal="clip">
-              <img
-                src="/images/project/hero-hazard-scan.webp"
-                alt="First-person view inside RumahKuVR: a kampung kitchen with three hazard markers, the senior's hands in frame, and the session HUD showing hazards cleared and time remaining"
-                width={1920}
-                height={1080}
-                loading="eager"
-                decoding="sync"
-                fetchPriority="high"
-              />
-              <span className="hero-visual-sheen" aria-hidden="true" />
-              <div className="hero-visual-badge">
-                <span>In-engine capture · senior eye level</span>
-                <small>{PROJECT.engine}</small>
+            <div className="hero-stage">
+              <div className="hero-visual tilt" {...tilt} data-reveal="clip">
+                {/* The LCP element. A phone renders this about 358px wide, so
+                    the 1500px master is roughly four times more pixels than it
+                    can show — the 800w variant covers small viewports at 36KB
+                    instead of 132KB. `sizes` must stay in step with the
+                    preload hint in app.blade.php, or the browser fetches one
+                    candidate and then the other. */}
+                {/* sizes and srcSet are listed before src on purpose. React
+                    sets attributes in the order they appear, and an <img> that
+                    receives src first starts downloading that URL immediately —
+                    the full 132KB master — before the candidate list arrives. */}
+                <img
+                  sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, (min-width: 1400px) 600px, 52vw"
+                  srcSet="/images/project/hero-hazard-scan-800w.webp 800w, /images/project/hero-hazard-scan.webp 1500w"
+                  src="/images/project/hero-hazard-scan.webp"
+                  alt="First-person view inside RumahKuVR: a kampung kitchen with three hazard markers, the senior's hands in frame, and the session HUD showing hazards cleared and time remaining"
+                  width={1500}
+                  height={844}
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority="high"
+                />
+                <span className="hero-visual-sheen" aria-hidden="true" />
               </div>
+
+              {/* Reads the capture it sits on rather than repeating the stat
+                  row below it: this frame is a Mod Sukar session, and its HUD
+                  shows the 0/10 counter for exactly these ten hazards. */}
+              <div className="hero-float" data-reveal="up" style={{ transitionDelay: '760ms' }}>
+                <span className="hero-float-num">
+                  <Counter value={10} pad={false} />
+                </span>
+                <span className="hero-float-copy">
+                  <strong>Hazards in Mod Sukar</strong>
+                  <span>In-engine capture · {PROJECT.engine}</span>
+                </span>
+              </div>
+
+              {/* Eager, but explicitly low priority: it is above the fold, so
+                  lazy-loading would only delay it, and it must never compete
+                  with the LCP capture for bandwidth. */}
+              <figure className="hero-inset" data-reveal="up" style={{ transitionDelay: '820ms' }}>
+                <span className="hero-inset-frame">
+                  {/* Renders around 250px wide here, so the 800w variant is
+                      already generous — the 4K master is only pulled when the
+                      viewer opens this same panel in the Training section. */}
+                  <img
+                    sizes="(max-width: 720px) calc(100vw - 32px), 260px"
+                    srcSet="/images/ui/difficulty-select-800w.webp 800w, /images/ui/difficulty-select-1400w.webp 1400w"
+                    src="/images/ui/difficulty-select-800w.webp"
+                    alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
+                    width={3483}
+                    height={2085}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="low"
+                  />
+                </span>
+                <figcaption>Pilih Mod Simulasi</figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -266,53 +317,52 @@ function Hero() {
    02 OVERVIEW — intent and the meal-transport case study
    -------------------------------------------------------------------------- */
 function Overview() {
+  /* The three moves a session is built around. They used to be three identical
+     icon cards; they are a rail now, because they are a sequence, not a menu —
+     and the columns are deliberately unequal, sized to the text each one
+     actually carries rather than to a grid. */
   const loop = [
-    { num: '01', label: 'Spot', title: 'Identify', icon: Radar, desc: 'Recognise a fall or burn risk where it actually lives — in the room, not on a poster.' },
-    { num: '02', label: 'Act', title: 'Handle', icon: Gamepad2, desc: 'Perform the correction physically: move it, mop it, switch it off, put it away.' },
-    { num: '03', label: 'Learn', title: 'Reinforce', icon: ListChecks, desc: 'Read the graded breakdown the headset works out on its own, then repeat until the safe choice is automatic.' }
+    { num: '01', title: 'Spot it', desc: 'Find the risk where it lives — in the room, not on a poster.' },
+    { num: '02', title: 'Fix it', desc: 'Do the correction by hand: move it, mop it, switch it off, put it away.' },
+    { num: '03', title: 'Repeat it', desc: 'Read the graded breakdown the headset works out on its own, then go again until the safe choice stops needing thought.' }
   ];
 
   return (
     <section id="overview" className="section section-alt">
       <div className="container">
-        <div className="intent-grid">
-          <SectionHead kicker="01 · Intent" title="Safety advice tells you what not to do. It rarely changes what you do.">
-            A pamphlet is read once and filed away. RumahKuVR asks a senior to walk their own house, notice
-            what is wrong, and put it right — the loop that turns knowledge into habit.
-          </SectionHead>
+        <SectionHead
+          variant="statement"
+          kicker="The problem"
+          title="Safety advice tells you what not to do. It rarely changes what you do."
+        >
+          A pamphlet is read once and filed away. RumahKuVR asks a senior to walk their own house, notice
+          what is wrong, and put it right.
+        </SectionHead>
 
-          <div className="intent-loop">
-            {loop.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <TiltCard className="intent-card" key={item.num} data-reveal="up" style={{ '--i': i }}>
-                  <span className="intent-card-icon" aria-hidden="true">
-                    <Icon size={18} strokeWidth={1.9} />
-                  </span>
-                  <span className="intent-card-num">
-                    {item.num} · {item.label}
-                  </span>
-                  <h3>{item.title}</h3>
-                  <p>{item.desc}</p>
-                </TiltCard>
-              );
-            })}
-          </div>
-        </div>
+        <ol className="loop-rail">
+          {loop.map((item, i) => (
+            <li className="loop-step" key={item.num} data-reveal="up" style={{ '--i': i }}>
+              <span className="loop-step-num" aria-hidden="true">
+                {item.num}
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.desc}</p>
+            </li>
+          ))}
+        </ol>
 
-        <div className="case-walkthrough" data-reveal="up">
-          <div className="case-head">
-            <div>
-              <span className="kicker">Case study</span>
-              <h3>Carrying a meal, the safe way</h3>
-              <p>One hazard, followed end to end — from noticing the loaded tray to delivering it without strain.</p>
-            </div>
-            <span className="chip">In-engine walkthrough</span>
+        {/* A filmstrip, not three cards. The middle frame is the correction —
+            the moment the whole scenario exists to teach — so it is given the
+            wider column and the other two read as before and after. */}
+        <div className="case-strip" data-reveal="up">
+          <div className="case-strip-head">
+            <span className="kicker">One hazard, end to end</span>
+            <h3>Carrying a meal without carrying the tray</h3>
           </div>
 
           <ol className="case-steps">
             {CASE_STEPS.map((step, i) => (
-              <li className="case-step" key={step.num} data-reveal="up" style={{ '--i': i }}>
+              <li className={`case-step${i === 1 ? ' case-step-lead' : ''}`} key={step.num} data-reveal="up" style={{ '--i': i }}>
                 <div className="case-step-media">
                   <ZoomTrigger
                     label={`${step.tag} — ${step.title}`}
@@ -323,7 +373,7 @@ function Overview() {
                   </ZoomTrigger>
                 </div>
                 <div className="case-step-copy">
-                  <span className="case-step-tag">{step.tag}</span>
+                  <span className="case-step-num" aria-hidden="true">{step.num}</span>
                   <strong>{step.title}</strong>
                   <p>{step.desc}</p>
                 </div>
@@ -341,6 +391,29 @@ function Overview() {
    -------------------------------------------------------------------------- */
 function Training() {
   const [step, setStep] = useState(0);
+
+  /* Which tier the sticky rail should highlight. One observer over three
+     panels, with a thin band across the middle of the viewport as the trigger
+     line — the same scroll-spy the nav already uses, so no new machinery and
+     no scroll listener. */
+  const [activeTier, setActiveTier] = useState(0);
+  const panelRefs = useRef([]);
+
+  useEffect(() => {
+    const nodes = panelRefs.current.filter(Boolean);
+    if (!nodes.length) return undefined;
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) setActiveTier(Number(entry.target.dataset.tier));
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+    );
+    nodes.forEach(n => io.observe(n));
+    return () => io.disconnect();
+  }, []);
+
   const tutorialSteps = [
     { num: '01', title: 'See', label: 'A hazard announces itself on a readable card.' },
     { num: '02', title: 'Try', label: 'A coachmark points at the one control that matters.' },
@@ -351,45 +424,75 @@ function Training() {
   return (
     <section id="training" className="section">
       <div className="container">
-        <SectionHead centered kicker="02 · Training" title="Guidance fades as confidence grows.">
-          Difficulty is not speed. It is how much help remains on screen — spelled out in the game's own
-          tier panel, and stepped down deliberately across three modes.
-        </SectionHead>
+        {/* The tier progression. A sticky rail states the idea once and tracks
+            which mode you are looking at; the three real captures scroll past
+            it. Each capture opens from a letterbox to full bleed on a
+            scroll-driven timeline, so the guidance visibly falls away as the
+            difficulty climbs — the section performs its own argument. */}
+        <div className="tier-progression">
+          <div className="tier-rail">
+            <div className="tier-rail-inner">
+              <span className="kicker" data-reveal="up">Difficulty</span>
+              <SplitText as="h2" text="Guidance fades as confidence grows." delay={90} />
+              <p className="lede" data-reveal="up" style={{ transitionDelay: '160ms' }}>
+                Difficulty here is not speed. It is how much help stays on screen.
+              </p>
 
-        <div className="training-grid">
-          {TIERS.map((tier, i) => (
-            <TiltCard as="article" className="training-card" key={tier.id} data-reveal="up" style={{ '--i': i }}>
-              <div className="training-card-media">
-                <ZoomTrigger
-                  label={`${tier.tier} mode — ${tier.malay}`}
-                  item={{ file: tier.image, alt: tier.alt, title: `${tier.title} — ${tier.malay}`,
-                          tag: `${tier.tier} · ${tier.stat}`, desc: tier.desc }}
-                >
-                  <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" />
-                </ZoomTrigger>
-                <span className={`training-badge ${tier.badgeClass}`}>
-                  {tier.tier} · {tier.malay}
-                </span>
-              </div>
-              <div className="training-card-body">
-                <div className="training-card-head">
-                  <h3>{tier.title}</h3>
-                  <span className="training-count">
-                    <Counter value={tier.count} pad={false} /> hazards
-                  </span>
+              <ol className="tier-legend" data-reveal="up" style={{ transitionDelay: '240ms' }}>
+                {TIERS.map((tier, i) => (
+                  <li
+                    key={tier.id}
+                    className={`tier-legend-item ${i === activeTier ? 'is-active' : ''}`}
+                    aria-current={i === activeTier ? 'true' : undefined}
+                  >
+                    <span className={`tier-legend-dot ${tier.badgeClass}`} aria-hidden="true" />
+                    <span className="tier-legend-name">{tier.malay}</span>
+                    <span className="tier-legend-count">{tier.count} hazards</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div className="tier-stack">
+            {TIERS.map((tier, i) => (
+              <article
+                className="tier-panel"
+                key={tier.id}
+                data-tier={i}
+                ref={el => {
+                  panelRefs.current[i] = el;
+                }}
+                data-reveal="up"
+              >
+                <div className="tier-panel-media">
+                  <ZoomTrigger
+                    label={`${tier.tier} mode — ${tier.malay}`}
+                    item={{ file: tier.image, alt: tier.alt, title: `${tier.title} — ${tier.malay}`,
+                            tag: `${tier.tier} · ${tier.stat}`, desc: tier.desc }}
+                  >
+                    <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" width={900} height={506} />
+                  </ZoomTrigger>
                 </div>
-                <p>{tier.desc}</p>
-                <ul className="feature-list">
-                  {tier.features.map(f => (
-                    <li key={f}>
-                      <Check size={14} strokeWidth={2.4} aria-hidden="true" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </TiltCard>
-          ))}
+
+                <div className="tier-panel-body">
+                  <div className="tier-panel-head">
+                    <h3>{tier.title}</h3>
+                    <span className={`training-badge ${tier.badgeClass}`}>{tier.malay}</span>
+                  </div>
+                  <p>{tier.desc}</p>
+                  <ul className="feature-list">
+                    {tier.features.map(f => (
+                      <li key={f}>
+                        <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
 
         <div className="hazard-block">
@@ -444,25 +547,23 @@ function Training() {
             zoomable
             zoomTag="Difficulty selection"
             src="/images/ui/difficulty-select.webp"
+            srcSet="/images/ui/difficulty-select-1400w.webp 1400w, /images/ui/difficulty-select.webp 3483w"
+            sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 40vw"
             alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
             caption="Pilih Mod Simulasi — the tier panel as it appears in the headset"
-            width={1100}
-            height={619}
+            width={3483}
+            height={2085}
           />
         </div>
 
         <div className="tutorial-banner" data-reveal="up">
           <div className="tutorial-copy">
-            <span className="kicker">Tutorial philosophy</span>
+            <span className="kicker">Tutorial</span>
             <h3>See. Try. Succeed. Next.</h3>
             <p>
               Nothing is taught with a wall of text. A coachmark highlights one control, the senior performs
               the action once, and the prompt gets out of the way.
             </p>
-            <div className="chip-row">
-              <span className="chip">In-engine coachmarks</span>
-              <span className="chip">Non-blocking guidance</span>
-            </div>
           </div>
 
           <div className="tutorial-steps">
@@ -504,7 +605,7 @@ function Gameplay() {
   return (
     <section id="gameplay" className="section section-alt">
       <div className="container">
-        <SectionHead centered kicker="03 · Evidence" title="Inside RumahKuVR.">
+        <SectionHead variant="centered" kicker="In-engine captures" title="Inside RumahKuVR.">
           Ten captures taken from the running Unity build — hazard cards, corrective actions, the house map
           and the session breakdown. No mock-ups, no renders.
         </SectionHead>
@@ -534,12 +635,14 @@ function Platform() {
   const pads = {
     ps: {
       src: '/images/platform/controller-ps.webp',
+      srcSet: '/images/platform/controller-ps-1400w.webp 1400w, /images/platform/controller-ps.webp 3462w',
       alt: 'RumahKuVR in-headset controller guide for a PlayStation-style pad, mapping the left stick to movement, the right stick to looking around, and O, X, triangle and the d-pad to interact, cancel, pause and navigate',
       label: 'PlayStation layout',
       note: 'Symmetrical sticks · O to interact, X to go back'
     },
     xbox: {
       src: '/images/platform/controller-xbox.webp',
+      srcSet: '/images/platform/controller-xbox-1400w.webp 1400w, /images/platform/controller-xbox.webp 3462w',
       alt: 'RumahKuVR in-headset controller guide for an Xbox-style pad, mapping the left stick to movement, the right stick to looking around, and A, B, Y and the d-pad to interact, cancel, pause and navigate',
       label: 'Xbox layout',
       note: 'Offset sticks · A to interact, B to go back'
@@ -551,7 +654,7 @@ function Platform() {
   return (
     <section id="platform" className="section">
       <div className="container">
-        <SectionHead centered kicker="04 · Platform" title="Two ways into the same house.">
+        <SectionHead variant="split" kicker="Hardware" title="Two ways into the same house.">
           Not every senior can stand for twenty minutes. The controller build runs the identical scenarios
           seated, with the same hazards and the same scoring.
         </SectionHead>
@@ -569,8 +672,12 @@ function Platform() {
               }}
             >
               <img
+                sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 46vw"
+                srcSet="/images/ui/mode-select-1400w.webp 1400w, /images/ui/mode-select.webp 3508w"
                 src="/images/ui/mode-select.webp"
                 alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller"
+                width={3508}
+                height={2008}
                 loading="lazy"
                 decoding="async"
               />
@@ -649,7 +756,17 @@ function Platform() {
                         title: `Panduan Alat Kawalan — ${current.label}`, tag: 'Controller guide',
                         desc: current.note }}
               >
-                <img key={pad} src={current.src} alt={current.alt} loading="lazy" decoding="async" />
+                <img
+                  key={pad}
+                  sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 46vw, 30vw"
+                  srcSet={current.srcSet}
+                  src={current.src}
+                  alt={current.alt}
+                  width={3462}
+                  height={2072}
+                  loading="lazy"
+                  decoding="async"
+                />
               </ZoomTrigger>
             </div>
 
@@ -696,7 +813,7 @@ function Roles() {
   return (
     <section id="roles" className="section section-alt">
       <div className="container">
-        <SectionHead centered kicker="05 · Stakeholders" title="One system, three ways in.">
+        <SectionHead kicker="Who signs in" title="One system, three ways in.">
           The role is picked on the sign-in screen and checked against the account behind it. A senior trains,
           a caregiver watches for the hazards that keep recurring, and a guest can try the whole thing without
           creating an account at all.
@@ -763,41 +880,69 @@ function Roles() {
               item={{ file: current.image, alt: current.alt, title: current.caption,
                       tag: `${current.label} · ${current.malay}`, desc: current.body }}
             >
-              <img src={current.image} alt={current.alt} loading="lazy" decoding="async" />
+              <img
+                sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 48vw"
+                srcSet={current.imageSrcSet}
+                src={current.image}
+                alt={current.alt}
+                loading="lazy"
+                decoding="async"
+              />
             </ZoomTrigger>
             <span className="roles-media-caption">{current.caption}</span>
           </div>
         </div>
 
+        {/* One dominant capture with two supporting cards beside it, rather
+            than three equal thumbnails. Peta Bahaya is the screen with the most
+            to read — a house plan, five numbered markers and three panels of
+            small Malay labels — so it gets roughly twice the width it had in
+            the old three-up row, at its own aspect ratio and uncropped. */}
         <div className="roles-extra">
-          {[
-            {
-              src: '/images/caregiver/alerts.webp',
-              alt: 'RumahKuVR caregiver alerts table listing recent sessions with tier, score, date and a one-line summary',
-              caption: 'Makluman — recent session alerts'
-            },
-            {
-              src: '/images/caregiver/tier-performance.webp',
-              alt: 'Average score per tier in the caregiver portal: 66 out of 100 for Mudah, 98 for Sederhana and 100 for Sukar',
-              caption: 'Prestasi Ikut Tahap — average score per tier'
-            },
-            {
-              src: '/images/caregiver/hazard-map.webp',
-              alt: 'The caregiver Peta Bahaya screen listing folded carpet, blocked walkway, bathroom safety and hot water hazards against a house plan',
-              caption: 'Peta Bahaya — hazard status by room'
-            }
-          ].map(shot => (
-            <Figure
-              key={shot.src}
-              className="roles-extra-figure"
-              src={shot.src}
-              alt={shot.alt}
-              caption={shot.caption}
-              reveal="up"
-              zoomable
-              zoomTag="Caregiver portal"
-            />
-          ))}
+          <Figure
+            className="roles-extra-figure roles-extra-feature"
+            src="/images/caregiver/hazard-map.webp"
+            srcSet="/images/caregiver/hazard-map-1400w.webp 1400w, /images/caregiver/hazard-map.webp 3382w"
+            sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 52vw"
+            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session, with markers 01 to 05 placed on a labelled floor plan, the five-hazard Senarai Bahaya beside it, and Karpet Terlipat selected so the Butiran Bahaya Terpilih panel shows its room, risk level and recommendation"
+            caption="Peta Bahaya — every hazard placed on the floor plan"
+            reveal="up"
+            zoomable
+            zoomTag="Caregiver portal"
+            zoomDesc="Selecting a marker or a row fills the detail panel: room, hazard type, risk level, status and the recommendation the senior is given. Zoom in to read the Malay labels."
+            width={3382}
+            height={2085}
+          />
+
+          <div className="roles-extra-support">
+            {[
+              {
+                key: 'alerts',
+                alt: 'Makluman in the caregiver portal: fourteen stored sessions listed with status, tier, score, date and a one-line summary — "Sesi selesai dengan jayanya" for a finished run, "Sesi tidak lengkap — perlu perhatian" for an abandoned one',
+                caption: 'Makluman — every saved session, newest first'
+              },
+              {
+                key: 'tier-performance',
+                alt: 'Prestasi Ikut Tahap in the caregiver portal: average score and session count per tier — Mudah 66 out of 100 over 9 sessions, Sederhana 98 over 4, Sukar 100 over 1, and 77 out of 100 across all 14',
+                caption: 'Prestasi Ikut Tahap — average score per tier'
+              }
+            ].map(shot => (
+              <Figure
+                key={shot.key}
+                className="roles-extra-figure"
+                src={`/images/caregiver/${shot.key}.webp`}
+                srcSet={`/images/caregiver/${shot.key}-1400w.webp 1400w, /images/caregiver/${shot.key}.webp 3483w`}
+                sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 46vw, 25vw"
+                alt={shot.alt}
+                caption={shot.caption}
+                reveal="up"
+                zoomable
+                zoomTag="Caregiver portal"
+                width={3483}
+                height={2085}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -811,22 +956,37 @@ function SeniorDesign() {
   return (
     <section id="accessibility" className="section">
       <div className="container">
-        <SectionHead centered kicker="06 · Ergonomics" title="Built to be understood, not decoded.">
-          Every screen, prompt and interaction was tuned around one question: could someone who has never
-          worn a headset finish a session without being told what to do?
+        <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood, not decoded.">
+          One question decided every screen: could someone who has never worn a headset finish a session
+          without being told what to do?
         </SectionHead>
 
-        <div className="principles-grid">
-          {A11Y_PRINCIPLES.map((item, i) => (
-            <TiltCard className="principle-card" key={item.num} data-reveal="up" style={{ '--i': i }} max={3}>
-              <div className="principle-head">
-                <strong>{item.num}</strong>
-                <Accessibility size={16} strokeWidth={2} aria-hidden="true" />
-              </div>
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
-            </TiltCard>
-          ))}
+        {/* Six equal cards said all six mattered equally. They do not. The two
+            that shaped the most decisions lead at full size; the rest are a
+            tight list, which is also how they read — as constraints, not as
+            features. */}
+        <div className="principles">
+          <div className="principles-lead">
+            {A11Y_PRINCIPLES.slice(0, 2).map((item, i) => (
+              <TiltCard className="principle-lead" key={item.num} data-reveal="up" style={{ '--i': i }} max={3}>
+                <span className="principle-lead-num" aria-hidden="true">{item.num}</span>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </TiltCard>
+            ))}
+          </div>
+
+          <ul className="principles-rest">
+            {A11Y_PRINCIPLES.slice(2).map((item, i) => (
+              <li key={item.num} data-reveal="up" style={{ '--i': i }}>
+                <span className="principle-rest-num" aria-hidden="true">{item.num}</span>
+                <div>
+                  <strong>{item.title}</strong>
+                  <p>{item.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
@@ -842,17 +1002,24 @@ function System() {
   return (
     <section id="system" className="section section-alt">
       <div className="container">
-        <SectionHead centered kicker="07 · Architecture" title="An interaction system, not a slideshow.">
+        <SectionHead variant="statement" kicker="How it works" title="An interaction system, not a slideshow.">
           Input, physics, hazard state, verification and telemetry are one chain. What a senior does with
           their hands is what ends up in the caregiver's report.
         </SectionHead>
 
+        {/* A flow, drawn as a flow: one continuous line the nodes sit on, with
+            the on-device analysis stage carrying the weight — it is the step
+            that makes this more than a scoring screen. */}
         <div className="architecture" data-reveal="scale">
           <span className="kicker">Interaction pipeline</span>
           <div ref={railRef} className={`pipeline ${railIn ? 'is-live' : ''}`}>
             <span className="pipeline-rail" aria-hidden="true" />
             {PIPELINE.map((node, i) => (
-              <div className="pipeline-node" key={node.step} style={{ '--i': i }}>
+              <div
+                className={`pipeline-node${node.step === '05' ? ' pipeline-node-key' : ''}`}
+                key={node.step}
+                style={{ '--i': i }}
+              >
                 <small>{node.step}</small>
                 <strong>{node.title}</strong>
                 <span>{node.sub}</span>
@@ -906,20 +1073,27 @@ function System() {
           </div>
         </div>
 
-        <div className="section-head journey-head" data-reveal="up">
-          <span className="kicker">Development journey</span>
-          <h3>How it was built</h3>
-        </div>
+        {/* An actual timeline: one spine, six stops, read top to bottom. It was
+            a six-box grid, which is the one shape a chronology should never
+            be — a grid has no direction. */}
+        <div className="journey">
+          <div className="journey-head" data-reveal="up">
+            <span className="kicker">Development journey</span>
+            <h3>How it was built</h3>
+          </div>
 
-        <ol className="timeline">
-          {JOURNEY.map((item, i) => (
-            <li className="timeline-item" key={item.step} data-reveal="up" style={{ '--i': i }}>
-              <small>{item.step} · Phase</small>
-              <strong>{item.title}</strong>
-              <p>{item.desc}</p>
-            </li>
-          ))}
-        </ol>
+          <ol className="timeline">
+            {JOURNEY.map((item, i) => (
+              <li className="timeline-item" key={item.step} data-reveal="left" style={{ '--i': i }}>
+                <span className="timeline-marker" aria-hidden="true">{item.step}</span>
+                <div className="timeline-body">
+                  <strong>{item.title}</strong>
+                  <p>{item.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
 
         <p className="honesty-note" data-reveal="up">
           <ShieldAlert size={20} strokeWidth={2} aria-hidden="true" />
@@ -1001,8 +1175,8 @@ function Contact() {
       <div className="container">
         <div className="contact-grid">
           <div className="contact-info" data-reveal="left">
-            <span className="kicker">08 · Project information</span>
-            <SplitText as="h2" text="Safer habits through immersive practice." />
+            <span className="kicker">About the project</span>
+            <SplitText as="h2" text="One student, one house, eighteen hazards." />
             <p className="lede">
               RumahKuVR is a Final Year Project by <strong>{PROJECT.author}</strong>, {PROJECT.programme}.
             </p>

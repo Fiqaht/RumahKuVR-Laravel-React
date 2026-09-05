@@ -33,7 +33,20 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="image" href="/images/project/hero-hazard-scan.webp" fetchpriority="high">
+
+    {{-- Loaded here rather than through @import in app.css. An @import cannot
+         start until app.css has been fetched and parsed, which put the font
+         request a whole round-trip behind; as a <link> it goes out with the
+         rest of the head. --}}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Manrope:wght@400;500;600;700;800&display=swap">
+
+    {{-- Must mirror the `sizes`/`srcset` on the hero <img> in app.jsx exactly,
+         so the preload and the element resolve to the same candidate. --}}
+    <link rel="preload" as="image"
+          href="/images/project/hero-hazard-scan.webp"
+          imagesrcset="/images/project/hero-hazard-scan-800w.webp 800w, /images/project/hero-hazard-scan.webp 1500w"
+          imagesizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, (min-width: 1400px) 600px, 52vw"
+          fetchpriority="high">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 

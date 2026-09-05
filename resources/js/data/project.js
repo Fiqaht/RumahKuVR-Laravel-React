@@ -2,10 +2,10 @@
    RUMAHKUVR — PROJECT CONTENT
    Single source of truth for factual copy shown on the site.
 
-   Every figure and every Malay label below is taken from the shipped Unity
-   6.3 build (Assets/Screenshots) — the difficulty panel, the in-game
-   "Peta Rumah" legend, the caregiver "Peta Bahaya" list and the session
-   result card. Do not add features here that the build does not have.
+   Every figure and every Malay label below was read out of the running Unity
+   6.3 build over MCP — XRHazardMapData for the catalogue, the caregiver
+   report panel for the session figures — rather than transcribed from a
+   screenshot. Do not add features here that the build does not have.
    -------------------------------------------------------------------------- */
 
 export const PROJECT = {
@@ -40,7 +40,7 @@ export const TIERS = [
     image: '/images/gameplay/spotlight-easy.webp',
     alt: 'Easy tier in RumahKuVR: a floor hazard is spotlighted and a Malay instruction reads “Bersihkan lantai”',
     desc:
-      'The first session for a senior who has never held a controller. Hazards are spotlighted, there is no timer, and every instruction is available as text or spoken Malay.',
+      'Built for a senior who has never held a controller. Hazards are spotlighted, there is no timer, and every instruction is available as text or spoken Malay.',
     features: ['No time limit', 'Clear on-screen markers', 'Text or spoken Malay guidance']
   },
   {
@@ -54,7 +54,7 @@ export const TIERS = [
     image: '/images/gameplay/medium-map-coachmark.webp',
     alt: 'Medium tier in RumahKuVR: a coachmark points to the Peta Rumah house-map button',
     desc:
-      'The search area widens and markers thin out. Help is still there — but the senior has to open the house map and ask for it.',
+      'Markers thin out and the search area widens. Help is still there — but the senior has to open the house map and ask for it.',
     features: ['Wider search area', 'Fewer visual markers', 'Guidance on request']
   },
   {
@@ -74,20 +74,23 @@ export const TIERS = [
 ];
 
 /* Hazard catalogue.
-   Easy labels match the in-game "Peta Rumah" legend exactly.
-   Medium labels match the caregiver "Peta Bahaya" hazard list. */
+   Names, rooms and risk levels below were read out of XRHazardMapData in the
+   running 6.3 build, not transcribed from an older screenshot. Several rooms
+   here used to be wrong: the folded carpet is in the dining room, not the
+   living room; the medicine cabinet is in the kitchen, not a bedroom; the
+   blocked walkway is the utility room, not a hallway. */
 export const HAZARDS = {
   easy: [
-    { en: 'Wet Floor', ms: 'Lantai Basah', room: 'Bathroom · kitchen' },
-    { en: 'Exposed Electrical Wire', ms: 'Wayar Terdedah', room: 'Living area' },
-    { en: 'LPG Gas Leak', ms: 'Dapur Gas', room: 'Kitchen' }
+    { en: 'Wet Floor', ms: 'Lantai Basah', room: 'Bilik Air · bathroom', risk: 'Sederhana' },
+    { en: 'Exposed Electrical Wire', ms: 'Wayar Terdedah', room: 'Ruang Makan · dining', risk: 'Sederhana' },
+    { en: 'LPG Gas Hazard', ms: 'Dapur Gas', room: 'Dapur · kitchen', risk: 'Sederhana' }
   ],
   medium: [
-    { en: 'Bathroom Fall', ms: 'Keselamatan di Tandas', room: 'Bathroom' },
-    { en: 'Hot Water', ms: 'Bahaya Air Panas', room: 'Kitchen' },
-    { en: 'Medicine Safety', ms: 'Keselamatan Ubat', room: 'Bedroom' },
-    { en: 'Folded Carpet', ms: 'Karpet Terlipat', room: 'Living room' },
-    { en: 'Cluttered Walkway', ms: 'Objek Menghalang Laluan', room: 'Hallway' }
+    { en: 'Folded Carpet', ms: 'Karpet Terlipat', room: 'Ruang Makan · dining', risk: 'Sederhana' },
+    { en: 'Blocked Walkway', ms: 'Objek Menghalang Laluan', room: 'Bilik Utiliti · utility', risk: 'Rendah' },
+    { en: 'Bathroom Safety', ms: 'Keselamatan di Tandas', room: 'Bilik Air · bathroom', risk: 'Sederhana' },
+    { en: 'Hot Water', ms: 'Bahaya Air Panas', room: 'Dapur · kitchen', risk: 'Sederhana' },
+    { en: 'Medicine Safety', ms: 'Keselamatan Ubat-Ubatan', room: 'Dapur · kitchen', risk: 'Sederhana' }
   ]
 };
 
@@ -99,7 +102,7 @@ export const GALLERY = [
     ms: 'Dapur menyala tanpa dijaga',
     tag: 'Hazard detection',
     desc:
-      'The burner is left running. Looking at it raises the hazard card; reaching out and turning it off clears the hazard and advances the counter.'
+      'A burner has been left running. Looking at it raises the hazard card; reaching out and turning it off clears the hazard and advances the counter.'
   },
   {
     file: '/images/gameplay/hazard-high-storage.webp',
@@ -171,7 +174,7 @@ export const GALLERY = [
     ms: 'Tutorial Selesai',
     tag: 'Onboarding',
     desc:
-      'The tutorial ends only once the senior has moved, inspected and cleared a hazard unaided — then the real simulation unlocks.'
+      'The tutorial ends only once the senior has moved, inspected and cleared a hazard unaided — then the real simulation opens.'
   }
 ];
 
@@ -188,7 +191,7 @@ export const CASE_STEPS = [
     num: '02',
     title: 'Act',
     tag: 'Step 02 · Correction',
-    desc: 'The trolley is fetched and brought alongside the table.',
+    desc: 'A trolley is fetched and brought alongside the table.',
     image: '/images/gameplay/hazard-meal-02.webp'
   },
   {
@@ -214,11 +217,12 @@ export const ROLES = {
     key: 'senior',
     label: 'Senior',
     malay: 'Warga Emas',
-    kicker: '01 · Senior',
+    kicker: 'Warga Emas',
     title: 'Start a session in two taps.',
     body:
       'One screen, four large actions, and the two numbers that matter — the last score and how many sessions are done. Nothing else competes for attention.',
     image: '/images/ui/senior-menu.webp',
+    imageSrcSet: '/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w',
     alt: 'RumahKuVR senior menu showing a welcome message, a large “Mula Latihan” button and last score of 80 out of 100',
     caption: 'Senior menu · in-headset capture',
     points: [
@@ -231,11 +235,12 @@ export const ROLES = {
     key: 'caregiver',
     label: 'Caregiver',
     malay: 'Penjaga',
-    kicker: '02 · Caregiver',
+    kicker: 'Penjaga',
     title: 'See which hazards keep coming back.',
     body:
       'The caregiver portal reports per-session records, average score by tier, and the hazards a senior has not yet cleared — mapped to the room they are in.',
     image: '/images/caregiver/records.webp',
+    imageSrcSet: '/images/caregiver/records-1400w.webp 1400w, /images/caregiver/records.webp 3483w',
     alt: 'RumahKuVR caregiver performance report listing recent sessions with tier, score, hazards and status',
     caption: 'Laporan Prestasi · session records',
     points: [
@@ -248,11 +253,12 @@ export const ROLES = {
     key: 'guest',
     label: 'Guest',
     malay: 'Tetamu',
-    kicker: '03 · Guest',
+    kicker: 'Tetamu',
     title: 'Try it without making an account.',
     body:
       'A guest gives a name and nothing else — no password, no record kept. They land on the same Senior menu and play the same house, which is what makes the app demonstrable to a visitor in under a minute.',
     image: '/images/ui/login.webp',
+    imageSrcSet: '/images/ui/login-1400w.webp 1400w, /images/ui/login.webp 3772w',
     alt: 'RumahKuVR sign-in screen with Warga Emas, Tetamu and Penjaga to choose from, above the username and password fields',
     caption: 'Log Masuk · the role is chosen before signing in',
     points: [

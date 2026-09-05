@@ -34,13 +34,24 @@ export function SplitText({ as: Tag = 'span', text, className = '', delay = 0, s
 /* --------------------------------------------------------------------------
    SECTION HEADING
    -------------------------------------------------------------------------- */
-export function SectionHead({ kicker, title, children, centered = false, className = '' }) {
+/* `variant` exists so the page can vary its own rhythm rather than opening
+   every section the same way:
+     default   — left aligned, stacked
+     centered  — reserved for the one section that leads into a full-bleed
+                 visual, where a centred head genuinely earns the symmetry
+     split     — title left, supporting line right, on a shared baseline
+     statement — oversized title on a short measure, no supporting line */
+export function SectionHead({ kicker, title, children, variant = 'default', className = '' }) {
+  const cls = `section-head section-head-${variant} ${className}`.trim();
+
   return (
-    <header className={`section-head ${centered ? 'centered' : ''} ${className}`.trim()}>
-      <span className="kicker" data-reveal="up">
-        {kicker}
-      </span>
-      <SplitText as="h2" text={title} delay={90} />
+    <header className={cls}>
+      <div className="section-head-lead">
+        <span className="kicker" data-reveal="up">
+          {kicker}
+        </span>
+        <SplitText as="h2" text={title} delay={90} />
+      </div>
       {children ? (
         <p className="lede" data-reveal="up" style={{ transitionDelay: '160ms' }}>
           {children}
@@ -112,6 +123,7 @@ export function ZoomTrigger({ item, label, children, className = '' }) {
    -------------------------------------------------------------------------- */
 export function Figure({
   src,
+  srcSet,
   alt,
   caption,
   className = '',
@@ -133,14 +145,19 @@ export function Figure({
     if (node?.complete) setLoaded(true);
   }, []);
 
+  // sizes/srcSet are set before src on purpose: React writes attributes in the
+  // order they appear here, and an <img> that gets src first starts fetching
+  // that URL before the candidate list exists — downloading the full-size
+  // capture on a phone that only needed the narrow one.
   const image = (
     <img
       ref={imgRef}
+      sizes={srcSet ? sizes : undefined}
+      srcSet={srcSet}
       src={src}
       alt={alt}
       width={width}
       height={height}
-      sizes={sizes}
       loading={eager ? 'eager' : 'lazy'}
       decoding={eager ? 'sync' : 'async'}
       fetchPriority={eager ? 'high' : undefined}
