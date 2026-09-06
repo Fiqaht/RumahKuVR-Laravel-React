@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
-  Accessibility, ArrowRight, ArrowUpRight, Check, Cpu, GraduationCap,
-  Layers, Menu, MonitorPlay, Moon, Radar, ShieldAlert, ShieldCheck,
-  Sun, Timer, Volume2, X
+  Accessibility, ArrowRight, ArrowUpRight, Boxes, Check, ClipboardList, Cpu,
+  Gamepad2, GraduationCap, Hand, Layers, Menu, MonitorPlay, Moon, Pause, Play,
+  Radar, ScanEye, ShieldAlert, ShieldCheck, Sun, Timer, Volume2, X
 } from 'lucide-react';
 
 import {
@@ -16,10 +16,11 @@ import {
   useScrollProgress, useScrollReveal, useTilt
 } from './lib/motion';
 
-import { begin as beginIntro } from './lib/intro';
+import { markReady as markIntroReady } from './lib/intro';
 
 import { Counter, Figure, SectionHead, SplitText, TiltCard, ZoomTrigger } from './components/primitives';
 import Coverflow from './components/Coverflow';
+import DemoReel from './components/DemoReel';
 import Lightbox from './components/Lightbox';
 
 const NAV_LINKS = [
@@ -27,6 +28,7 @@ const NAV_LINKS = [
   ['overview', 'Overview'],
   ['training', 'Training'],
   ['gameplay', 'Gameplay'],
+  ['demo', 'Demo'],
   ['platform', 'Platform'],
   ['roles', 'Roles'],
   ['system', 'System'],
@@ -49,7 +51,7 @@ function useTheme() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('rumahkuvr-theme', theme);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#f8faf7' : '#090b0d');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#f6f7f9' : '#08090b');
   }, [theme]);
 
   return { theme, toggleTheme: () => setTheme(t => (t === 'dark' ? 'light' : 'dark')) };
@@ -197,12 +199,13 @@ function Hero() {
   const magneticPrimary = useMagnetic({ enabled: canHover && !reduced });
   const magneticSecondary = useMagnetic({ enabled: canHover && !reduced });
 
-  /* The opening sequence is told to part its curtain from here, in a layout
-     effect, because this is the first moment the hero's DOM is committed —
-     the overlay is presentation, but it should never uncover an empty stage.
-     Nothing about the hero's own rendering waits on this call. */
+  /* The opening sequence is told the page exists from here, in a layout
+     effect, because this is the first moment the hero's DOM is committed. The
+     gate will not offer itself to be opened before this call lands — it is
+     presentation, but it should never uncover an empty stage. Nothing about
+     the hero's own rendering waits on it. */
   useLayoutEffect(() => {
-    beginIntro();
+    markIntroReady();
   }, []);
 
   return (
@@ -414,6 +417,7 @@ function Overview() {
    -------------------------------------------------------------------------- */
 function Training() {
   const [step, setStep] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
 
   /* Which tier the sticky rail should highlight. One observer over three
      panels, with a thin band across the middle of the viewport as the trigger
@@ -421,6 +425,16 @@ function Training() {
      no scroll listener. */
   const [activeTier, setActiveTier] = useState(0);
   const panelRefs = useRef([]);
+
+  /* The rail reads the stack, and now also drives it. Scrolling the panel to
+     the middle of the viewport is what the observer is watching for, so the
+     highlight follows on its own rather than being set twice. */
+  const goToTier = i => {
+    panelRefs.current[i]?.scrollIntoView({
+      block: 'center',
+      behavior: reducedMotion ? 'auto' : 'smooth'
+    });
+  };
 
   useEffect(() => {
     const nodes = panelRefs.current.filter(Boolean);
@@ -461,6 +475,13 @@ function Training() {
                 Difficulty here is not speed. It is how much help stays on screen.
               </p>
 
+              {/* The claim, drawn. All three tiers show their own guidance bar
+                  at once, so the fade is a shape you read in a glance rather
+                  than a number that changes as you scroll — and the row you
+                  are looking at opens to say, in words, what is left.
+
+                  The rows are buttons as well as a legend: the rail tracks the
+                  stack, and the stack can be driven from the rail. */}
               <ol className="tier-legend" data-reveal="up" style={{ transitionDelay: '240ms' }}>
                 {TIERS.map((tier, i) => (
                   <li
@@ -468,44 +489,59 @@ function Training() {
                     className={`tier-legend-item ${i === activeTier ? 'is-active' : ''}`}
                     aria-current={i === activeTier ? 'true' : undefined}
                   >
-                    <span className={`tier-legend-dot ${tier.badgeClass}`} aria-hidden="true" />
-                    <span className="tier-legend-name">{tier.malay}</span>
-                    <span className="tier-legend-count">{tier.count} hazards</span>
+                    <button type="button" className="tier-legend-btn" onClick={() => goToTier(i)}>
+                      <span className="tier-legend-row">
+                        <span className={`tier-legend-dot ${tier.badgeClass}`} aria-hidden="true" />
+                        <span className="tier-legend-name">{tier.malay}</span>
+                        <span className="tier-legend-count">{tier.count} hazards</span>
+                      </span>
+
+                      <span
+                        className="tier-legend-meter"
+                        role="meter"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.round(tier.guidance * 100)}
+                        aria-label={`On-screen guidance in ${tier.malay}`}
+                      >
+                        <i className={tier.badgeClass} style={{ '--g': tier.guidance }} />
+                      </span>
+
+                      <span className="tier-legend-note">
+                        <span>{tier.guidanceLabel}</span>
+                      </span>
+                    </button>
                   </li>
                 ))}
               </ol>
 
-              {/* The section's claim, made measurable. The bar is how much help
-                  stays on screen in the tier you are currently looking at, so
-                  scrolling Mudah → Sederhana → Sukar visibly drains it. */}
-              <div className="guidance-meter" data-reveal="up" style={{ transitionDelay: '300ms' }}>
-                <div className="guidance-meter-head">
-                  <span>On-screen guidance</span>
-                  <strong aria-live="polite">{TIERS[activeTier].guidanceLabel}</strong>
-                </div>
-                <div
-                  className="guidance-meter-track"
-                  role="meter"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={Math.round(TIERS[activeTier].guidance * 100)}
-                  aria-label={`On-screen guidance in ${TIERS[activeTier].malay}`}
-                >
-                  <span
-                    className={`guidance-meter-fill ${TIERS[activeTier].badgeClass}`}
-                    style={{ width: `${TIERS[activeTier].guidance * 100}%` }}
-                  />
-                </div>
-              </div>
+              <p className="tier-legend-caption">
+                The bar is how much help stays on screen. Sukar has the most hazards and the least of it.
+              </p>
             </div>
           </div>
 
+          {/* THE SELECTED STATE IS AN ATTRIBUTE, NOT A CLASS.
+
+              Each panel below carries `data-reveal`, and the scroll-reveal
+              observer marks it by adding `is-visible` to its class list. React
+              does not know about that class: the moment anything makes React
+              rewrite `className` on the same element — which a selected-state
+              class would, on every scroll — the observer's mark is wiped, and
+              because the observer unobserves after the first intersection it
+              never comes back. The panel would sit at opacity 0 for the rest
+              of the visit.
+
+              A data attribute is written independently of `class`, so the two
+              systems stop fighting over one property. Same reason the demo
+              reel's player state is an attribute. */}
           <div className="tier-stack">
             {TIERS.map((tier, i) => (
               <article
                 className="tier-panel"
                 key={tier.id}
                 data-tier={i}
+                data-current={i === activeTier ? 'true' : undefined}
                 ref={el => {
                   panelRefs.current[i] = el;
                 }}
@@ -523,14 +559,20 @@ function Training() {
 
                 <div className="tier-panel-body">
                   <div className="tier-panel-head">
+                    <span className="tier-panel-index" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
                     <h3>{tier.title}</h3>
                     <span className={`training-badge ${tier.badgeClass}`}>{tier.malay}</span>
                   </div>
                   <p>{tier.desc}</p>
-                  <ul className="feature-list">
+
+                  {/* What is left on screen in this tier, as chips rather than
+                      a tick list — they are conditions the tier is played
+                      under, not features it offers. */}
+                  <ul className="tier-conditions" aria-label={`What stays on screen in ${tier.malay}`}>
                     {tier.features.map(f => (
-                      <li key={f}>
-                        <Check size={14} strokeWidth={2.4} aria-hidden="true" />
+                      <li key={f} className="chip">
                         {f}
                       </li>
                     ))}
@@ -950,12 +992,12 @@ function Roles() {
             src="/images/caregiver/hazard-map.webp"
             srcSet="/images/caregiver/hazard-map-1400w.webp 1400w, /images/caregiver/hazard-map.webp 3382w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 52vw"
-            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session, with markers 01 to 05 placed on a labelled floor plan, the five-hazard Senarai Bahaya beside it, and Karpet Terlipat selected so the Butiran Bahaya Terpilih panel shows its room, risk level and recommendation"
+            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session scoring 100 out of 100, with markers 01 to 05 placed on a labelled floor plan — Ruang Tamu, Ruang Makan, Bilik Tidur, Bilik Utiliti, Bilik Air — the five-hazard Senarai Bahaya beside it all marked Selesai, and the Butiran Bahaya Terpilih panel waiting on a selection"
             caption="Peta Bahaya — every hazard placed on the floor plan"
             reveal="up"
             zoomable
             zoomTag="Caregiver portal"
-            zoomDesc="Selecting a marker or a row fills the detail panel: room, hazard type, risk level, status and the recommendation the senior is given. Zoom in to read the Malay labels."
+            zoomDesc="Five hazards from one Sederhana session, each pinned to the room it was found in. Selecting a marker or a row fills the Butiran Bahaya Terpilih panel with that hazard's room, risk level, status and recommendation. Zoom in to read the Malay labels."
             width={3382}
             height={2085}
           />
@@ -1042,6 +1084,18 @@ function SeniorDesign() {
 /* --------------------------------------------------------------------------
    08 SYSTEM
    -------------------------------------------------------------------------- */
+/* One icon per pipeline stage, keyed by step so the data file stays free of
+   presentation. Six identical text boxes read as a diagram of a system; six
+   distinguishable ones read as a way into it. */
+const PIPELINE_ICONS = {
+  '01': Gamepad2,
+  '02': Boxes,
+  '03': ScanEye,
+  '04': Hand,
+  '05': Cpu,
+  '06': ClipboardList
+};
+
 function System() {
   const [railRef, railIn] = useInView({ threshold: 0.3 });
 
@@ -1110,7 +1164,12 @@ function System() {
             the on-device analysis stage carrying the weight — it is the step
             that makes this more than a scoring screen. */}
         <div className="architecture" data-reveal="scale">
-          <span className="kicker">Interaction pipeline</span>
+          <div className="architecture-head">
+            <span className="kicker">Interaction pipeline</span>
+            <p className="architecture-hint">
+              Pick a stage — or use <kbd>←</kbd> <kbd>→</kbd>
+            </p>
+          </div>
 
           {/* A real tablist. Each stage is a button, arrow keys move between
               them, and the panel below explains what that stage actually does
@@ -1133,29 +1192,41 @@ function System() {
               aria-hidden="true"
               style={{ width: `${(activeStage / (PIPELINE.length - 1)) * 92}%` }}
             />
-            {PIPELINE.map((node, i) => (
-              <button
-                type="button"
-                role="tab"
-                id={`pipeline-tab-${node.step}`}
-                aria-selected={i === activeStage}
-                aria-controls="pipeline-panel"
-                tabIndex={i === activeStage ? 0 : -1}
-                ref={el => {
-                  stageRefs.current[i] = el;
-                }}
-                className={`pipeline-node${i === activeStage ? ' is-active' : ''}${i < activeStage ? ' is-passed' : ''}`}
-                key={node.step}
-                style={{ '--i': i }}
-                onClick={() => setActiveStage(i)}
-              >
-                <small>{node.step}</small>
-                <strong>{node.title}</strong>
-                <span>{node.sub}</span>
-              </button>
-            ))}
+            {PIPELINE.map((node, i) => {
+              const Icon = PIPELINE_ICONS[node.step];
+              return (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`pipeline-tab-${node.step}`}
+                  aria-selected={i === activeStage}
+                  aria-controls="pipeline-panel"
+                  tabIndex={i === activeStage ? 0 : -1}
+                  ref={el => {
+                    stageRefs.current[i] = el;
+                  }}
+                  className={`pipeline-node${i === activeStage ? ' is-active' : ''}${i < activeStage ? ' is-passed' : ''}`}
+                  key={node.step}
+                  style={{ '--i': i }}
+                  onClick={() => setActiveStage(i)}
+                >
+                  <span className="pipeline-node-top">
+                    <span className="pipeline-node-icon" aria-hidden="true">
+                      {Icon ? <Icon size={15} strokeWidth={1.9} /> : null}
+                    </span>
+                    <small>{node.step}</small>
+                  </span>
+                  <strong>{node.title}</strong>
+                  <span className="pipeline-node-sub">{node.sub}</span>
+                </button>
+              );
+            })}
           </div>
 
+          {/* The panel is keyed on the stage, so React remounts it and the
+              entrance replays without a listener. It also reserves its own
+              height: switching stages must not move the row of buttons the
+              reader is clicking. */}
           <div
             className="pipeline-panel"
             id="pipeline-panel"
@@ -1164,7 +1235,11 @@ function System() {
             key={activeStage}
           >
             <p className="pipeline-panel-step" aria-hidden="true">
-              {PIPELINE[activeStage].step} · {PIPELINE[activeStage].title}
+              <span className="pipeline-panel-num">{PIPELINE[activeStage].step}</span>
+              {PIPELINE[activeStage].title}
+              <span className="pipeline-panel-of">
+                {activeStage + 1} of {PIPELINE.length}
+              </span>
             </p>
             <p className="pipeline-panel-body">{PIPELINE[activeStage].detail}</p>
           </div>
@@ -1225,6 +1300,11 @@ function System() {
           </div>
 
           <ol className="timeline">
+            {/* The light at the front of the spine. Purely decorative, and
+                only drawn at all where the scroll-driven draw it belongs to
+                can actually run. */}
+            <span className="timeline-head" aria-hidden="true" />
+
             {JOURNEY.map((item, i) => (
               <li className="timeline-item" key={item.step} data-reveal="left" style={{ '--i': i }}>
                 <span className="timeline-marker" aria-hidden="true">{item.step}</span>
@@ -1262,8 +1342,25 @@ function Contact() {
   // the button, and React has not re-rendered the disabled state yet. A ref
   // flips synchronously, so the second submit is dropped before it can POST.
   const inFlight = useRef(false);
+  const subjectRef = useRef(null);
 
   const set = key => e => setForm(f => ({ ...f, [key]: e.target.value }));
+
+  /* The demo reel's closing call to action drops a subject in here rather than
+     sending the visitor to a blank form. An event rather than lifted state:
+     the form is the only thing that owns these fields, and nothing between it
+     and the reel has any reason to know they exist. A subject the visitor has
+     already started writing is never overwritten. */
+  useEffect(() => {
+    const onPrefill = e => {
+      const subject = e.detail?.subject;
+      if (!subject) return;
+      setForm(f => (f.subject.trim() ? f : { ...f, subject }));
+      window.setTimeout(() => subjectRef.current?.focus({ preventScroll: true }), 700);
+    };
+    window.addEventListener('rkv:contact-prefill', onPrefill);
+    return () => window.removeEventListener('rkv:contact-prefill', onPrefill);
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -1356,7 +1453,7 @@ function Contact() {
 
               <div className="form-group">
                 <label htmlFor="subject">Subject</label>
-                <input id="subject" name="subject" type="text" required maxLength={160} value={form.subject} onChange={set('subject')} />
+                <input id="subject" name="subject" type="text" required maxLength={160} ref={subjectRef} value={form.subject} onChange={set('subject')} />
               </div>
 
               <div className="form-group">
@@ -1452,6 +1549,7 @@ function App() {
         <Overview />
         <Training />
         <Gameplay />
+        <DemoReel />
         <Platform />
         <Roles />
         <SeniorDesign />

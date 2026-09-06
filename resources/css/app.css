@@ -4,9 +4,15 @@
 
 /* ==========================================================================
    RUMAHKUVR — DESIGN SYSTEM
-   Dark-first, editorial, restrained green accent. Motion is expressed almost
-   entirely through custom properties so a single reduced-motion block at the
-   bottom of this file can neutralise all of it.
+
+   Dark-first, editorial, monochrome. There is no hue anywhere in the palette:
+   every accent is a step on one cool-neutral ramp from graphite to platinum,
+   so emphasis is carried by luminance and weight rather than by colour. The
+   only colour on the page comes from the in-engine captures themselves, which
+   is the point — nothing on the site competes with the product shots.
+
+   Motion is expressed almost entirely through custom properties so a single
+   reduced-motion block at the bottom of this file can neutralise all of it.
    ========================================================================== */
 :root {
   --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
@@ -63,30 +69,36 @@
   --border-subtle: rgba(255, 255, 255, 0.055);
   --border-strong: rgba(255, 255, 255, 0.2);
 
-  --text: #f3f6f4;
-  --text-muted: #a2ada6;
-  --text-faint: #6f7a73;
+  --text: #f4f6f8;
+  --text-muted: #a4acb6;
+  --text-faint: #737c86;
 
-  --accent: #3eb489;
-  --accent-soft: rgba(62, 180, 137, 0.13);
-  --accent-glow: rgba(62, 180, 137, 0.26);
-  --accent-text: #6ce0b6;
-  --accent-contrast: #05170f;
+  /* Silver, not a hue. `--accent` is the line-and-label weight; `--accent-text`
+     is the platinum reserved for figures and the one selected item in a set. */
+  --accent: #b7c0ca;
+  --accent-soft: rgba(196, 206, 217, 0.10);
+  --accent-glow: rgba(196, 206, 217, 0.22);
+  --accent-text: #eef2f6;
+  --accent-contrast: #06080a;
 
-  --amber: #e69d45;
-  --blue: #5b9bf8;
+  /* THE TIER LADDER.
 
-  --badge-easy-bg: rgba(46, 125, 90, 0.18);
-  --badge-easy-border: rgba(62, 180, 137, 0.36);
-  --badge-easy-text: #7ee0b8;
+     Mudah, Sederhana and Sukar are not three categories, they are one quantity
+     decreasing — how much help stays on screen. So they are three steps down
+     the same ramp rather than three different colours, and the badge for the
+     hardest tier is the dimmest on the page. The section's argument is in the
+     palette before a word of it is read. */
+  --badge-easy-bg: rgba(238, 242, 246, 0.13);
+  --badge-easy-border: rgba(238, 242, 246, 0.34);
+  --badge-easy-text: #eef2f6;
 
-  --badge-med-bg: rgba(201, 135, 58, 0.18);
-  --badge-med-border: rgba(230, 157, 69, 0.36);
-  --badge-med-text: #f6c082;
+  --badge-med-bg: rgba(196, 206, 217, 0.10);
+  --badge-med-border: rgba(196, 206, 217, 0.24);
+  --badge-med-text: #c2ccd7;
 
-  --badge-hard-bg: rgba(91, 155, 248, 0.18);
-  --badge-hard-border: rgba(91, 155, 248, 0.36);
-  --badge-hard-text: #a8cdfc;
+  --badge-hard-bg: rgba(150, 161, 174, 0.08);
+  --badge-hard-border: rgba(150, 161, 174, 0.20);
+  --badge-hard-text: #96a1ae;
 
   --card-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
   --card-hover-shadow: 0 26px 60px rgba(0, 0, 0, 0.6);
@@ -95,71 +107,71 @@
   --shadow-showcase: 0 2px 6px rgba(0, 0, 0, 0.36), 0 34px 80px -20px rgba(0, 0, 0, 0.72);
   --shadow-float: 0 1px 3px rgba(0, 0, 0, 0.4), 0 18px 40px -12px rgba(0, 0, 0, 0.66);
   /* Floating chrome that sits on top of a capture: readable without hiding it. */
-  --glass-bg: rgba(16, 20, 26, 0.72);
+  --glass-bg: rgba(16, 19, 24, 0.72);
   --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-text: #eef2f0;
+  --glass-text: #eff2f5;
   --nav-bg: rgba(11, 13, 17, 0.78);
-  --overlay-bg: rgba(4, 6, 8, 0.86);
-  --image-backdrop: #0b0e12;
+  --overlay-bg: rgba(5, 6, 8, 0.86);
+  --image-backdrop: #0b0d11;
   --spotlight: rgba(255, 255, 255, 0.07);
-  --cf-scrim-top: rgba(4, 8, 10, 0.45);
-  --cf-scrim-mid: rgba(4, 8, 10, 0.1);
-  --cf-scrim-bottom: rgba(4, 8, 10, 0.6);
+  --cf-scrim-top: rgba(5, 7, 10, 0.45);
+  --cf-scrim-mid: rgba(5, 7, 10, 0.1);
+  --cf-scrim-bottom: rgba(5, 7, 10, 0.6);
 }
 
 /* --------------------------------------------------------------------------
    LIGHT THEME
    -------------------------------------------------------------------------- */
 [data-theme='light'] {
-  --bg: #f8faf7;
-  --bg-subtle: #eef2ec;
+  --bg: #f6f7f9;
+  --bg-subtle: #eceef1;
   --surface: #ffffff;
-  --surface-alt: #f2f5f0;
-  --surface-raised: #e8ede5;
+  --surface-alt: #f1f3f5;
+  --surface-raised: #e5e8ec;
 
-  --border: rgba(23, 57, 46, 0.13);
-  --border-subtle: rgba(23, 57, 46, 0.07);
-  --border-strong: rgba(23, 57, 46, 0.26);
+  --border: rgba(20, 26, 34, 0.13);
+  --border-subtle: rgba(20, 26, 34, 0.07);
+  --border-strong: rgba(20, 26, 34, 0.26);
 
-  --text: #101a15;
-  --text-muted: #4c5d54;
-  --text-faint: #74857b;
+  --text: #0e1116;
+  --text-muted: #4f5866;
+  --text-faint: #78818e;
 
-  --accent: #1c5b41;
-  --accent-soft: rgba(28, 91, 65, 0.08);
-  --accent-glow: rgba(28, 91, 65, 0.16);
-  --accent-text: #144a34;
+  /* Graphite is the light theme's silver: the same role, inverted. */
+  --accent: #3b4552;
+  --accent-soft: rgba(59, 69, 82, 0.07);
+  --accent-glow: rgba(59, 69, 82, 0.15);
+  --accent-text: #212934;
   --accent-contrast: #ffffff;
 
-  --amber: #a8661a;
-  --blue: #24589f;
+  /* The same ladder as dark, read the other way: the tier with the most
+     guidance is the darkest chip, and Sukar is the faintest. */
+  --badge-easy-bg: #e3e7ec;
+  --badge-easy-border: #b9c1cb;
+  --badge-easy-text: #1b2430;
 
-  --badge-easy-bg: #e2ede5;
-  --badge-easy-border: #b3d3bf;
-  --badge-easy-text: #14512f;
+  --badge-med-bg: #eceef2;
+  --badge-med-border: #ccd2da;
+  --badge-med-text: #3c4653;
 
-  --badge-med-bg: #fbf0db;
-  --badge-med-border: #e8cea1;
-  --badge-med-text: #7f5312;
+  --badge-hard-bg: #f2f4f6;
+  --badge-hard-border: #dde1e6;
+  --badge-hard-text: #5b6572;
 
-  --badge-hard-bg: #e6edf7;
-  --badge-hard-border: #b6cdec;
-  --badge-hard-text: #1a4272;
-
-  --card-shadow: 0 12px 32px rgba(18, 45, 33, 0.07);
-  --card-hover-shadow: 0 20px 44px rgba(18, 45, 33, 0.13);
-  --shadow-showcase: 0 1px 3px rgba(18, 45, 33, 0.1), 0 30px 64px -22px rgba(18, 45, 33, 0.26);
-  --shadow-float: 0 1px 2px rgba(18, 45, 33, 0.1), 0 16px 34px -14px rgba(18, 45, 33, 0.24);
+  --card-shadow: 0 12px 32px rgba(15, 21, 30, 0.07);
+  --card-hover-shadow: 0 20px 44px rgba(15, 21, 30, 0.13);
+  --shadow-showcase: 0 1px 3px rgba(15, 21, 30, 0.1), 0 30px 64px -22px rgba(15, 21, 30, 0.26);
+  --shadow-float: 0 1px 2px rgba(15, 21, 30, 0.1), 0 16px 34px -14px rgba(15, 21, 30, 0.24);
   --glass-bg: rgba(255, 255, 255, 0.86);
-  --glass-border: rgba(23, 57, 46, 0.14);
-  --glass-text: #101a15;
+  --glass-border: rgba(20, 26, 34, 0.14);
+  --glass-text: #0e1116;
   --nav-bg: rgba(255, 255, 255, 0.82);
-  --overlay-bg: rgba(12, 22, 17, 0.6);
-  --image-backdrop: #e4eae1;
-  --spotlight: rgba(28, 91, 65, 0.07);
-  --cf-scrim-top: rgba(238, 242, 236, 0.5);
-  --cf-scrim-mid: rgba(238, 242, 236, 0.18);
-  --cf-scrim-bottom: rgba(238, 242, 236, 0.62);
+  --overlay-bg: rgba(14, 17, 22, 0.6);
+  --image-backdrop: #e3e6ea;
+  --spotlight: rgba(30, 38, 48, 0.07);
+  --cf-scrim-top: rgba(236, 238, 241, 0.5);
+  --cf-scrim-mid: rgba(236, 238, 241, 0.18);
+  --cf-scrim-bottom: rgba(236, 238, 241, 0.62);
 }
 
 /* --------------------------------------------------------------------------
@@ -177,8 +189,8 @@ html.high-contrast[data-theme='dark'] {
   --border: rgba(255, 255, 255, 0.3);
   --border-subtle: rgba(255, 255, 255, 0.18);
   --border-strong: #ffffff;
-  --accent: #59e0ac;
-  --accent-text: #7cf0c4;
+  --accent: #ffffff;
+  --accent-text: #ffffff;
   /* Floating chrome loses its translucency here — over a screenshot, a
      see-through panel is exactly what high contrast is asked to remove. */
   --glass-bg: #000000;
@@ -198,8 +210,8 @@ html.high-contrast[data-theme='light'] {
   --border: rgba(0, 0, 0, 0.38);
   --border-subtle: rgba(0, 0, 0, 0.2);
   --border-strong: #000000;
-  --accent: #0d3f2b;
-  --accent-text: #0d3f2b;
+  --accent: #000000;
+  --accent-text: #000000;
   --glass-bg: #ffffff;
   --glass-border: #000000;
   --glass-text: #000000;
@@ -445,8 +457,14 @@ p {
   width: 100%;
 }
 
+/* VERTICAL RHYTHM.
+
+   One value governs the whole page's breathing. It was 60–120px, which is a
+   normal editorial rhythm but a tight one for a page whose sections are each a
+   full composition — a filmstrip, a sticky rail and a stack, a coverflow. At
+   this scale the sections read as separate arguments rather than as a list. */
 .section {
-  padding-block: clamp(60px, 7.2vw, 120px);
+  padding-block: clamp(76px, 8.4vw, 148px);
   position: relative;
 }
 
@@ -457,7 +475,7 @@ p {
 
 .section-head {
   max-width: 780px;
-  margin-bottom: clamp(32px, 4.2vw, 60px);
+  margin-bottom: clamp(40px, 5vw, 76px);
 }
 
 /* Exactly one section uses this — Gameplay, which opens onto the full-bleed
@@ -608,8 +626,8 @@ p {
 
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 var(--accent-glow); }
-  60% { box-shadow: 0 0 0 8px rgba(62, 180, 137, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(62, 180, 137, 0); }
+  60% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 /* Scroll progress — a compositor-only scaleX driven by a custom property. */
@@ -959,9 +977,17 @@ p {
 /* ==========================================================================
    01 HERO
    ========================================================================== */
+/* THE GAP UNDER THE HERO.
+
+   The hero used to end about 70px above the problem statement, which put the
+   stat row and a section heading in the same glance and made the top of the
+   page feel stacked rather than composed. This bottom padding is deliberately
+   larger than a normal section's, because it is doing two jobs: closing the
+   hero, and giving the overhanging stat card and inset the room they need
+   below the capture before anything else starts. */
 .hero-section {
-  padding-top: calc(var(--header-height) + 26px);
-  padding-bottom: clamp(36px, 4.5vw, 72px);
+  padding-top: calc(var(--header-height) + 30px);
+  padding-bottom: clamp(64px, 8vw, 132px);
   position: relative;
   overflow: hidden;
 }
@@ -1448,6 +1474,10 @@ p {
      rail would scroll away after the first tier instead of following the
      stack. The column stretches; the inner block is what sticks. */
   align-items: stretch;
+  /* The tier stack used to end flush against the hazard catalogue below it:
+     the last panel's chip row and the top edge of that card were touching.
+     This is the gap between two complete ideas, so it is a section-sized one. */
+  margin-bottom: clamp(64px, 7.5vw, 124px);
 }
 
 .tier-rail {
@@ -1457,7 +1487,7 @@ p {
 .tier-rail-inner {
   position: sticky;
   top: calc(var(--header-height) + 46px);
-  max-width: 34ch;
+  max-width: 36ch;
 }
 
 .tier-rail h2 {
@@ -1465,33 +1495,60 @@ p {
 }
 
 .tier-legend {
-  margin-top: clamp(22px, 2.6vw, 34px);
+  margin-top: clamp(24px, 2.8vw, 38px);
   border-top: 1px solid var(--border);
 }
 
 .tier-legend-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 13px;
-  padding: 12px 2px;
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-faint);
-  transition:
-    color var(--duration) var(--ease),
-    padding-left var(--duration) var(--ease);
+  transition: color var(--duration) var(--ease);
 }
 
 .tier-legend-item.is-active {
   color: var(--text);
-  padding-left: 10px;
+}
+
+/* The whole row is the control. It is a button rather than a link because it
+   moves the reader inside the page rather than to a new place. */
+.tier-legend-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 2px 15px;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  border-left: 1px solid transparent;
+  transition:
+    padding-left var(--duration) var(--ease),
+    border-color var(--duration) var(--ease);
+}
+
+.tier-legend-item.is-active .tier-legend-btn {
+  padding-left: 13px;
+  border-left-color: var(--accent);
+}
+
+.tier-legend-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tier-legend-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
 }
 
 .tier-legend-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  opacity: 0.4;
+  opacity: 0.45;
   transition: opacity var(--duration) var(--ease), transform var(--duration) var(--ease);
 }
 
@@ -1503,7 +1560,7 @@ p {
 
 .tier-legend-item.is-active .tier-legend-dot {
   opacity: 1;
-  transform: scale(1.3);
+  transform: scale(1.35);
 }
 
 .tier-legend-name {
@@ -1519,14 +1576,89 @@ p {
   font-variant-numeric: tabular-nums;
 }
 
+/* THE ARGUMENT, DRAWN.
+
+   Three bars, one per tier, all visible at once. Mudah is full, Sederhana is
+   just over half, Sukar is a stub — so "guidance fades" is a shape on the page
+   before it is a sentence. The fill is a scaleX rather than a width so it
+   animates on the compositor, and it grows from the left as the legend
+   reveals, which reads as help being measured out rather than drained. */
+.tier-legend-meter {
+  display: block;
+  height: 3px;
+  margin-top: 11px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+
+.tier-legend-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform: scaleX(var(--g, 1));
+  transform-origin: left center;
+  opacity: 0.55;
+  transition:
+    transform 0.85s var(--ease),
+    opacity var(--duration) var(--ease);
+}
+
+.tier-legend-meter i.badge-easy { background: var(--badge-easy-text); }
+.tier-legend-meter i.badge-med { background: var(--badge-med-text); }
+.tier-legend-meter i.badge-hard { background: var(--badge-hard-text); }
+
+.tier-legend-item.is-active .tier-legend-meter i {
+  opacity: 1;
+}
+
+/* Held at zero until the legend is revealed, so the three bars draw
+   themselves in place instead of being there from the first frame. */
+[data-reveal].tier-legend:not(.is-visible) .tier-legend-meter i {
+  transform: scaleX(0);
+}
+
+/* Only the tier being read says, in words, what is left. Collapsed with
+   grid-template-rows rather than height, so nothing has to be measured. */
+.tier-legend-note {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.42s var(--ease),
+    padding-top 0.42s var(--ease),
+    opacity 0.32s var(--ease);
+}
+
+.tier-legend-note > span {
+  overflow: hidden;
+  font-size: 0.78125rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.tier-legend-item.is-active .tier-legend-note {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  padding-top: 9px;
+}
+
+.tier-legend-caption {
+  margin-top: 16px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-faint);
+  max-width: 34ch;
+}
+
 .tier-stack {
   display: grid;
-  gap: clamp(42px, 6vw, 104px);
+  gap: clamp(48px, 6.5vw, 112px);
 }
 
 .tier-panel {
   display: grid;
-  gap: 18px;
+  gap: 20px;
 }
 
 .tier-panel-media {
@@ -1553,13 +1685,29 @@ p {
 .tier-panel-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 9px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .tier-panel-head h3 {
   font-size: clamp(1.1875rem, 1.8vw, 1.5625rem);
+  margin-right: auto;
+}
+
+/* A step number, not a bullet: the three panels are a progression and this is
+   where you are in it. Tabular so 01/02/03 hold the same width. */
+.tier-panel-index {
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--duration) var(--ease);
+}
+
+.tier-panel[data-current] .tier-panel-index {
+  color: var(--accent);
 }
 
 /* The badge is absolutely placed when it sits on a card image; here it is a
@@ -1573,14 +1721,32 @@ p {
   max-width: 58ch;
 }
 
-/* Horizontal here, vertical everywhere else it is used — the tier features are
-   three short tags, not a checklist to read down. */
-.tier-panel .feature-list {
-  margin-top: 15px;
-  padding-top: 15px;
-  flex-direction: row;
+/* THE CHIP ROW.
+
+   These were a tick list, which read as three features the tier offers. They
+   are the opposite — conditions it imposes, and in Sukar they are the whole
+   point. As chips they sit apart from the paragraph and read as constraints,
+   and the row gets real air above it rather than sharing a hairline with the
+   copy. */
+.tier-conditions {
+  display: flex;
   flex-wrap: wrap;
-  gap: 8px 24px;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.tier-conditions .chip {
+  transition:
+    border-color var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    background-color var(--duration) var(--ease);
+}
+
+.tier-panel[data-current] .tier-conditions .chip {
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .training-badge {
@@ -1665,12 +1831,16 @@ p {
 /* Hazard catalogue */
 .hazard-block {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: clamp(24px, 3vw, 44px);
+  /* Near-even columns: the catalogue is a long list and the tier panel capture
+     is dense with small Malay labels, so neither should be squeezed for the
+     other. Closer widths also bring the two column heights together, which is
+     what stops the card looking half-empty at the bottom right. */
+  grid-template-columns: 1.02fr 0.98fr;
+  gap: clamp(26px, 3.4vw, 52px);
   align-items: center;
-  padding: clamp(20px, 2.8vw, 34px);
+  padding: clamp(24px, 3.2vw, 44px);
   box-shadow: var(--card-shadow);
-  margin-bottom: clamp(32px, 4vw, 56px);
+  margin-bottom: clamp(44px, 5vw, 76px);
 }
 
 .hazard-copy h3 {
@@ -1711,12 +1881,14 @@ p {
   flex-shrink: 0;
 }
 
+/* Two steps on the tier ladder rather than two colours — same logic as the
+   badges, so the catalogue's grouping matches the difficulty section's. */
 .dot-easy {
-  background: var(--accent);
+  background: var(--badge-easy-text);
 }
 
 .dot-med {
-  background: var(--amber);
+  background: var(--badge-med-text);
 }
 
 .hazard-group ul {
@@ -2906,17 +3078,49 @@ p {
    08 SYSTEM
    ========================================================================== */
 .architecture {
-  padding: clamp(20px, 2.8vw, 32px);
-  margin-bottom: clamp(28px, 3.5vw, 44px);
+  padding: clamp(22px, 3vw, 38px);
+  margin-bottom: clamp(40px, 5vw, 72px);
   box-shadow: var(--card-shadow);
+}
+
+.architecture-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.architecture-head .kicker {
+  margin-bottom: 0;
+}
+
+/* Says the row is a control without adding a control to say it. */
+.architecture-hint {
+  font-size: 0.71875rem;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.architecture-hint kbd {
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
 }
 
 .pipeline {
   position: relative;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 18px;
-  margin-top: 18px;
+  gap: 14px;
+  margin-top: 22px;
 }
 
 /* The rail draws itself once the pipeline scrolls into view, so the chain
@@ -2945,18 +3149,19 @@ p {
   background: var(--surface-alt);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 13px 11px;
+  padding: 13px 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
   opacity: 0;
   transform: translateY(14px);
   transition:
     opacity 0.5s var(--ease),
     transform 0.5s var(--ease),
     border-color var(--duration) var(--ease),
+    background-color var(--duration) var(--ease),
     box-shadow var(--duration) var(--ease);
-  transition-delay: calc(var(--i, 0) * 85ms + 180ms), calc(var(--i, 0) * 85ms + 180ms), 0s, 0s;
+  transition-delay: calc(var(--i, 0) * 85ms + 180ms), calc(var(--i, 0) * 85ms + 180ms), 0s, 0s, 0s;
 }
 
 .pipeline.is-live .pipeline-node {
@@ -2974,29 +3179,82 @@ p {
 }
 
 .pipeline-node:hover {
-  border-color: var(--accent);
-  box-shadow: 0 6px 16px var(--accent-glow);
+  border-color: var(--border-strong);
+  background: var(--surface);
+  transform: translateY(-2px);
 }
 
-/* Stages already passed sit on the filled rail and the selected one carries
-   the accent, so the row shows position in a chain rather than six boxes. */
+/* Stages already passed sit on the filled rail; the selected one is the only
+   raised surface in the row, so the chain reads as position rather than as six
+   boxes. In a monochrome palette that distinction has to be carried by
+   elevation and luminance, which is also how it reads on a projector. */
 .pipeline-node.is-passed {
+  border-color: var(--border);
+}
+
+.pipeline-node.is-passed .pipeline-node-icon {
+  color: var(--text-muted);
   border-color: var(--border);
 }
 
 .pipeline-node.is-active {
   border-color: var(--accent);
-  background: var(--surface);
-  box-shadow: 0 8px 22px var(--accent-glow);
+  background: var(--surface-raised);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);
+  transform: translateY(-3px);
 }
 
 .pipeline-node.is-active strong {
   color: var(--accent-text);
 }
 
+/* The selected stage grows a foot onto the rail below it, so the panel that
+   follows is visibly attached to the button that opened it. */
+.pipeline-node.is-active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 6px;
+  height: 6px;
+  translate: -50% 0;
+  rotate: 45deg;
+  background: var(--surface-raised);
+  border-right: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+}
+
 .pipeline-node:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+.pipeline-node-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pipeline-node-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface);
+  color: var(--text-faint);
+  transition:
+    color var(--duration) var(--ease),
+    border-color var(--duration) var(--ease),
+    background-color var(--duration) var(--ease);
+}
+
+.pipeline-node.is-active .pipeline-node-icon {
+  color: var(--accent-contrast);
+  background: var(--accent-text);
+  border-color: var(--accent-text);
 }
 
 /* The travelled portion of the rail, drawn over the base line. */
@@ -3041,53 +3299,97 @@ p {
   opacity: 1;
 }
 
+/* The panel reserves its own height. Without this, switching from the longest
+   stage to the shortest pulls the row of buttons up under the reader's cursor
+   — which is the fastest way to make an interactive row feel broken. */
 .pipeline-panel {
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: 26px;
+  padding-top: 22px;
   border-top: 1px solid var(--border-subtle);
-  animation: pipelinePanelIn 0.42s var(--ease);
+  min-height: 148px;
+  animation: pipelinePanelIn 0.5s var(--ease);
 }
 
 @keyframes pipelinePanelIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
 
 .pipeline-panel-step {
+  display: flex;
+  align-items: center;
+  gap: 11px;
   font-family: var(--font-heading);
-  font-size: 0.6875rem;
+  font-size: 0.71875rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 8px;
+  color: var(--text);
+  margin-bottom: 11px;
+}
+
+.pipeline-panel-num {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 20px;
+  padding-inline: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-text);
+  color: var(--accent-contrast);
+  font-size: 0.65625rem;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pipeline-panel-of {
+  margin-left: auto;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .pipeline-panel-body {
   font-size: 0.9375rem;
-  line-height: 1.6;
+  line-height: 1.62;
   max-width: 74ch;
+  /* Trails the header by a beat, so the panel resolves in two steps rather
+     than arriving as one block. */
+  animation: pipelineBodyIn 0.55s var(--ease) 0.08s backwards;
 }
 
+@keyframes pipelineBodyIn {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
 
 .pipeline-node small {
   font-family: var(--font-heading);
   font-size: 0.65625rem;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-faint);
   letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  transition: color var(--duration) var(--ease);
+}
+
+.pipeline-node.is-active small {
+  color: var(--accent);
 }
 
 .pipeline-node strong {
   font-family: var(--font-heading);
-  font-size: 0.78125rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.25;
   color: var(--text);
+  transition: color var(--duration) var(--ease);
 }
 
-.pipeline-node span {
+.pipeline-node-sub {
   font-size: 0.6875rem;
+  line-height: 1.35;
   color: var(--text-muted);
 }
 
@@ -3116,11 +3418,11 @@ p {
 
 
 .journey {
-  margin-top: clamp(48px, 6vw, 88px);
+  margin-top: clamp(64px, 7vw, 108px);
 }
 
 .journey-head {
-  margin-bottom: clamp(18px, 2.2vw, 28px);
+  margin-bottom: clamp(28px, 3.2vw, 46px);
   max-width: 42ch;
 }
 
@@ -3130,21 +3432,40 @@ p {
 }
 
 /* A chronology drawn as a chronology. It was a six-box grid, which is the one
-   shape a sequence should never take — a grid has no direction. */
+   shape a sequence should never take — a grid has no direction.
+
+   Three things carry the direction: an unbroken spine that draws itself as the
+   list passes the reading line, a head that travels down it, and a connector
+   from each marker to its row that extends as the row arrives. All three are
+   enhancements — without scroll-timeline support the spine is simply already
+   drawn and the list reads exactly as it should. */
 .timeline {
   position: relative;
   max-width: 880px;
 }
 
+/* The undrawn spine, always present at low contrast so the column never looks
+   like it is missing something before the drawn one arrives. */
+.timeline::after {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: var(--border-subtle);
+}
+
 .timeline::before {
   content: '';
   position: absolute;
+  z-index: 1;
   left: 20px;
-  top: 10px;
-  bottom: 10px;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--accent), var(--border-subtle));
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent) 62%, var(--border) 100%);
   transform-origin: top center;
   transform: scaleY(1);
 }
@@ -3152,16 +3473,40 @@ p {
 .timeline-item {
   position: relative;
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 22px;
-  padding: 12px 0 24px;
+  grid-template-columns: 44px 1fr;
+  gap: 26px;
+  padding: 10px 0 34px;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 4px;
+}
+
+/* The connector. Runs from the marker to the row, and extends as the row
+   arrives — the one piece of motion that says the spine and the text belong
+   to each other. */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 44px;
+  top: 32px;
+  width: 26px;
+  height: 1px;
+  background: var(--border);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.6s var(--ease) 0.1s;
+}
+
+.timeline-item.is-visible::before {
+  transform: scaleX(1);
 }
 
 .timeline-marker {
   position: relative;
-  z-index: 1;
-  width: 42px;
-  height: 42px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -3172,30 +3517,46 @@ p {
   font-weight: 700;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  transition: border-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  /* A halo in the page's own background colour, so the spine passes behind the
+     marker rather than through it and the number sits in a gap in the line —
+     which is what makes the column read as stops on a route instead of discs
+     laid over a rule.
+
+     A box-shadow rather than a pseudo-element: `z-index: -1` on a ::before
+     cannot get behind its parent's background when the parent is itself a
+     stacking context, which this is (z-index: 2 over the spine). The halo
+     would paint over the marker's own fill and border instead of behind them,
+     and the whole marker would disappear. */
+  box-shadow: 0 0 0 5px var(--bg-subtle);
+  transition:
+    border-color var(--duration) var(--ease),
+    color var(--duration) var(--ease),
+    background-color var(--duration) var(--ease),
+    box-shadow var(--duration) var(--ease);
 }
 
-.timeline-item:hover .timeline-marker {
+.timeline-item:hover .timeline-marker,
+.timeline-item:focus-within .timeline-marker {
   border-color: var(--accent);
-  color: var(--accent);
+  box-shadow: 0 0 0 5px var(--bg-subtle), 0 0 0 9px var(--accent-soft);
 }
 
 .timeline-body {
-  padding-top: 9px;
+  padding-top: 10px;
 }
 
 .timeline-body strong {
   display: block;
   font-family: var(--font-heading);
-  font-size: 1rem;
-  letter-spacing: -0.02em;
+  font-size: 1.0625rem;
+  letter-spacing: -0.022em;
   color: var(--text);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .timeline-body p {
   font-size: 0.875rem;
-  line-height: 1.55;
+  line-height: 1.58;
   max-width: 62ch;
 }
 
@@ -3226,6 +3587,409 @@ p {
 
 .honesty-note strong {
   color: var(--text);
+}
+
+/* ==========================================================================
+   DEMO REEL
+
+   The frame is the section. Everything else — the head, the caption — is set
+   quietly around it, because a twelve-second clip is the only thing here that
+   is asking to be looked at.
+
+   Three states share one box and the box never resizes between them: the
+   poster, the running clip and the closing panel are all painted inside the
+   same 16:9 frame. A player that grows a panel underneath itself at the end
+   pushes the page under the reader at exactly the moment they are deciding
+   whether to act on it.
+   ========================================================================== */
+.demo-head {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(20px, 3vw, 56px);
+  align-items: end;
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.demo-head h2 {
+  margin-block: 6px 0;
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
+  letter-spacing: -0.04em;
+  max-width: 18ch;
+}
+
+.demo-head-note {
+  padding-bottom: 5px;
+  max-width: 52ch;
+}
+
+.demo-frame {
+  margin: 0;
+}
+
+.demo-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--image-backdrop);
+  box-shadow: var(--shadow-showcase);
+  transition: border-color var(--duration) var(--ease);
+}
+
+.demo-frame:hover .demo-media {
+  border-color: var(--border-strong);
+}
+
+.demo-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The opening still. Laid over the <video> rather than set as its poster, so
+   it can be lazy and responsive — see the note in DemoReel.jsx. It is removed
+   from the DOM the moment anything is played, so it can never cover a paused
+   frame. */
+.demo-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* THE TRIGGER.
+
+   While the poster is up it is the whole frame — a play control the size of a
+   billboard, which is what makes the section read as one object rather than a
+   video with a button on it. Once the clip runs it becomes a 46px disc in the
+   corner and gets out of the way. */
+.demo-trigger {
+  position: absolute;
+  inset: 0;
+  /* Above the still, which is z-index 1. */
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  color: var(--glass-text);
+  font: inherit;
+  background: linear-gradient(180deg, rgba(4, 6, 9, 0.28) 0%, rgba(4, 6, 9, 0.6) 100%);
+  transition:
+    inset 0.55s var(--ease),
+    background-color 0.45s var(--ease),
+    opacity 0.35s var(--ease);
+}
+
+.demo-frame[data-state='idle'] .demo-trigger:hover {
+  background: linear-gradient(180deg, rgba(4, 6, 9, 0.2) 0%, rgba(4, 6, 9, 0.52) 100%);
+}
+
+.demo-trigger-face {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  color: var(--glass-text);
+  transition:
+    width 0.5s var(--ease),
+    height 0.5s var(--ease),
+    transform 0.4s var(--ease-spring),
+    background-color var(--duration) var(--ease);
+}
+
+/* The play glyph is optically off-centre in a circle; nudge it back. */
+.demo-trigger-face svg {
+  margin-left: 2px;
+}
+
+[data-state='playing'] .demo-trigger-face svg,
+[data-state='paused'] .demo-trigger-face svg {
+  margin-left: 0;
+}
+
+.demo-trigger:hover .demo-trigger-face {
+  transform: scale(1.07);
+}
+
+.demo-trigger:active .demo-trigger-face {
+  transform: scale(0.97);
+}
+
+.demo-trigger:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: -6px;
+  border-radius: var(--radius-xl);
+}
+
+.demo-trigger-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  font-family: var(--font-heading);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+.demo-trigger-label small {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
+}
+
+/* Running: the trigger retreats to a corner and the scrim goes with it, so
+   nothing is painted over the capture while it plays. */
+[data-state='playing'] .demo-trigger,
+[data-state='paused'] .demo-trigger {
+  inset: auto auto 14px 14px;
+  width: 46px;
+  height: 46px;
+  background: none;
+  border-radius: 50%;
+}
+
+[data-state='playing'] .demo-trigger-face,
+[data-state='paused'] .demo-trigger-face {
+  width: 46px;
+  height: 46px;
+}
+
+/* Not needed once the closing panel has its own controls, and it would sit
+   under them. */
+[data-state='ended'] .demo-trigger {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* THE CLOSING PANEL.
+
+   `display: none` first, and with the attribute selector, because an author
+   `display: flex` beats the UA stylesheet's `[hidden] { display: none }` — the
+   panel would sit over the poster from the first paint. */
+.demo-end[hidden] {
+  display: none;
+}
+
+.demo-end {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: clamp(20px, 4vw, 44px);
+  text-align: center;
+  background: linear-gradient(180deg, rgba(4, 6, 9, 0.72) 0%, rgba(4, 6, 9, 0.9) 100%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: demoEndIn 0.6s var(--ease) both;
+}
+
+@keyframes demoEndIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.demo-end-kicker {
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #cbd3dc;
+  animation: demoEndRise 0.6s var(--ease) 0.08s both;
+}
+
+.demo-end-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: #ffffff;
+  max-width: 20ch;
+  animation: demoEndRise 0.6s var(--ease) 0.16s both;
+}
+
+.demo-end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+  animation: demoEndRise 0.6s var(--ease) 0.26s both;
+}
+
+@keyframes demoEndRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The panel sits on a dark still regardless of theme, so its buttons are
+   pinned to the dark palette rather than inheriting the page's. */
+.demo-end .btn-primary {
+  background-color: #f4f6f8;
+  color: #0b0d11;
+}
+
+.demo-end .btn-secondary {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #f4f6f8;
+}
+
+.demo-end .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+/* THE RUNNING BAR. */
+.demo-bar {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: 14px;
+  left: 74px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 15px;
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  color: var(--glass-text);
+  opacity: 0;
+  translate: 0 8px;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease), translate 0.4s var(--ease);
+}
+
+[data-state='playing'] .demo-bar,
+[data-state='paused'] .demo-bar {
+  opacity: 1;
+  translate: none;
+}
+
+.demo-bar-beat {
+  font-family: var(--font-heading);
+  font-size: 0.71875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.demo-bar-track {
+  flex: 1;
+  height: 2px;
+  min-width: 40px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.demo-bar-track i {
+  display: block;
+  height: 100%;
+  background: #f2f5f8;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+.demo-bar-silent {
+  font-family: var(--font-heading);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.demo-caption {
+  margin-top: 14px;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+@media (max-width: 900px) {
+  .demo-head {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+  .demo-head h2 {
+    max-width: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .demo-media {
+    border-radius: var(--radius-lg);
+  }
+  /* The label beside a 64px disc does not fit beside it on a phone, so the
+     two stack and the disc leads. */
+  .demo-trigger {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .demo-trigger-face {
+    width: 54px;
+    height: 54px;
+  }
+  .demo-trigger-label {
+    text-align: center;
+    align-items: center;
+    font-size: 0.9375rem;
+  }
+  [data-state='playing'] .demo-trigger,
+  [data-state='paused'] .demo-trigger {
+    inset: auto auto 10px 10px;
+    width: 40px;
+    height: 40px;
+  }
+  [data-state='playing'] .demo-trigger-face,
+  [data-state='paused'] .demo-trigger-face {
+    width: 40px;
+    height: 40px;
+  }
+  .demo-bar {
+    left: 60px;
+    right: 10px;
+    bottom: 10px;
+    gap: 10px;
+    padding: 7px 12px;
+  }
+  /* Room label and "silent" tag both go: on a 390px frame the progress line
+     is the only part of the bar that still says anything useful. */
+  .demo-bar-beat,
+  .demo-bar-silent {
+    display: none;
+  }
+  .demo-end-actions .btn {
+    width: 100%;
+  }
 }
 
 /* ==========================================================================
@@ -3352,16 +4116,21 @@ p {
   color: var(--badge-easy-text);
 }
 
+/* The one place a hue survives, and it is heavily desaturated. An error state
+   has to be distinguishable at a glance, but a saturated alert red would be
+   the brightest thing on a monochrome page — so this is a muted brick that
+   reads as a signal without becoming an accent. The message text carries the
+   meaning regardless; the colour only reinforces it. */
 .form-status.error {
-  background: rgba(220, 53, 69, 0.15);
-  border: 1px solid rgba(220, 53, 69, 0.36);
-  color: #ff8a95;
+  background: rgba(190, 96, 104, 0.12);
+  border: 1px solid rgba(190, 96, 104, 0.34);
+  color: #e2a7ab;
 }
 
 [data-theme='light'] .form-status.error {
-  background: #fdecee;
-  border-color: #f0b8bf;
-  color: #9d1c28;
+  background: #f7eef0;
+  border-color: #ddc0c4;
+  color: #8a2f38;
 }
 
 /* ==========================================================================
@@ -3481,8 +4250,10 @@ p {
    The hero has to fit above the fold without shrinking body copy. */
 @media (max-height: 820px) and (min-width: 1000px) {
   .hero-section {
-    padding-top: calc(var(--header-height) + 12px);
-    padding-bottom: 22px;
+    padding-top: calc(var(--header-height) + 14px);
+    /* Still the largest gap on the page proportionally, just measured against
+       768px of viewport rather than 900. */
+    padding-bottom: 54px;
   }
   .hero-copy {
     gap: 13px;
@@ -3522,7 +4293,7 @@ p {
     opacity: 0.35;
   }
   .section {
-    padding-block: clamp(48px, 5vw, 72px);
+    padding-block: clamp(60px, 6.4vw, 96px);
   }
   .coverflow-stage {
     height: clamp(230px, 30vw, 340px);
@@ -3621,21 +4392,37 @@ p {
     position: static;
     max-width: none;
   }
+  /* Three across rather than stacked: with the rail no longer sticky there is
+     no reason to keep the tiers in a column, and side by side is where the
+     three guidance bars compare most directly anyway. */
   .tier-legend {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0 18px;
+    gap: 0 22px;
     border-bottom: 1px solid var(--border-subtle);
   }
   .tier-legend-item {
-    grid-template-columns: auto 1fr;
     border-bottom: 0;
   }
-  .tier-legend-item.is-active {
-    padding-left: 2px;
+  .tier-legend-btn {
+    border-left: 0;
+    border-top: 1px solid transparent;
+    padding: 14px 0 16px;
+  }
+  .tier-legend-item.is-active .tier-legend-btn {
+    padding-left: 0;
+    border-left-color: transparent;
+  }
+  .tier-legend-row {
+    grid-template-columns: auto 1fr;
+    row-gap: 2px;
   }
   .tier-legend-count {
     grid-column: 2;
+    justify-self: start;
+  }
+  .tier-legend-caption {
+    max-width: none;
   }
   /* Feature capture full width, its two supporting captures side by side
      beneath it — the hierarchy survives, the columns just unstack. */
@@ -3676,11 +4463,13 @@ p {
     grid-template-columns: repeat(3, 1fr);
   }
   /* The stages wrap onto multiple rows below this width, so a single
-     horizontal rail no longer describes the sequence. The progress fill has to
-     go with it — on its own it would draw a green line across a grid that has
-     no rail behind it. */
+     horizontal rail no longer describes the sequence. The progress fill goes
+     with it — on its own it would draw a line across a grid with no rail
+     behind it — and so does the selected stage's foot, which would point into
+     the gap between two rows rather than at the panel it belongs to. */
   .pipeline-rail,
-  .pipeline-rail-fill {
+  .pipeline-rail-fill,
+  .pipeline-node.is-active::after {
     display: none;
   }
 }
@@ -3980,60 +4769,6 @@ p {
 
 
 /* --------------------------------------------------------------------------
-   GUIDANCE METER
-   "Guidance fades as confidence grows" was a sentence the section asserted but
-   never showed. This is the same claim as a quantity: the bar drains as the
-   sticky rail follows you from Mudah to Sukar.
-   -------------------------------------------------------------------------- */
-.guidance-meter {
-  margin-top: clamp(20px, 2.4vw, 30px);
-}
-
-.guidance-meter-head {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 10px;
-}
-
-.guidance-meter-head span {
-  font-family: var(--font-heading);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.guidance-meter-head strong {
-  font-family: var(--font-heading);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  color: var(--text);
-}
-
-.guidance-meter-track {
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-raised);
-  overflow: hidden;
-}
-
-.guidance-meter-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-pill);
-  /* Slower than a normal state change: this is the thing being described, so
-     it should read as draining rather than snapping. */
-  transition: width 0.62s var(--ease), background-color 0.4s var(--ease);
-}
-
-.guidance-meter-fill.badge-easy { background: var(--badge-easy-text); }
-.guidance-meter-fill.badge-med { background: var(--badge-med-text); }
-.guidance-meter-fill.badge-hard { background: var(--badge-hard-text); }
-
-/* --------------------------------------------------------------------------
    JOURNEY TIMELINE — SCROLL-DRIVEN
    The spine draws itself as the journey passes the viewport and each stop
    lights as it reaches the reading line, so the chronology reads as progress
@@ -4045,12 +4780,38 @@ p {
     .timeline::before {
       animation: spineDraw linear both;
       animation-timeline: view();
-      animation-range: cover 6% cover 68%;
+      animation-range: cover 4% cover 72%;
     }
 
     @keyframes spineDraw {
       from { transform: scaleY(0); }
       to { transform: scaleY(1); }
+    }
+
+    /* The head of the draw. A single point of light riding the leading edge of
+       the spine, on exactly the range the spine is drawn over, so it is always
+       at the front of the line rather than approximately near it. */
+    .timeline-head {
+      position: absolute;
+      z-index: 3;
+      left: 17px;
+      top: 14px;
+      width: 9px;
+      height: 9px;
+      margin-top: -4px;
+      border-radius: 50%;
+      background: var(--accent-text);
+      box-shadow: 0 0 12px 3px var(--accent-glow);
+      animation: spineHead linear both;
+      animation-timeline: view();
+      animation-range: cover 4% cover 72%;
+    }
+
+    @keyframes spineHead {
+      from { top: 14px; opacity: 0; }
+      6% { opacity: 1; }
+      92% { opacity: 1; }
+      to { top: calc(100% - 14px); opacity: 0; }
     }
 
     .timeline-marker {
@@ -4063,17 +4824,19 @@ p {
       from {
         border-color: var(--border-subtle);
         color: var(--text-faint);
-        scale: 0.9;
+        background-color: var(--surface);
+        scale: 0.88;
       }
       to {
         border-color: var(--accent);
-        color: var(--accent);
+        color: var(--accent-contrast);
+        background-color: var(--accent-text);
         scale: 1;
       }
     }
 
-    /* The row itself lifts very slightly as its marker lands — enough to feel
-       like the list is being walked, not enough to be a moving page. */
+    /* The row itself resolves as its marker lands — enough to feel like the
+       list is being walked, not enough to be a moving page. */
     .timeline-body {
       animation: stopArrive linear both;
       animation-timeline: view();
@@ -4081,9 +4844,21 @@ p {
     }
 
     @keyframes stopArrive {
-      from { opacity: 0.55; }
-      to { opacity: 1; }
+      from { opacity: 0.5; translate: 0 6px; }
+      to { opacity: 1; translate: none; }
     }
+  }
+}
+
+/* No scroll-timeline support, or motion is reduced: the head is a decoration
+   for an animation that is not running, so it is not drawn at all. */
+.timeline-head {
+  display: none;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .timeline-head { display: block; }
   }
 }
 
