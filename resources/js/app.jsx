@@ -23,12 +23,19 @@ import Coverflow from './components/Coverflow';
 import DemoReel from './components/DemoReel';
 import Lightbox from './components/Lightbox';
 
+/* Reading order, and the order the page renders in.
+
+   The walkthrough used to sit fifth, four screens down, which meant the one
+   piece of evidence that answers "what is this actually like" was reached
+   only by visitors who had already decided to keep reading. It is second now:
+   the hero makes the claim, the clip shows the house, and every section after
+   it is read by somebody who has already seen the thing being described. */
 const NAV_LINKS = [
   ['home', 'Home'],
+  ['demo', 'Demo'],
   ['overview', 'Overview'],
   ['training', 'Training'],
   ['gameplay', 'Gameplay'],
-  ['demo', 'Demo'],
   ['platform', 'Platform'],
   ['roles', 'Roles'],
   ['system', 'System'],
@@ -225,29 +232,36 @@ function Hero() {
 
             {/* The one headline on the site that resolves out of blur rather
                 than rising out of a mask: it is the first line anyone reads
-                after the curtain, and it reads as focus being found. */}
+                after the curtain, and it reads as focus being found.
+
+                Seven words, down from eleven. It says what the app is rather
+                than what it is not — the old line spent its second half
+                arguing with a pamphlet nobody had mentioned yet. */}
             <SplitText
               as="h1"
               variant="resolve"
-              text="A safer Malaysian home begins with practice, not a pamphlet."
+              text="Practise home safety inside a Malaysian home."
               delay={130}
               step={30}
             />
 
             <p className="lede" data-reveal="up" style={{ '--d': '290ms' }}>
-              RumahKuVR puts seniors inside a familiar kampung home and asks them to find the hazards
-              themselves — a wet floor, a live wire, a burner left running — then fix each one with their
-              own hands, on {PROJECT.headset} or an ordinary gamepad.
+              Seniors walk a familiar kampung home, find the hazards themselves — a wet floor, a live
+              wire, a burner left running — and fix each one by hand, on {PROJECT.headset} or a gamepad.
             </p>
 
+            {/* "See it running" pointed at the gallery of stills, which is not
+                it running. It goes to the clip now, and it leads — the
+                walkthrough is the next section, so the primary call to action
+                and the reading order agree. */}
             <div className="hero-actions" data-reveal="up" style={{ '--d': '350ms' }}>
-              <a href="#training" className="btn btn-primary btn-magnetic" {...magneticPrimary}>
+              <a href="#demo" className="btn btn-primary btn-magnetic" {...magneticPrimary}>
+                <MonitorPlay size={16} strokeWidth={2} />
+                <span>Watch the walkthrough</span>
+              </a>
+              <a href="#training" className="btn btn-secondary btn-magnetic" {...magneticSecondary}>
                 <span>Explore the training</span>
                 <ArrowRight size={16} strokeWidth={2.2} />
-              </a>
-              <a href="#gameplay" className="btn btn-secondary btn-magnetic" {...magneticSecondary}>
-                <MonitorPlay size={16} strokeWidth={2} />
-                <span>See it running</span>
               </a>
             </div>
 
@@ -264,11 +278,16 @@ function Hero() {
             </dl>
           </div>
 
-          {/* Three layers on one stage: the capture, an inset of the difficulty
-              panel overhanging the lower right, and a stat card on the lower
-              left. Both layers sit in the bottom band of the frame, which is
-              floor in this capture — the in-headset HUD across the top of the
-              screenshot is never covered. */}
+          {/* Two layers on one stage: the capture, and a stat card overhanging
+              its lower left. The card sits in the bottom band of the frame,
+              which is floor in this capture — the in-headset HUD across the
+              top of the screenshot is never covered.
+
+              A third layer used to overhang the lower right: an inset of the
+              Pilih Mod Simulasi panel. It was the same screenshot the Training
+              section already shows at full size with a caption, and here it
+              competed with the capture it was sitting on. Dropping it also
+              takes an eager image request off the opening. */}
           <div className="hero-visual-wrap" ref={parallaxRef}>
             <div className="hero-stage">
               <div className="hero-visual tilt" {...tilt} data-reveal="clip" style={{ '--d': '60ms' }}>
@@ -309,28 +328,6 @@ function Hero() {
                 </span>
               </div>
 
-              {/* Eager, but explicitly low priority: it is above the fold, so
-                  lazy-loading would only delay it, and it must never compete
-                  with the LCP capture for bandwidth. */}
-              <figure className="hero-inset" data-reveal="up" style={{ '--d': '540ms' }}>
-                <span className="hero-inset-frame">
-                  {/* Renders around 250px wide here, so the 800w variant is
-                      already generous — the 4K master is only pulled when the
-                      viewer opens this same panel in the Training section. */}
-                  <img
-                    sizes="(max-width: 720px) calc(100vw - 32px), 260px"
-                    srcSet="/images/ui/difficulty-select-800w.webp 800w, /images/ui/difficulty-select-1400w.webp 1400w"
-                    src="/images/ui/difficulty-select-800w.webp"
-                    alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
-                    width={3483}
-                    height={2085}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="low"
-                  />
-                </span>
-                <figcaption>Pilih Mod Simulasi</figcaption>
-              </figure>
             </div>
           </div>
         </div>
@@ -348,7 +345,7 @@ function Overview() {
      and the columns are deliberately unequal, sized to the text each one
      actually carries rather than to a grid. */
   const loop = [
-    { num: '01', title: 'Spot it', desc: 'Find the risk where it lives — in the room, not on a poster.' },
+    { num: '01', title: 'Spot it', desc: 'Find the risk where it lives — on the floor, the worktop, the wall.' },
     { num: '02', title: 'Fix it', desc: 'Do the correction by hand: move it, mop it, switch it off, put it away.' },
     { num: '03', title: 'Repeat it', desc: 'Read the graded breakdown the headset works out on its own, then go again until the safe choice stops needing thought.' }
   ];
@@ -476,9 +473,17 @@ function Training() {
               </p>
 
               {/* The claim, drawn. All three tiers show their own guidance bar
-                  at once, so the fade is a shape you read in a glance rather
-                  than a number that changes as you scroll — and the row you
-                  are looking at opens to say, in words, what is left.
+                  at once, so the fade is a shape you read in a glance — and
+                  the row you are looking at opens to say, in words, what is
+                  left on screen.
+
+                  The bar used to be a percentage: 100 / 55 / 18, announced to
+                  screen readers through role="meter" as if something in the
+                  build had measured it. Nothing does. It is three named steps
+                  of one ladder now — full, reduced, minimal — with the words
+                  carrying the meaning and the bar reduced to what it always
+                  honestly was, a picture of them. The meter role goes with the
+                  number; the level is plain text, so it is read out either way.
 
                   The rows are buttons as well as a legend: the rail tracks the
                   stack, and the stack can be driven from the rail. */}
@@ -496,16 +501,11 @@ function Training() {
                         <span className="tier-legend-count">{tier.count} hazards</span>
                       </span>
 
-                      <span
-                        className="tier-legend-meter"
-                        role="meter"
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={Math.round(tier.guidance * 100)}
-                        aria-label={`On-screen guidance in ${tier.malay}`}
-                      >
-                        <i className={tier.badgeClass} style={{ '--g': tier.guidance }} />
+                      <span className="tier-legend-meter" aria-hidden="true">
+                        <i className={tier.badgeClass} style={{ '--g': tier.guidanceStep / 3 }} />
                       </span>
+
+                      <span className="tier-legend-level">{tier.guidanceLevel}</span>
 
                       <span className="tier-legend-note">
                         <span>{tier.guidanceLabel}</span>
@@ -516,7 +516,7 @@ function Training() {
               </ol>
 
               <p className="tier-legend-caption">
-                The bar is how much help stays on screen. Sukar has the most hazards and the least of it.
+                Each step is how much help stays on screen. Sukar has the most hazards and the least of it.
               </p>
             </div>
           </div>
@@ -586,16 +586,19 @@ function Training() {
         <div className="hazard-block">
           <div className="hazard-copy" data-reveal="left">
             <span className="kicker">Hazard catalogue</span>
-            <h3>Eight hazards a Malaysian home actually has.</h3>
+            <h3>Eighteen hazards. Here are eight of them.</h3>
             <p>
-              Each one is modelled where it belongs and named in Malay on screen, so the label a senior reads
-              in the headset is the label they would use at home.
+              Eighteen hazards are modelled across the house: three in Mudah, five in Sederhana, ten in
+              Sukar. The eight listed below are the Mudah and Sederhana sets. Each is modelled where it
+              belongs and named in Malay on screen, so the label a senior reads in the headset is the
+              label they would use at home.
             </p>
 
             <div className="hazard-groups">
               <div className="hazard-group">
                 <h4>
                   <span className="dot dot-easy" aria-hidden="true" /> Easy · Mod Mudah
+                  <span className="hazard-group-count">3 hazards</span>
                 </h4>
                 <ul>
                   {HAZARDS.easy.map(h => (
@@ -611,6 +614,7 @@ function Training() {
               <div className="hazard-group">
                 <h4>
                   <span className="dot dot-med" aria-hidden="true" /> Medium · Mod Sederhana
+                  <span className="hazard-group-count">5 hazards</span>
                 </h4>
                 <ul>
                   {HAZARDS.medium.map(h => (
@@ -625,7 +629,9 @@ function Training() {
             </div>
 
             <p className="footnote">
-              Hard mode draws ten hazards from across the house, under reduced lighting and a running clock.
+              <span className="dot dot-hard" aria-hidden="true" /> The remaining ten are Mod Sukar. They are
+              drawn from across the whole house, under reduced lighting and a running clock, and they are
+              not listed here on purpose — that tier is the test of whether the habit transferred.
             </p>
           </div>
 
@@ -773,7 +779,7 @@ function Platform() {
           </div>
           <div className="platform-choice-copy">
             <span className="kicker">Pilih Mod Permainan</span>
-            <h3>The choice is the first screen, not a settings menu.</h3>
+            <h3>Mod VR or Mod Kawalan is the first screen the app shows.</h3>
             <p>
               Before anything else the app asks how the senior wants to play. Both routes lead to the same
               scenarios, the same hazard list and the same session record.
@@ -981,6 +987,34 @@ function Roles() {
           </div>
         </div>
 
+        {/* The three captures below used to arrive with no introduction at
+            all: a reader who had just been reading about sign-in roles met a
+            floor plan covered in Malay labels and had to work out for
+            themselves what it was, when it was produced, and who reads it.
+            This says all three before the images, in the order the reader
+            needs them — what happens when a session ends, what the map is,
+            and what the two panels beside it answer. */}
+        <div className="roles-evidence-intro" data-reveal="up">
+          <span className="kicker">After a session</span>
+          <h3>What the caregiver sees once the headset comes off.</h3>
+          <p>
+            A session ends the moment the last hazard is cleared or the clock runs out. The headset grades
+            it there and then, writes the result to its own store, and the caregiver portal picks it up —
+            no upload, no waiting.
+          </p>
+          <p>
+            <strong>Peta Bahaya</strong> replays that session on the floor plan of the house. Every hazard
+            the senior met is pinned to the room it was found in, and selecting a marker fills the panel
+            beside it with that hazard&rsquo;s room, risk level, whether it was cleared, and what to do
+            about it. It answers the question a family actually asks — not &ldquo;what was the score&rdquo;
+            but <em>which room keeps causing trouble</em>.
+          </p>
+          <p>
+            The two panels beside it hold the history: every saved session in order, and the average score
+            for each tier. Read together they show whether the last month moved in the right direction.
+          </p>
+        </div>
+
         {/* One dominant capture with two supporting cards beside it, rather
             than three equal thumbnails. Peta Bahaya is the screen with the most
             to read — a house plan, five numbered markers and three panels of
@@ -1044,7 +1078,7 @@ function SeniorDesign() {
   return (
     <section id="accessibility" className="section" data-reveal="edge">
       <div className="container">
-        <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood, not decoded.">
+        <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood on the first try.">
           One question decided every screen: could someone who has never worn a headset finish a session
           without being told what to do?
         </SectionHead>
@@ -1155,7 +1189,7 @@ function System() {
   return (
     <section id="system" className="section section-alt" data-reveal="edge">
       <div className="container">
-        <SectionHead variant="statement" kicker="How it works" title="An interaction system, not a slideshow.">
+        <SectionHead variant="statement" kicker="How it works" title="From the senior's hands to the caregiver's report.">
           Input, physics, hazard state, verification and telemetry are one chain. What a senior does with
           their hands is what ends up in the caregiver's report.
         </SectionHead>
@@ -1258,12 +1292,12 @@ function System() {
 
           <div className="system-copy" data-reveal="right">
             <span className="kicker">Offline behaviour analysis</span>
-            <h3>The feedback is reasoned, not thresholded.</h3>
+            <h3>Four graded dimensions, worked out on the headset.</h3>
             <p>
-              When a session ends, a Sugeno-style fuzzy expert system runs on the headset and grades four
-              dimensions — safety performance, independence, attention and recovery. Each input is mapped onto
-              overlapping low, medium and high sets, every rule fires in proportion to how true it is, and the
-              score is the weighted average of what fired. One missed hazard nudges the result; it never flips it.
+              When a session ends, a Sugeno-style fuzzy expert system runs on the device and grades safety
+              performance, independence, attention and recovery. Each input is mapped onto overlapping low,
+              medium and high sets, every rule fires in proportion to how true it is, and the score is the
+              weighted average of what fired. One missed hazard nudges the result; it never flips it.
             </p>
             <p>
               Across sessions the same stored records drive the caregiver trend, which only ever compares like
@@ -1414,11 +1448,38 @@ function Contact() {
       <div className="container">
         <div className="contact-grid">
           <div className="contact-info" data-reveal="left">
-            <span className="kicker">About the project</span>
+            <span className="kicker">Get in touch</span>
             <SplitText as="h2" text="One student, one house, eighteen hazards." />
             <p className="lede">
               RumahKuVR is a Final Year Project by <strong>{PROJECT.author}</strong>, {PROJECT.programme}.
             </p>
+
+            {/* The form used to open onto four unlabelled fields under a
+                heading about the project, so a visitor had to guess what this
+                box was for. These are the three things people actually write
+                about, named, so the subject line writes itself. */}
+            <ul className="contact-reasons">
+              <li>
+                <strong>Book a demo</strong>
+                <span>
+                  A live session on {PROJECT.headset}, or on a gamepad if a headset is not practical.
+                  Around fifteen minutes.
+                </span>
+              </li>
+              <li>
+                <strong>Ask about the project</strong>
+                <span>
+                  The Unity build, the hazard model, the fuzzy analyser, the caregiver portal — for
+                  evaluators, supervisors and anyone building something similar.
+                </span>
+              </li>
+              <li>
+                <strong>Send feedback</strong>
+                <span>
+                  What worked, what did not, and what a senior you know would need before they would use it.
+                </span>
+              </li>
+            </ul>
 
             <div className="contact-meta">
               <div className="contact-meta-row">
@@ -1538,7 +1599,7 @@ function App() {
 
   return (
     <>
-      <a className="skip-link" href="#overview">
+      <a className="skip-link" href="#demo">
         Skip to content
       </a>
 
@@ -1546,10 +1607,10 @@ function App() {
 
       <main>
         <Hero />
+        <DemoReel />
         <Overview />
         <Training />
         <Gameplay />
-        <DemoReel />
         <Platform />
         <Roles />
         <SeniorDesign />

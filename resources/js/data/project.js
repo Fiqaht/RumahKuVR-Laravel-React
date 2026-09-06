@@ -42,9 +42,15 @@ export const TIERS = [
     desc:
       'Built for a senior who has never held a controller. Hazards are spotlighted, there is no timer, and every instruction is available as text or spoken Malay.',
     features: ['No time limit', 'Clear on-screen markers', 'Text or spoken Malay guidance'],
-    /* How much help stays on screen, as a fraction. Derived from the features
-       above, which come from the in-game tier panel — not an invented score. */
-    guidance: 1,
+    /* How much help stays on screen. Three named steps of one ladder, read
+       straight off the features above.
+
+       These were printed as 100 / 55 / 18 per cent, which claimed a
+       measurement nothing in the build produces — the tier panel offers no
+       guidance figure and no instrument reports one. `guidanceStep` sizes the
+       legend bar and nothing else; the words are what the reader is given. */
+    guidanceLevel: 'Full guidance',
+    guidanceStep: 3,
     guidanceLabel: 'Markers, no timer, spoken Malay'
   },
   {
@@ -60,7 +66,8 @@ export const TIERS = [
     desc:
       'Markers thin out and the search area widens. Help is still there — but the senior has to open the house map and ask for it.',
     features: ['Wider search area', 'Fewer visual markers', 'Guidance on request'],
-    guidance: 0.55,
+    guidanceLevel: 'Reduced guidance',
+    guidanceStep: 2,
     guidanceLabel: 'Fewer markers, help on request'
   },
   {
@@ -76,12 +83,20 @@ export const TIERS = [
     desc:
       'Low light, a running clock and symbol-only prompts. The tier that shows whether the habit actually transferred.',
     features: ['Reduced lighting', 'Timed session', 'Symbol-only prompts'],
-    guidance: 0.18,
+    guidanceLevel: 'Minimal prompts',
+    guidanceStep: 1,
     guidanceLabel: 'Symbols only, on a clock'
   }
 ];
 
 /* Hazard catalogue.
+
+   SCOPE: eighteen hazards are modelled across the house — 3 in Mudah, 5 in
+   Sederhana, 10 in Sukar. The two groups below are the Mudah and Sederhana
+   sets, eight in total. The ten Sukar hazards are deliberately not listed:
+   that tier is the one that tests whether the habit transferred, and printing
+   its answer sheet on a public page would give it away.
+
    Names, rooms and risk levels below were read out of XRHazardMapData in the
    running 6.3 build, not transcribed from an older screenshot. Several rooms
    here used to be wrong: the folded carpet is in the dining room, not the

@@ -1148,63 +1148,21 @@ p {
 }
 
 /* --------------------------------------------------------------------------
-   HERO LAYERS
+   HERO LAYER
 
-   Both overhanging layers sit in the lower band of the capture on purpose.
+   The one overhanging layer sits in the lower band of the capture on purpose.
    The hero screenshot carries its in-headset HUD across the top — STATUS
    SIMULASI on the left, OBJEKTIF SEMASA on the right — and the bottom third
-   is floor. Anchoring the layers low means the composition gains depth
-   without a single panel of the running build being covered.
+   is floor. Anchoring the card low means the composition gains depth without
+   a single panel of the running build being covered.
+
+   There was a second layer overhanging the lower right, an inset of the Pilih
+   Mod Simulasi panel. It has been removed rather than restyled: it was the
+   same screenshot the Training section shows at full size with a caption, so
+   the hero was asking the reader to look at two captures at once and telling
+   them nothing new with the smaller one. Its rules are gone with it, including
+   the scroll-driven exit further down this file.
    -------------------------------------------------------------------------- */
-.hero-inset {
-  position: absolute;
-  right: -3%;
-  bottom: 0;
-  z-index: 2;
-  width: 39%;
-  min-width: 172px;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.hero-inset-frame {
-  display: block;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--border-strong);
-  background: var(--image-backdrop);
-  box-shadow: var(--shadow-float);
-  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
-}
-
-.hero-inset:hover .hero-inset-frame {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-showcase);
-}
-
-/* Tracks the re-captured Pilih Mod Simulasi panel (3483x2085). The old
-   1100/620 box was 6% wider than the new capture, so `cover` would have
-   started trimming the tier cards at the edges. */
-.hero-inset img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3483 / 2085;
-  object-fit: cover;
-}
-
-.hero-inset figcaption {
-  font-family: var(--font-heading);
-  font-size: 0.65625rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  text-align: right;
-  padding-right: 2px;
-}
-
 .hero-float {
   position: absolute;
   left: 0;
@@ -1578,9 +1536,10 @@ p {
 
 /* THE ARGUMENT, DRAWN.
 
-   Three bars, one per tier, all visible at once. Mudah is full, Sederhana is
-   just over half, Sukar is a stub — so "guidance fades" is a shape on the page
-   before it is a sentence. The fill is a scaleX rather than a width so it
+   Three bars, one per tier, all visible at once — full, two thirds, one third,
+   the three steps of the ladder named beneath them — so "guidance fades" is a
+   shape on the page before it is a sentence. The bar is an illustration of the
+   words under it, which is why it is aria-hidden and they are not. The fill is a scaleX rather than a width so it
    animates on the compositor, and it grows from the left as the legend
    reveals, which reads as help being measured out rather than drained. */
 .tier-legend-meter {
@@ -1616,6 +1575,25 @@ p {
    themselves in place instead of being there from the first frame. */
 [data-reveal].tier-legend:not(.is-visible) .tier-legend-meter i {
   transform: scaleX(0);
+}
+
+/* The words the bar above is a picture of, and what replaced the 100 / 55 / 18
+   the meter used to announce. Always visible, unlike the note below it: this
+   is the tier's guidance level rather than the detail of it, and putting the
+   replacement for a number behind an interaction would be a downgrade. */
+.tier-legend-level {
+  display: block;
+  margin-top: 9px;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-faint);
+  transition: color var(--duration) var(--ease);
+}
+
+.tier-legend-item.is-active .tier-legend-level {
+  color: var(--text);
 }
 
 /* Only the tier being read says, in words, what is left. Collapsed with
@@ -1860,10 +1838,25 @@ p {
   margin-bottom: 16px;
 }
 
+/* Sukar's line closes the catalogue: two groups are listed, this accounts for
+   the rest. Flex because it carries the third tier dot, and .dot only takes a
+   width once it is a flex item. */
+.hazard-copy .footnote {
+  display: flex;
+  gap: 9px;
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.hazard-copy .footnote .dot {
+  margin-top: 6px;
+}
+
 .hazard-group h4 {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
   font-size: 0.71875rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1889,6 +1882,29 @@ p {
 
 .dot-med {
   background: var(--badge-med-text);
+}
+
+/* The third step. Sukar has no list of its own in the catalogue, so its dot
+   appears once, on the footnote that accounts for the other ten hazards. */
+.dot-hard {
+  background: var(--badge-hard-text);
+}
+
+/* How many hazards this group is, pushed to the end of the heading rule so the
+   catalogue adds up to eighteen on the page rather than only in the prose.
+
+   Set smaller and out of the heading's uppercase, so the pair fits one line in
+   a ~250px column: at the h4's own size it pushed "Mod Sederhana" onto a second
+   line and the two group lists stopped starting at the same height. */
+.hazard-group-count {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .hazard-group ul {
@@ -2914,6 +2930,42 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
+/* The three captures below are the only screens on the page a reader meets
+   without having been told what they are, when they are produced or who reads
+   them. This is that introduction: prose at reading width, set as a lead-in
+   rather than a second section head, because the section already has one. */
+.roles-evidence-intro {
+  max-width: 66ch;
+  margin-top: clamp(46px, 5.2vw, 84px);
+  margin-bottom: clamp(20px, 2.4vw, 30px);
+}
+
+.roles-evidence-intro h3 {
+  font-size: clamp(1.1875rem, 2vw, 1.625rem);
+  letter-spacing: -0.032em;
+  margin-block: 10px 14px;
+}
+
+.roles-evidence-intro p {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.roles-evidence-intro p + p {
+  margin-top: 12px;
+}
+
+.roles-evidence-intro strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.roles-evidence-intro em {
+  font-style: italic;
+  color: var(--text);
+}
+
 /* Dominant capture on the left, two supporting captures stacked on the right.
    The ratio is chosen so the feature card and the pair beside it finish at
    nearly the same height without either image being cropped to get there. */
@@ -3622,8 +3674,35 @@ p {
   max-width: 52ch;
 }
 
+/* CHROME PAINTED ON THE FOOTAGE.
+
+   Everything inside .demo-media sits on the clip, or on the dark scrim drawn
+   over it — never on the page background. So it takes a fixed light-on-dark
+   palette in both themes instead of the page's --glass-* tokens.
+
+   Those tokens invert: in light mode --glass-text is #0e1116, which put a
+   near-black label and a near-black play glyph on top of a scrim that stays
+   dark in every theme, and made "Play the walkthrough" unreadable over the
+   footage. The closing panel below has always been pinned this way for the
+   same reason; this is the rest of the overlay catching up.
+
+   The values are the dark theme's own --glass-* values, so dark mode is
+   unchanged apart from the label going to pure white. */
 .demo-frame {
   margin: 0;
+  --on-video: #ffffff;
+  --on-video-dim: rgba(255, 255, 255, 0.88);
+  --on-video-bg: rgba(16, 19, 24, 0.72);
+  --on-video-border: rgba(255, 255, 255, 0.14);
+}
+
+/* High contrast takes the translucency out rather than the colour: solid
+   black chrome, solid white type and border, in both themes. */
+html.high-contrast .demo-frame {
+  --on-video: #ffffff;
+  --on-video-dim: #ffffff;
+  --on-video-bg: #000000;
+  --on-video-border: #ffffff;
 }
 
 .demo-media {
@@ -3679,7 +3758,7 @@ p {
   padding: 0;
   border: 0;
   cursor: pointer;
-  color: var(--glass-text);
+  color: var(--on-video);
   font: inherit;
   background: linear-gradient(180deg, rgba(4, 6, 9, 0.28) 0%, rgba(4, 6, 9, 0.6) 100%);
   transition:
@@ -3699,11 +3778,11 @@ p {
   height: 64px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
+  border: 1px solid var(--on-video-border);
+  background: var(--on-video-bg);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  color: var(--glass-text);
+  color: var(--on-video);
   transition:
     width 0.5s var(--ease),
     height 0.5s var(--ease),
@@ -3730,7 +3809,7 @@ p {
 }
 
 .demo-trigger:focus-visible {
-  outline: 2px solid var(--accent-text);
+  outline: 2px solid var(--on-video);
   outline-offset: -6px;
   border-radius: var(--radius-xl);
 }
@@ -3744,7 +3823,9 @@ p {
   font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 2px 16px rgba(0, 0, 0, 0.6);
 }
 
 .demo-trigger-label small {
@@ -3752,7 +3833,7 @@ p {
   font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.01em;
-  opacity: 0.78;
+  color: var(--on-video-dim);
 }
 
 /* Running: the trigger retreats to a corner and the scrim goes with it, so
@@ -3875,11 +3956,11 @@ p {
   gap: 14px;
   padding: 9px 15px;
   border-radius: var(--radius-pill);
-  background: var(--glass-bg);
+  background: var(--on-video-bg);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  border: 1px solid var(--glass-border);
-  color: var(--glass-text);
+  border: 1px solid var(--on-video-border);
+  color: var(--on-video);
   opacity: 0;
   translate: 0 8px;
   pointer-events: none;
@@ -3912,7 +3993,7 @@ p {
 .demo-bar-track i {
   display: block;
   height: 100%;
-  background: #f2f5f8;
+  background: var(--on-video);
   transform-origin: left center;
   transform: scaleX(0);
 }
@@ -3923,7 +4004,7 @@ p {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.6;
+  color: var(--on-video-dim);
 }
 
 .demo-caption {
@@ -4010,6 +4091,39 @@ p {
 
 .contact-info h2 {
   font-size: clamp(1.5rem, 2.6vw, 2.125rem);
+}
+
+/* Named before the form rather than left to the subject line: the form used
+   to open onto four blank fields under a heading about the project, so a
+   visitor had to guess what the box was for. A list rather than a paragraph
+   because this is scanned to find which one you are, and prose would make
+   somebody read all three to find out. */
+.contact-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.contact-reasons li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contact-reasons strong {
+  font-family: var(--font-heading);
+  font-size: 0.84375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.contact-reasons span {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-muted);
 }
 
 .contact-meta {
@@ -4493,22 +4607,13 @@ p {
   .hero-section {
     padding-top: calc(var(--header-height) + 18px);
   }
-  /* The layered composition is a desktop idea. On a phone the two overhanging
-     layers stop being absolute and simply stack under the capture, so there is
-     no overlap to go wrong and the inset gets read at full width instead of
-     being a 170px thumbnail. */
+  /* The layered composition is a desktop idea. On a phone the stage is a
+     plain grid and the capture stands on its own, so there is no overlap to
+     go wrong at 390px. */
   .hero-stage {
     display: grid;
     gap: 12px;
     padding-bottom: 0;
-  }
-  .hero-inset {
-    position: static;
-    width: auto;
-    order: 2;
-  }
-  .hero-inset figcaption {
-    text-align: left;
   }
   /* The stat card would restate the metric row directly beneath it. */
   .hero-float {
@@ -4898,26 +5003,23 @@ p {
       }
     }
 
-    /* 2. THE HERO HANDOFF — the layers part as the hero leaves.
+    /* 2. THE HERO HANDOFF — the stage recedes as the hero leaves.
 
-       The hero is three real captures stacked in depth, so it should not leave
-       as one flat panel. The stage recedes and lifts while the inset drops out
-       ahead of it, which makes the composition visibly come apart into its
-       pieces on the way to the problem statement.
+       The hero should not leave as one flat panel, so the stage lifts and
+       falls back as it exits, which reads as the composition stepping out of
+       the way of the walkthrough below it.
 
-       Pattern borrowed from the scroll-driven "sections" writing (a single
-       exit range choreographing several children at different rates); the
-       execution is this site's own.
+       It used to choreograph two children at different rates, the stage and
+       the difficulty inset parting ahead of it. The inset is gone, so the
+       handoff is the stage alone.
 
        Two rules keep it safe:
        - only the independent `translate` / `scale` properties are animated,
          never `transform` — the pointer tilt and the hero parallax both own
          `transform` in this subtree and an animation would clobber them.
-       - the exit lives on `.hero-stage` and `.hero-inset-frame`, neither of
-         which carries `data-reveal`. A `both`-filled animation on a reveal
-         element would hold it at opacity 1 and kill its entrance. The inset
-         frame's opacity multiplies with its parent's reveal, so the entry
-         animation still plays normally. */
+       - the exit lives on `.hero-stage`, which does not carry `data-reveal`.
+         A `both`-filled animation on a reveal element would hold it at
+         opacity 1 and kill its entrance. */
     .hero-stage {
       animation: heroStageExit linear both;
       animation-timeline: view();
@@ -4937,22 +5039,6 @@ p {
       }
     }
 
-    .hero-inset-frame {
-      animation: heroInsetPart linear both;
-      animation-timeline: view();
-      animation-range: exit 0% exit 76%;
-    }
-
-    @keyframes heroInsetPart {
-      from {
-        translate: 0 0;
-        opacity: 1;
-      }
-      to {
-        translate: 0 38px;
-        opacity: 0.18;
-      }
-    }
   }
 }
 
