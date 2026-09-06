@@ -438,3 +438,93 @@ export function useFocusTrap(active) {
 
   return ref;
 }
+
+/* --------------------------------------------------------------------------
+   MAGNETIC POINTER RESPONSE
+
+   The button leans toward the cursor while the cursor is near it, and settles
+   back when it leaves. Used on the two hero calls to action and nowhere else:
+   the effect works because it is rare, and a page where every control chases
+   the pointer is a page that feels unstable.
+
+   Follows the same contract as useTilt — one rAF loop that lerps toward the
+   target and shuts itself down once it is within a tenth of a pixel, so a
+   button at rest costs nothing. The lerp runs in both directions, including
+   the return to centre, which is why the CSS carries no transition on
+   `translate`: easing an already-eased value reads as lag.
+   -------------------------------------------------------------------------- */
+export function useMagnetic({ strength = 0.28, max = 9, enabled = true } = {}) {
+  const ref = useRef(null);
+  const state = useRef({ tx: 0, ty: 0, cx: 0, cy: 0, frame: 0 });
+
+  const stop = useCallback(() => {
+    if (state.current.frame) {
+      cancelAnimationFrame(state.current.frame);
+      state.current.frame = 0;
+    }
+  }, []);
+
+  const loop = useCallback(() => {
+    const el = ref.current;
+    const s = state.current;
+    if (!el) return stop();
+
+    s.cx += (s.tx - s.cx) * 0.18;
+    s.cy += (s.ty - s.cy) * 0.18;
+
+    el.style.setProperty('--mag-x', `${s.cx.toFixed(2)}px`);
+    el.style.setProperty('--mag-y', `${s.cy.toFixed(2)}px`);
+
+    if (Math.abs(s.tx - s.cx) < 0.1 && Math.abs(s.ty - s.cy) < 0.1) {
+      s.cx = s.tx;
+      s.cy = s.ty;
+      el.style.setProperty('--mag-x', `${s.tx.toFixed(2)}px`);
+      el.style.setProperty('--mag-y', `${s.ty.toFixed(2)}px`);
+      s.frame = 0;
+      return undefined;
+    }
+    s.frame = requestAnimationFrame(loop);
+    return undefined;
+  }, [stop]);
+
+  const start = useCallback(() => {
+    if (!state.current.frame) state.current.frame = requestAnimationFrame(loop);
+  }, [loop]);
+
+  const onPointerMove = useCallback(
+    e => {
+      if (!enabled) return;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const s = state.current;
+      // Clamped so a wide button never throws itself further than `max`,
+      // which is what turns a magnetic lean into a wobble.
+      s.tx = Math.max(-max, Math.min(max, (e.clientX - (r.left + r.width / 2)) * strength));
+      s.ty = Math.max(-max, Math.min(max, (e.clientY - (r.top + r.height / 2)) * strength));
+      start();
+    },
+    [enabled, strength, max, start]
+  );
+
+  const onPointerLeave = useCallback(() => {
+    const s = state.current;
+    s.tx = 0;
+    s.ty = 0;
+    start();
+  }, [start]);
+
+  useEffect(() => stop, [stop]);
+
+  // Leaving a stale offset behind when the effect is switched off (a resize
+  // across the hover breakpoint) would strand the button a few pixels adrift.
+  useEffect(() => {
+    const el = ref.current;
+    if (el && !enabled) {
+      el.style.removeProperty('--mag-x');
+      el.style.removeProperty('--mag-y');
+    }
+  }, [enabled]);
+
+  return enabled ? { ref, onPointerMove, onPointerLeave } : {};
+}

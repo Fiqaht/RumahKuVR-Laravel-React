@@ -5,6 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { useCountUp, useInView, useTilt, useCanHover, usePrefersReducedMotion } from '../lib/motion';
+import { useIntroOpened } from '../lib/intro';
 import Lightbox from './Lightbox';
 
 /* --------------------------------------------------------------------------
@@ -12,11 +13,20 @@ import Lightbox from './Lightbox';
    Word-level reveal. The words stay real text nodes inside the heading, so
    screen readers and text selection behave exactly as they would without it.
    -------------------------------------------------------------------------- */
-export function SplitText({ as: Tag = 'span', text, className = '', delay = 0, step = 42 }) {
+/* `variant` picks how each word arrives:
+     mask    — the default. The word rises out of an overflow-hidden box.
+     resolve — the word holds its final position and sharpens out of a blur.
+
+   The hero headline uses `resolve` and every section heading keeps `mask`, so
+   the two read as different registers rather than the same trick twice. The
+   markup, the real text nodes and the reduced-motion handling are identical
+   either way — only the CSS the variant class selects differs. */
+export function SplitText({ as: Tag = 'span', text, className = '', delay = 0, step = 42, variant = 'mask' }) {
   const words = String(text).split(' ');
+  const cls = `split ${variant === 'resolve' ? 'split-resolve ' : ''}${className}`.trim();
 
   return (
-    <Tag className={`split ${className}`.trim()} data-reveal="split">
+    <Tag className={cls} data-reveal="split">
       {words.map((word, i) => (
         <React.Fragment key={`${word}-${i}`}>
           <span className="split-word">
@@ -69,7 +79,12 @@ export function Counter({ value, suffix = '', pad = true }) {
   // flick scroll can pass one without ever sampling a 60%-visible frame,
   // which would strand the number at zero.
   const [ref, inView] = useInView({ threshold: 0 });
-  const shown = useCountUp(value, inView);
+  // The hero's counters are in view from the first frame, so without this they
+  // would spend their whole count-up behind the opening curtain and be sitting
+  // at their final value by the time anyone saw them. Counters further down the
+  // page are unaffected: the sequence has long finished before they scroll in.
+  const introOpened = useIntroOpened();
+  const shown = useCountUp(value, inView && introOpened);
   const text = pad && value < 10 ? String(shown).padStart(2, '0') : String(shown);
 
   return (

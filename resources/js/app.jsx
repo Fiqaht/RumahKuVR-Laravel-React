@@ -12,9 +12,11 @@ import {
 } from './data/project';
 
 import {
-  useActiveSection, useCanHover, useInView, useParallax, usePrefersReducedMotion,
+  useActiveSection, useCanHover, useInView, useMagnetic, useParallax, usePrefersReducedMotion,
   useScrollProgress, useScrollReveal, useTilt
 } from './lib/motion';
+
+import { begin as beginIntro } from './lib/intro';
 
 import { Counter, Figure, SectionHead, SplitText, TiltCard, ZoomTrigger } from './components/primitives';
 import Coverflow from './components/Coverflow';
@@ -190,42 +192,63 @@ function Hero() {
   const tilt = useTilt({ max: 4.5, scale: 1.012, enabled: canHover && !reduced });
   const parallaxRef = useParallax(22, canHover && !reduced);
 
+  /* Magnetic lean on the two hero calls to action, and nowhere else on the
+     page. Same gate as the tilt: fine pointer, wide viewport, motion allowed. */
+  const magneticPrimary = useMagnetic({ enabled: canHover && !reduced });
+  const magneticSecondary = useMagnetic({ enabled: canHover && !reduced });
+
+  /* The opening sequence is told to part its curtain from here, in a layout
+     effect, because this is the first moment the hero's DOM is committed —
+     the overlay is presentation, but it should never uncover an empty stage.
+     Nothing about the hero's own rendering waits on this call. */
+  useLayoutEffect(() => {
+    beginIntro();
+  }, []);
+
   return (
     <section id="home" className="hero-section">
       <div className="hero-glow" aria-hidden="true" />
       <div className="container">
         <div className="hero-grid">
           <div className="hero-copy">
-            <p className="hero-badge" data-reveal="up">
+            {/* `--d` carries the hero's own entrance ladder. The delays are
+                relative to the curtain parting, not to scrolling into view,
+                and they are tighter than the page-wide stagger — the whole
+                composition has to land inside about a second. */}
+            <p className="hero-badge" data-reveal="up" style={{ '--d': '80ms' }}>
               <span className="pulse-dot" aria-hidden="true" />
               Final Year Project · {PROJECT.year} · {PROJECT.engine}
             </p>
 
+            {/* The one headline on the site that resolves out of blur rather
+                than rising out of a mask: it is the first line anyone reads
+                after the curtain, and it reads as focus being found. */}
             <SplitText
               as="h1"
+              variant="resolve"
               text="A safer Malaysian home begins with practice, not a pamphlet."
-              delay={120}
-              step={38}
+              delay={130}
+              step={30}
             />
 
-            <p className="lede" data-reveal="up" style={{ transitionDelay: '520ms' }}>
+            <p className="lede" data-reveal="up" style={{ '--d': '290ms' }}>
               RumahKuVR puts seniors inside a familiar kampung home and asks them to find the hazards
               themselves — a wet floor, a live wire, a burner left running — then fix each one with their
               own hands, on {PROJECT.headset} or an ordinary gamepad.
             </p>
 
-            <div className="hero-actions" data-reveal="up" style={{ transitionDelay: '600ms' }}>
-              <a href="#training" className="btn btn-primary">
+            <div className="hero-actions" data-reveal="up" style={{ '--d': '350ms' }}>
+              <a href="#training" className="btn btn-primary btn-magnetic" {...magneticPrimary}>
                 <span>Explore the training</span>
                 <ArrowRight size={16} strokeWidth={2.2} />
               </a>
-              <a href="#gameplay" className="btn btn-secondary">
+              <a href="#gameplay" className="btn btn-secondary btn-magnetic" {...magneticSecondary}>
                 <MonitorPlay size={16} strokeWidth={2} />
                 <span>See it running</span>
               </a>
             </div>
 
-            <dl className="hero-metrics" data-reveal="up" style={{ transitionDelay: '680ms' }}>
+            <dl className="hero-metrics" data-reveal="up" style={{ '--d': '410ms' }}>
               {HERO_METRICS.map(metric => (
                 <div className="hero-metric" key={metric.label}>
                   <dt>
@@ -245,7 +268,7 @@ function Hero() {
               screenshot is never covered. */}
           <div className="hero-visual-wrap" ref={parallaxRef}>
             <div className="hero-stage">
-              <div className="hero-visual tilt" {...tilt} data-reveal="clip">
+              <div className="hero-visual tilt" {...tilt} data-reveal="clip" style={{ '--d': '60ms' }}>
                 {/* The LCP element. A phone renders this about 358px wide, so
                     the 1500px master is roughly four times more pixels than it
                     can show — the 800w variant covers small viewports at 36KB
@@ -273,7 +296,7 @@ function Hero() {
               {/* Reads the capture it sits on rather than repeating the stat
                   row below it: this frame is a Mod Sukar session, and its HUD
                   shows the 0/10 counter for exactly these ten hazards. */}
-              <div className="hero-float" data-reveal="up" style={{ transitionDelay: '760ms' }}>
+              <div className="hero-float" data-reveal="up" style={{ '--d': '480ms' }}>
                 <span className="hero-float-num">
                   <Counter value={10} pad={false} />
                 </span>
@@ -286,7 +309,7 @@ function Hero() {
               {/* Eager, but explicitly low priority: it is above the fold, so
                   lazy-loading would only delay it, and it must never compete
                   with the LCP capture for bandwidth. */}
-              <figure className="hero-inset" data-reveal="up" style={{ transitionDelay: '820ms' }}>
+              <figure className="hero-inset" data-reveal="up" style={{ '--d': '540ms' }}>
                 <span className="hero-inset-frame">
                   {/* Renders around 250px wide here, so the 800w variant is
                       already generous — the 4K master is only pulled when the
@@ -328,7 +351,7 @@ function Overview() {
   ];
 
   return (
-    <section id="overview" className="section section-alt">
+    <section id="overview" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead
           variant="statement"
@@ -422,7 +445,7 @@ function Training() {
   ];
 
   return (
-    <section id="training" className="section">
+    <section id="training" className="section" data-reveal="edge">
       <div className="container">
         {/* The tier progression. A sticky rail states the idea once and tracks
             which mode you are looking at; the three real captures scroll past
@@ -626,7 +649,7 @@ function Gameplay() {
   const move = dir => setOpenIndex(i => (i === null ? null : (i + dir + GALLERY.length) % GALLERY.length));
 
   return (
-    <section id="gameplay" className="section section-alt">
+    <section id="gameplay" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead variant="centered" kicker="In-engine captures" title="Inside RumahKuVR.">
           Ten captures taken from the running Unity build — hazard cards, corrective actions, the house map
@@ -675,7 +698,7 @@ function Platform() {
   const current = pads[pad];
 
   return (
-    <section id="platform" className="section">
+    <section id="platform" className="section" data-reveal="edge">
       <div className="container">
         <SectionHead variant="split" kicker="Hardware" title="Two ways into the same house.">
           Not every senior can stand for twenty minutes. The controller build runs the identical scenarios
@@ -834,7 +857,7 @@ function Roles() {
   };
 
   return (
-    <section id="roles" className="section section-alt">
+    <section id="roles" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead kicker="Who signs in" title="One system, three ways in.">
           The role is picked on the sign-in screen and checked against the account behind it. A senior trains,
@@ -977,7 +1000,7 @@ function Roles() {
    -------------------------------------------------------------------------- */
 function SeniorDesign() {
   return (
-    <section id="accessibility" className="section">
+    <section id="accessibility" className="section" data-reveal="edge">
       <div className="container">
         <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood, not decoded.">
           One question decided every screen: could someone who has never worn a headset finish a session
@@ -1076,7 +1099,7 @@ function System() {
   };
 
   return (
-    <section id="system" className="section section-alt">
+    <section id="system" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead variant="statement" kicker="How it works" title="An interaction system, not a slideshow.">
           Input, physics, hazard state, verification and telemetry are one chain. What a senior does with
@@ -1290,7 +1313,7 @@ function Contact() {
   }
 
   return (
-    <section id="contact" className="section">
+    <section id="contact" className="section" data-reveal="edge">
       <div className="container">
         <div className="contact-grid">
           <div className="contact-info" data-reveal="left">

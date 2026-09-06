@@ -4257,3 +4257,352 @@ p {
     display: none;
   }
 }
+
+/* ==========================================================================
+   SIGNATURE MOTION — "SAFETY SCAN"
+
+   One motif, reused deliberately rather than decoratively.
+
+   RumahKuVR's core loop is a senior looking around a room until a hazard
+   resolves out of it. So the site's one recurring gesture is a scan: a thin
+   green line travels across a thing, and content resolves in its wake. It
+   states itself in the opening sequence (the line that draws the mark), and
+   every later use — the hero capture, each section edge, the pipeline rail —
+   reads as the same idea returning rather than as another borrowed effect.
+
+   Two rules keep it from becoming noise:
+     · the line only ever appears where something is genuinely resolving,
+       never as ambient decoration;
+     · it is always the same weight, the same green, and always travels in the
+       reading direction of whatever it is revealing.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   SECTION HANDOFF
+
+   Every section announces itself with the same gesture: the scan crosses its
+   leading edge, and the section's own content follows in its wake. That is
+   what makes the page read as one animated document rather than a stack of
+   independently animated components — the exit of one section and the
+   entrance of the next are the same continuous motion.
+
+   `edge` is a reveal variant that deliberately does not hide its element.
+   A <section> held at opacity 0 until it intersects would hide real content
+   behind an animation; here the observed element stays fully visible and only
+   the pseudo-element moves.
+   -------------------------------------------------------------------------- */
+[data-reveal='edge'] {
+  opacity: 1;
+  translate: none;
+  scale: none;
+}
+
+[data-reveal='edge']::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: min(var(--max-width), 100% - var(--pad-x) * 2);
+  translate: -50% 0;
+  height: 1px;
+  border-radius: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, var(--accent-glow) 42%, var(--accent) 90%, var(--accent-text) 100%);
+  box-shadow: 0 0 12px 1px var(--accent-glow);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  transition:
+    transform 1.05s var(--ease),
+    opacity 0.5s var(--ease);
+}
+
+/* The line does its work and then gets out of the way — it is a cue that the
+   section has arrived, not a permanent rule across the layout. */
+[data-reveal='edge'].is-visible::before {
+  transform: scaleX(1);
+  animation: scanEdgeSettle 1.5s var(--ease) forwards;
+}
+
+@keyframes scanEdgeSettle {
+  0%, 62% { opacity: 1; }
+  100% { opacity: 0.22; box-shadow: none; }
+}
+
+/* ==========================================================================
+   OPENING SEQUENCE — HERO CHOREOGRAPHY
+
+   The hero's entrance is timed against the curtain, not against scroll. Its
+   elements are in the viewport from the first frame, so the page-wide
+   IntersectionObserver would otherwise mark them visible instantly and spend
+   the whole entrance hidden behind the overlay.
+
+   `html.is-hero-in` is added by lib/intro.js in the same frame the curtain
+   starts to part, so the hero is already in motion in the gaps between the
+   rising tiles. Every delay below is relative to that moment.
+   ========================================================================== */
+
+/* Held state. Scoped to the hero only — the rest of the page keeps the normal
+   scroll-driven reveal, and this releases the moment the class lands. */
+html:not(.is-hero-in) .hero-section [data-reveal]:not([data-reveal='split']) {
+  opacity: 0;
+}
+
+html:not(.is-hero-in) .hero-section [data-reveal='clip'] img {
+  clip-path: inset(0 0 100% 0);
+}
+
+html:not(.is-hero-in) .hero-section .split-word-inner {
+  opacity: 0;
+}
+
+/* The ladder. Written as a custom property so the hero can carry its own
+   compressed timing without the generic `--i * --stagger` rule reaching it. */
+.hero-section [data-reveal] {
+  transition-delay: var(--d, 0ms);
+}
+
+/* The composition settles on a depth plane as one object — the capture and the
+   two layers overhanging it arrive together, then earn their individual
+   accents from the ladder below. Adapted from the scroll-driven 3D settle used
+   on Aceternity's container-scroll, moved onto the opening instead of scroll.
+
+   It runs on .hero-stage rather than .hero-visual because .hero-visual is a
+   pointer-tilt target: the tilt owns `transform` there, and two systems
+   writing one property is how entrances end up fighting hover states. */
+.hero-visual-wrap {
+  perspective: 1600px;
+}
+
+.hero-stage {
+  transform: rotateX(9deg) scale(0.955) translateY(26px);
+  transform-origin: 50% 0;
+  opacity: 0;
+  transition:
+    transform 1.05s var(--ease) 60ms,
+    opacity 0.7s var(--ease) 60ms;
+}
+
+html.is-hero-in .hero-stage {
+  transform: none;
+  opacity: 1;
+}
+
+/* The scan crossing the capture as it resolves — the motif's second statement,
+   about 300ms after the opening made it the first. */
+/* The band is a full-height layer rather than a 2px strip so its travel can be
+   expressed as a percentage of its own box — which is the capture's box. A
+   fixed pixel distance would under- or overshoot the moment the hero image
+   changed size, which it does at every breakpoint. */
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(180deg, transparent 49.2%, var(--accent) 49.8% 50.2%, transparent 50.8%),
+    linear-gradient(180deg, transparent 43%, var(--accent-glow) 50%, transparent 57%);
+}
+
+html.is-hero-in .hero-visual::before {
+  animation: heroCaptureScan 0.86s cubic-bezier(0.16, 1, 0.3, 1) 0.16s forwards;
+}
+
+@keyframes heroCaptureScan {
+  0% { transform: translateY(-50%); opacity: 0; }
+  14% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { transform: translateY(50%); opacity: 0; }
+}
+
+/* Word-level blur resolve for the hero headline.
+
+   The words hold their final layout from the first frame and only blur and
+   opacity move, so the line sharpens into place rather than sliding into it —
+   no mask, no overflow, and nothing for a long wrapping headline to clip.
+   The site's existing word-mask reveal is left in place on every section
+   heading; this is the hero's own, and the difference is the point. */
+.split-resolve .split-word {
+  overflow: visible;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.split-resolve .split-word-inner {
+  transform: none;
+  translate: 0 10px;
+  filter: blur(12px);
+  opacity: 0;
+  transition:
+    opacity 0.44s var(--ease),
+    filter 0.44s var(--ease),
+    translate 0.52s var(--ease);
+}
+
+[data-reveal='split'].split-resolve.is-visible .split-word-inner {
+  transform: none;
+  translate: none;
+  filter: blur(0);
+  opacity: 1;
+}
+
+/* Held until the curtain moves, like the rest of the hero. */
+html:not(.is-hero-in) .hero-section .split-resolve .split-word-inner {
+  filter: blur(12px);
+  translate: 0 10px;
+}
+
+/* --------------------------------------------------------------------------
+   MAGNETIC CTA
+
+   Restricted to the two hero calls to action. The hook lerps the offset itself
+   and writes it every frame, so `translate` carries no transition — a CSS ease
+   on top of an already-smoothed value reads as lag, not weight. `translate` is
+   used rather than `transform` because .btn's sheen and press states own that
+   property already.
+   -------------------------------------------------------------------------- */
+.btn-magnetic {
+  translate: var(--mag-x, 0px) var(--mag-y, 0px);
+}
+
+/* --------------------------------------------------------------------------
+   INTERACTION PIPELINE — DATA MOVING THROUGH A SYSTEM
+
+   The rail already filled to the active stage; what was missing was any sense
+   that something *travelled* to get there. A bright head rides the leading
+   edge of the fill, and the detail panel resolves behind the same scan the
+   rest of the site uses, so selecting a stage reads as the system advancing.
+   -------------------------------------------------------------------------- */
+.pipeline-rail-fill::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  translate: 0 -50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-text);
+  box-shadow: 0 0 12px 3px var(--accent-glow);
+}
+
+.pipeline-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Replays on every stage change without a listener: the panel is keyed on the
+   active stage, so React remounts it and the animation starts again. */
+.pipeline-panel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--accent) 55%, var(--accent-text) 100%);
+  box-shadow: 0 0 10px 1px var(--accent-glow);
+  transform-origin: left center;
+  animation: pipelineScan 0.62s var(--ease) forwards;
+}
+
+@keyframes pipelineScan {
+  0% { transform: scaleX(0); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.15; }
+}
+
+/* --------------------------------------------------------------------------
+   MOBILE OPENING
+
+   Not the desktop sequence scaled down: fewer layers moving at once. The depth
+   settle loses its rotation (a phone shows the capture nearly full-bleed, and
+   rotating it costs legibility for an effect nobody can see at that size), the
+   capture scan is dropped entirely, and the ladder is compressed so the
+   headline and CTA are readable about a second in.
+   -------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  .hero-stage {
+    transform: translateY(18px);
+    transition:
+      transform 0.72s var(--ease) 40ms,
+      opacity 0.5s var(--ease) 40ms;
+  }
+
+  html.is-hero-in .hero-visual::before {
+    animation: none;
+  }
+
+  .hero-section [data-reveal] {
+    transition-delay: calc(var(--d, 0ms) * 0.72);
+    transition-duration: 0.52s;
+  }
+
+  .split-resolve .split-word-inner {
+    transition-duration: 0.34s, 0.34s, 0.4s;
+  }
+
+  /* The section handoff stays, but shorter and without the lingering glow —
+     it is a cue, and on a small screen a long one is just a delay. */
+  [data-reveal='edge']::before {
+    transition-duration: 0.72s, 0.36s;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION — OPENING SEQUENCE AND SIGNATURE MOTIF
+
+   A second reduced-motion block, kept beside the code it neutralises rather
+   than folded into the one above, so the opening sequence and everything the
+   scan motif touches are switched off in one readable place.
+
+   The rule throughout: the finished page is what appears. No element is left
+   holding an entrance state, because that is how reduced motion turns into
+   invisible content.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  /* The overlay is already display:none from the critical CSS in the document
+     head — this covers the case where it is still in the DOM because the
+     preference changed after load. */
+  .rkv-intro {
+    display: none !important;
+  }
+
+  /* Nothing waits on `is-hero-in`: the hero is simply finished. */
+  html:not(.is-hero-in) .hero-section [data-reveal],
+  html:not(.is-hero-in) .hero-section [data-reveal='clip'] img,
+  html:not(.is-hero-in) .hero-section .split-word-inner,
+  html:not(.is-hero-in) .hero-section .split-resolve .split-word-inner {
+    opacity: 1 !important;
+    filter: none !important;
+    translate: none !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+
+  .hero-stage {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .split-resolve .split-word-inner {
+    filter: none !important;
+    translate: none !important;
+    opacity: 1 !important;
+  }
+
+  /* The scan is motion by definition; the lines it draws simply are not shown
+     rather than being left mid-travel across the layout. */
+  .hero-visual::before,
+  .pipeline-panel::before,
+  [data-reveal='edge']::before {
+    display: none !important;
+  }
+
+  .btn-magnetic {
+    translate: none !important;
+  }
+}
