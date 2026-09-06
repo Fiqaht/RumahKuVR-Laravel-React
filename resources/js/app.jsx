@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 
 import {
-  A11Y_PRINCIPLES, CASE_STEPS, GALLERY, HAZARDS, HERO_METRICS,
-  JOURNEY, PIPELINE, PROJECT, ROLES, TIERS
+  CASE_STEPS, GALLERY, HAZARDS, HERO_METRICS, JOURNEY, PIPELINE,
+  PROJECT, ROLES, SENIOR_DESIGN_NOTES, TIERS
 } from './data/project';
 
 import {
@@ -998,20 +998,13 @@ function Roles() {
           <span className="kicker">After a session</span>
           <h3>What the caregiver sees once the headset comes off.</h3>
           <p>
-            A session ends the moment the last hazard is cleared or the clock runs out. The headset grades
-            it there and then, writes the result to its own store, and the caregiver portal picks it up —
-            no upload, no waiting.
+            The headset grades the session as it ends and writes the result to its own store; the portal
+            reads it from there. <strong>Peta Bahaya</strong> is the screen that answers the question a
+            family actually asks — not what the score was, but <em>which room keeps causing trouble</em>.
           </p>
           <p>
-            <strong>Peta Bahaya</strong> replays that session on the floor plan of the house. Every hazard
-            the senior met is pinned to the room it was found in, and selecting a marker fills the panel
-            beside it with that hazard&rsquo;s room, risk level, whether it was cleared, and what to do
-            about it. It answers the question a family actually asks — not &ldquo;what was the score&rdquo;
-            but <em>which room keeps causing trouble</em>.
-          </p>
-          <p>
-            The two panels beside it hold the history: every saved session in order, and the average score
-            for each tier. Read together they show whether the last month moved in the right direction.
+            Below, marker 01 is selected: Karpet Terlipat, Ruang Makan, a trip risk, cleared — and the
+            recommendation that goes with it. The two panels beside it hold the history.
           </p>
         </div>
 
@@ -1026,12 +1019,12 @@ function Roles() {
             src="/images/caregiver/hazard-map.webp"
             srcSet="/images/caregiver/hazard-map-1400w.webp 1400w, /images/caregiver/hazard-map.webp 3382w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 52vw"
-            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session scoring 100 out of 100, with markers 01 to 05 placed on a labelled floor plan — Ruang Tamu, Ruang Makan, Bilik Tidur, Bilik Utiliti, Bilik Air — the five-hazard Senarai Bahaya beside it all marked Selesai, and the Butiran Bahaya Terpilih panel waiting on a selection"
-            caption="Peta Bahaya — every hazard placed on the floor plan"
+            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session scoring 100 out of 100, with markers 01 to 05 on a labelled floor plan — Ruang Tamu, Ruang Makan, Bilik Tidur, Bilik Utiliti, Bilik Air — the five-hazard Senarai Bahaya beside it all marked Selesai, and marker 01 selected so the Butiran Bahaya Terpilih panel shows Karpet Terlipat, Ruang Makan, Tersandung, Risiko Sederhana, Selesai, with the recommendation to flatten the carpet and secure it with tape or an anti-slip pad"
+            caption="Peta Bahaya — marker 01 selected, with its detail panel open"
             reveal="up"
             zoomable
             zoomTag="Caregiver portal"
-            zoomDesc="Five hazards from one Sederhana session, each pinned to the room it was found in. Selecting a marker or a row fills the Butiran Bahaya Terpilih panel with that hazard's room, risk level, status and recommendation. Zoom in to read the Malay labels."
+            zoomDesc="Five hazards from one Sederhana session, each pinned to the room it was found in. Marker 01 is selected here, so Butiran Bahaya Terpilih is showing Karpet Terlipat — Ruang Makan, a trip risk, rated Risiko Sederhana and marked Selesai — beside the recommendation for it. Zoom in to read the Malay labels."
             width={3382}
             height={2085}
           />
@@ -1080,35 +1073,44 @@ function SeniorDesign() {
       <div className="container">
         <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood on the first try.">
           One question decided every screen: could someone who has never worn a headset finish a session
-          without being told what to do?
+          without being told what to do? This is the first screen a senior sees — every claim below is
+          something on it.
         </SectionHead>
 
-        {/* Six equal cards said all six mattered equally. They do not. The two
-            that shaped the most decisions lead at full size; the rest are a
-            tight list, which is also how they read — as constraints, not as
-            features. */}
-        <div className="principles">
-          <div className="principles-lead">
-            {A11Y_PRINCIPLES.slice(0, 2).map((item, i) => (
-              <TiltCard className="principle-lead" key={item.num} data-reveal="up" style={{ '--i': i }} max={3}>
-                <span className="principle-lead-num" aria-hidden="true">{item.num}</span>
-                <h3>{item.title}</h3>
-                <p>{item.desc}</p>
-              </TiltCard>
-            ))}
-          </div>
+        {/* This was six written principles in cards beside no evidence at all,
+            which is the weakest way to make an accessibility claim: the reader
+            has only the assertion. It is one capture of the Warga Emas menu
+            now, at a size where the Malay labels are readable, with each note
+            naming the element on it that carries the point. Nothing is claimed
+            here that is not visible in that frame. */}
+        <div className="senior-evidence">
+          <Figure
+            className="senior-evidence-figure"
+            reveal="left"
+            zoomable
+            zoomTag="Warga Emas menu"
+            src="/images/ui/senior-menu.webp"
+            srcSet="/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w"
+            sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 54vw"
+            alt="The RumahKuVR Warga Emas menu: a Bantuan Suara voice-help button in the header, a welcome line, a large Mula Latihan button reading “Tekan untuk memulakan”, a Tutorial button, cards showing Skor Terakhir 100 out of 100 and Sesi Selesai 6, and a row of five buttons that each pair an icon with a word — Lihat Kemajuan, Bantuan, Panduan Alat, Log Keluar and Keluar"
+            caption="Menu Warga Emas — the whole home screen, uncropped"
+            zoomDesc="The senior home screen in full. One dominant action, spoken-Malay help in the header, and every button carrying a word beside its icon."
+            width={3483}
+            height={2085}
+          />
 
-          <ul className="principles-rest">
-            {A11Y_PRINCIPLES.slice(2).map((item, i) => (
+          <ol className="senior-notes">
+            {SENIOR_DESIGN_NOTES.map((item, i) => (
               <li key={item.num} data-reveal="up" style={{ '--i': i }}>
-                <span className="principle-rest-num" aria-hidden="true">{item.num}</span>
-                <div>
+                <span className="senior-note-num" aria-hidden="true">{item.num}</span>
+                <div className="senior-note-body">
                   <strong>{item.title}</strong>
+                  <span className="senior-note-find">On screen: {item.find}</span>
                   <p>{item.desc}</p>
                 </div>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       </div>
     </section>
@@ -1280,28 +1282,41 @@ function System() {
         </div>
 
         <div className="system-split">
-          <Figure
-            className="system-figure"
-            reveal="left"
-            zoomable
-            zoomTag="Caregiver portal"
-            src="/images/caregiver/iris-trend.webp"
-            alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, noting that safety and attention improved across the last three sessions"
-            caption="Trend Prestasi — computed from the last three saved sessions"
-          />
+          {/* Two captures rather than one. The result card is the analyser's
+              actual output — the four lines the copy used to describe from
+              memory — and the trend panel is what those same records become
+              across sessions. With both on the page the prose beside them can
+              be about a third of what it was. */}
+          <div className="system-evidence" data-reveal="left">
+            <Figure
+              className="system-figure"
+              zoomable
+              zoomTag="In-headset result"
+              src="/images/ui/session-result.webp"
+              alt="Keputusan Sesi in RumahKuVR: a session scored 80 out of 100 beside an Analisis AI panel with four headed lines — Tahap Prestasi, Kekuatan, Perlu Diberi Perhatian and Cadangan — over a footer reading 08:24 elapsed, 4 hazards and 18 selesai"
+              caption="Keputusan Sesi — the four lines the analyser writes, on the headset"
+            />
+            <Figure
+              className="system-figure"
+              zoomable
+              zoomTag="Caregiver portal"
+              src="/images/caregiver/iris-trend.webp"
+              alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, based on the three most recent Mudah sessions, noting that safety and attention improved"
+              caption="Trend Prestasi — the same records read across sessions"
+            />
+          </div>
 
           <div className="system-copy" data-reveal="right">
             <span className="kicker">Offline behaviour analysis</span>
             <h3>Four graded dimensions, worked out on the headset.</h3>
             <p>
-              When a session ends, a Sugeno-style fuzzy expert system runs on the device and grades safety
-              performance, independence, attention and recovery. Each input is mapped onto overlapping low,
-              medium and high sets, every rule fires in proportion to how true it is, and the score is the
-              weighted average of what fired. One missed hazard nudges the result; it never flips it.
+              A Sugeno-style fuzzy expert system grades safety performance, independence, attention and
+              recovery. Every rule fires in proportion to how true it is, so one missed hazard nudges the
+              result rather than flipping it.
             </p>
             <p>
-              Across sessions the same stored records drive the caregiver trend, which only ever compares like
-              with like — one difficulty at a time, and it says on screen which one it chose.
+              The trend reads the same stored records across sessions, and compares like with like — one
+              difficulty at a time, named on screen.
             </p>
             <ul className="feature-list">
               <li>

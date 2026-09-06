@@ -71,7 +71,10 @@
 
   --text: #f4f6f8;
   --text-muted: #a4acb6;
-  --text-faint: #737c86;
+  /* #737c86 failed the same way light did — 3.6:1 on --surface-raised, 4.1 on
+     --surface-alt. #858e99 clears 4.5 everywhere (worst 4.64) and still sits
+     below --text-muted at 6.7:1, so the ladder is unchanged in shape. */
+  --text-faint: #858e99;
 
   /* Silver, not a hue. `--accent` is the line-and-label weight; `--accent-text`
      is the platinum reserved for figures and the one selected item in a set. */
@@ -135,7 +138,15 @@
 
   --text: #0e1116;
   --text-muted: #4f5866;
-  --text-faint: #78818e;
+  /* Was #78818e, which measured 3.2–3.9:1 against the five surfaces it is
+     painted on — under the 4.5:1 AA floor on every one of them, and this is
+     the token that carries captions, footnotes, figure credits, tier counts
+     and the evaluation note. #5f6876 clears 4.5 on all of them (worst case
+     4.58 on --surface-raised) while staying two clear steps below --text-muted
+     at 6.2:1 and --text at 16.3:1, so the three-tone monochrome ladder still
+     reads as three tones. Deliberately not darker: this text is meant to
+     recede, just legibly — and on a washed-out projector it now has margin. */
+  --text-faint: #5f6876;
 
   /* Graphite is the light theme's silver: the same role, inverted. */
   --accent: #3b4552;
@@ -2168,7 +2179,13 @@ p {
   margin-inline: calc(50% - 50vw);
   overflow: hidden;
   height: clamp(240px, 34vw, 440px);
-  perspective: 1500px;
+  /* Was 1500px. The rotation this produced on the two flanking cards was
+     steep enough to foreshorten the in-engine captures on them into
+     unreadability — and a gallery whose whole claim is "these are real
+     screenshots" cannot afford illegible screenshots two thirds of the time.
+     A longer focal length flattens the neighbours without losing the depth
+     cue that tells you the rail continues. */
+  perspective: 2600px;
   perspective-origin: 50% 50%;
   touch-action: pan-y;
   cursor: grab;
@@ -3043,85 +3060,99 @@ p {
 }
 
 /* ==========================================================================
-   07 PRINCIPLES
+   07 SENIOR-FIRST EVIDENCE
+
+   This was six cards of written principles standing next to nothing. An
+   accessibility claim with no evidence is the one kind of claim a reader
+   cannot check, so the section is now the Warga Emas menu at a size where its
+   Malay labels are legible, and a numbered list whose every entry names an
+   element visible in that frame.
+
+   The capture leads and takes the wider column: it is the argument, and the
+   list is the caption for it.
    ========================================================================== */
-/* Six equal cards implied six equal constraints. Two of these shaped most of
-   the interface decisions, so they lead at full size; the remaining four read
-   as a list, which is closer to what they are. */
-.principles {
+.senior-evidence {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: clamp(24px, 3.4vw, 60px);
+  grid-template-columns: 1.46fr 1fr;
+  gap: clamp(24px, 3.4vw, 52px);
   align-items: start;
 }
 
-.principles-lead {
+/* The notes run taller than the capture beside them, so the capture rides
+   down with the reader instead of leaving a column of dead space under its
+   caption. Only where there is viewport height to justify pinning, and the
+   reduced-motion block below does not need to touch it — sticky is a scroll
+   position, not an animation. */
+@media (min-width: 1025px) and (min-height: 760px) {
+  .senior-evidence-figure {
+    position: sticky;
+    top: calc(var(--header-height) + 26px);
+  }
+}
+
+/* The senior menu is a 4K Game View grab at the same ratio as the caregiver
+   captures, so it is boxed at its own shape and fitted whole — a 16:9 crop
+   would take the button row off the bottom, which is the row carrying the
+   icon-plus-label point. */
+.senior-evidence-figure .figure-media {
+  aspect-ratio: 3483 / 2085;
   display: grid;
-  gap: clamp(14px, 1.6vw, 20px);
+  place-items: center;
 }
 
-.principle-lead {
-  padding: clamp(20px, 2.4vw, 32px);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+.senior-evidence-figure .figure-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.principle-lead:hover {
-  border-color: var(--border-strong);
-  box-shadow: var(--card-hover-shadow);
-}
-
-.principle-lead-num {
-  font-family: var(--font-heading);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--accent);
-}
-
-.principle-lead h3 {
-  font-size: clamp(1.0625rem, 1.5vw, 1.375rem);
-  margin-block: 10px 8px;
-}
-
-.principle-lead p {
-  font-size: 0.9375rem;
-}
-
-.principles-rest {
+.senior-notes {
   border-top: 1px solid var(--border);
 }
 
-.principles-rest li {
+.senior-notes li {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 16px;
-  padding: 15px 2px;
+  gap: 14px;
+  padding: 14px 2px 15px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.principle-rest-num {
+.senior-note-num {
   font-family: var(--font-heading);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   color: var(--text-faint);
-  padding-top: 4px;
+  padding-top: 3px;
 }
 
-.principles-rest strong {
+.senior-note-body {
+  min-width: 0;
+}
+
+.senior-note-body strong {
   display: block;
   font-family: var(--font-heading);
   font-size: 0.9375rem;
   letter-spacing: -0.02em;
   color: var(--text);
-  margin-bottom: 4px;
 }
 
-.principles-rest p {
-  font-size: 0.875rem;
+/* The pointer back into the capture. Set as a label rather than prose because
+   it is an instruction to look at something, not a sentence to read. */
+.senior-note-find {
+  display: block;
+  margin: 3px 0 5px;
+  font-family: var(--font-heading);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.senior-notes p {
+  font-size: 0.84375rem;
   line-height: 1.5;
 }
 
@@ -3451,6 +3482,15 @@ p {
   gap: clamp(24px, 3vw, 48px);
   align-items: center;
   margin-bottom: clamp(28px, 3.5vw, 48px);
+}
+
+/* Two captures stacked in the left column: the analyser's own output, then
+   what those records become across sessions. Sized so the pair finishes near
+   the height of the copy beside it. */
+.system-evidence {
+  display: grid;
+  gap: clamp(12px, 1.4vw, 18px);
+  align-content: start;
 }
 
 .system-copy h3 {
@@ -4562,11 +4602,11 @@ html.high-contrast .demo-frame {
     border-left: 0;
     border-top: 1px solid var(--border);
   }
-  .principles {
+  /* Capture over notes rather than beside them: below this width the figure
+     would be too narrow for the Malay labels on it to be readable, which is
+     the only reason the capture is here. */
+  .senior-evidence {
     grid-template-columns: 1fr;
-  }
-  .principles-lead {
-    grid-template-columns: 1fr 1fr;
   }
   .section-head-split {
     grid-template-columns: 1fr;
@@ -4642,7 +4682,6 @@ html.high-contrast .demo-frame {
   .loop-rail,
   .case-steps,
   .hazard-groups,
-  .principles-lead,
   .roles-extra,
   .form-row {
     grid-template-columns: 1fr;
@@ -4717,14 +4756,21 @@ html.high-contrast .demo-frame {
   .pipeline {
     grid-template-columns: 1fr 1fr;
   }
+  /* The active capture is the whole point of this section, and at 74vw on a
+     390px screen it was 289px wide — an in-engine screenshot rendered smaller
+     than a thumbnail, with two heavily rotated neighbours taking the rest of
+     the width. The active card is widened to 88vw and the stage grown to suit,
+     so the capture is legible; the 900px perspective goes with the same
+     reasoning as the desktop change, just less far, because on a phone the
+     neighbours are what tell you the rail scrolls. */
   .coverflow-stage {
-    height: 250px;
-    perspective: 900px;
+    height: 290px;
+    perspective: 1500px;
   }
   .coverflow-slide {
-    width: 74vw;
-    margin-left: -37vw;
-    margin-top: calc(-37vw * 9 / 16);
+    width: 88vw;
+    margin-left: -44vw;
+    margin-top: calc(-44vw * 9 / 16);
   }
   .coverflow-caption {
     min-height: 160px;
@@ -4853,6 +4899,41 @@ html.high-contrast .demo-frame {
   .coverflow-count {
     display: block;
   }
+  /* THE PHONE HERO IS RESEQUENCED, NOT RESTYLED.
+
+     Stacked, the desktop composition put the badge, headline, lede, both
+     buttons and three metric cards above the capture — so a visitor scrolled
+     through roughly a screen and a half of claims before seeing the thing
+     being claimed about. On a phone the evidence has to come earlier.
+
+     `display: contents` dissolves .hero-copy so its five children and the
+     visual become siblings in one grid, which is the only way to interleave
+     the capture between the lede and the buttons without moving it in the
+     DOM — the reading order for a screen reader is unchanged from the source,
+     and the visual order is set with `order` alone. .hero-copy's own 18px gap
+     goes with it, so the grid carries the rhythm instead. */
+  .hero-grid {
+    display: grid;
+    gap: 14px;
+  }
+  .hero-copy {
+    display: contents;
+  }
+  .hero-badge   { order: 1; }
+  .hero-copy h1 { order: 2; }
+  .hero-copy .lede {
+    order: 3;
+    /* One tight paragraph before the capture rather than four lines of it. */
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+  .hero-visual-wrap { order: 4; }
+  .hero-actions {
+    order: 5;
+    margin-top: 2px;
+  }
+  .hero-metrics { order: 6; }
+
   /* Three stat blocks across a 320px screen leaves ~70px of content width,
      which wraps "Household hazards" onto three lines. One per row instead. */
   .hero-metrics {

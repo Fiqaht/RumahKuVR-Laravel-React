@@ -12,7 +12,7 @@ export const PROJECT = {
   name: 'RumahKuVR',
   title:
     'AI-Assisted Virtual Reality Home Safety Application for Personalised Hazard Detection Among Seniors',
-  author: "Muhammad Thaqif Fahmi Bin Rafie'e",
+  author: "Muhammad Thaqif Fahmi Bin Rafie'e, Muhammad Hakimi bin Shah Buddin, Muhammad Faiq Azim Bin Mohamad Zin ",
   programme: 'Diploma in Information Technology (Software Application Development)',
   year: '2026',
   engine: 'Unity 6.3 LTS',
@@ -248,10 +248,15 @@ export const ROLES = {
     imageSrcSet: '/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w',
     alt: 'RumahKuVR senior menu showing a welcome message, a large “Mula Latihan” button and last score of 80 out of 100',
     caption: 'Senior menu · in-headset capture',
+    /* These used to be the three accessibility claims — big buttons, voice
+       help, surfaced score — which the Senior-first section immediately below
+       now makes with the same capture and its labels pointed at. Repeating
+       them here said the same thing twice about one picture. They are about
+       the role now: what signing in as Warga Emas actually gets you. */
     points: [
-      'Large-format buttons with an icon and a label on every one',
-      'Voice assistance available from the header at any time',
-      'Last score and completed sessions surfaced on the home screen'
+      'Signs in as Warga Emas and lands straight on this menu — no dashboard in between',
+      'Mula Latihan, then a difficulty: a session is two taps from here',
+      'Score and session count are read from the device store, so they survive a restart'
     ]
   },
   caregiver: {
@@ -261,15 +266,17 @@ export const ROLES = {
     kicker: 'Penjaga',
     title: 'See which hazards keep coming back.',
     body:
-      'The caregiver portal reports per-session records, average score by tier, and the hazards a senior has not yet cleared — mapped to the room they are in.',
-    image: '/images/caregiver/records.webp',
-    imageSrcSet: '/images/caregiver/records-1400w.webp 1400w, /images/caregiver/records.webp 3483w',
-    alt: 'RumahKuVR caregiver performance report listing recent sessions with tier, score, hazards and status',
-    caption: 'Laporan Prestasi · session records',
+      'Laporan Prestasi is the caregiver view: a score for every saved session, averages per difficulty, and each hazard placed back on the floor plan of the room it happened in.',
+    image: '/images/caregiver/progress-graph.webp',
+    imageSrcSet:
+      '/images/caregiver/progress-graph-1400w.webp 1400w, /images/caregiver/progress-graph.webp 3483w',
+    alt:
+      'Graf Kemajuan Markah in the RumahKuVR caregiver portal: a line chart of the score from fourteen saved sessions, mostly at 100 with two sessions dropping to 0',
+    caption: 'Graf Kemajuan Markah · fourteen saved sessions',
     points: [
-      'Session log with tier, score, hazards cleared and completion status',
-      'Average score per tier, and per-hazard status on a house map',
-      'Trend and CSV export for sharing with family or a clinician'
+      'Every saved session plotted, so a bad run is visible rather than averaged away',
+      'Average score per tier, and each hazard pinned to the room it was found in',
+      'Eksport CSV for sharing with family or a clinician'
     ]
   },
   guest: {
@@ -292,37 +299,48 @@ export const ROLES = {
   }
 };
 
-/* Senior-first design principles. */
-export const A11Y_PRINCIPLES = [
+/* Senior-first design, annotated on the screen that shows it.
+
+   These were six written principles sitting beside a picture. Each one is now
+   pinned to something a reader can point at in the Warga Emas menu capture
+   (/images/ui/senior-menu.webp) — `find` is the on-screen Malay label, so the
+   claim and the evidence are the same object. Nothing is listed here that is
+   not visible in that single frame. */
+export const SENIOR_DESIGN_NOTES = [
   {
     num: '01',
-    title: 'Type sized for older eyes',
-    desc: 'Large labels, generous line spacing and high-contrast panels on every in-headset screen.'
+    find: 'Mula Latihan',
+    title: 'One action is obviously the main one',
+    desc:
+      'The button that starts a session is the largest element on the screen and carries its own instruction — “Tekan untuk memulakan”. Nothing else competes for it.'
   },
   {
     num: '02',
-    title: 'Malay voice guidance',
-    desc: 'Instructions are spoken as well as written, so a session never depends on reading speed.'
+    find: 'Bantuan Suara',
+    title: 'Spoken Malay is on every screen',
+    desc:
+      'Voice assistance sits in the header, reachable at any point, so finishing a session never depends on reading speed.'
   },
   {
     num: '03',
-    title: 'Icon plus label, always',
-    desc: 'No action is communicated by an icon alone — every button carries a word next to the symbol.'
+    find: 'Icon + word',
+    title: 'No action is an icon on its own',
+    desc:
+      'Lihat Kemajuan, Bantuan, Panduan Alat, Log Keluar and Keluar each pair a symbol with the word for it. A senior never has to decode a glyph.'
   },
   {
     num: '04',
-    title: 'Predictable controls',
-    desc: 'One button per action, no combinations, and an in-headset controller guide one tap away.'
+    find: 'Panduan Alat',
+    title: 'The controller guide is one tap away',
+    desc:
+      'The button mapping is reachable from the menu rather than buried in settings — the same guide the Platform section shows for both pad layouts.'
   },
   {
     num: '05',
-    title: 'Calm hazard feedback',
-    desc: 'Hazards announce themselves on a readable card. No camera shake, no startle effects.'
-  },
-  {
-    num: '06',
-    title: 'Guidance that fades',
-    desc: 'Markers, timers and prompts step down across Mudah, Sederhana and Sukar as confidence grows.'
+    find: 'Skor Terakhir · Sesi Selesai',
+    title: 'Two numbers, and no more',
+    desc:
+      'Last score and sessions completed are surfaced on the home screen. Everything else a caregiver might want lives in the portal, not here.'
   }
 ];
 
@@ -375,11 +393,47 @@ export const PIPELINE = [
   }
 ];
 
+/* Development journey.
+
+   These were six generic phase names — Planning, UX design, Unity build — that
+   would fit any project. Each one is a decision this build actually made and
+   that something in the repository still shows: the hazard asset, an older
+   caregiver record, a capture in the gallery, or a screen in the portal. */
 export const JOURNEY = [
-  { step: '01', title: 'Planning', desc: 'Problem framing, senior fall-safety reading, hazard catalogue.' },
-  { step: '02', title: 'UX design', desc: 'Low-load interface wireframes, Malay audio script, control map.' },
-  { step: '03', title: 'Unity build', desc: 'Malaysian home environment, OpenXR integration, hazard state logic.' },
-  { step: '04', title: 'Flow testing', desc: 'Grab affordances, near-fall feedback, difficulty tuning.' },
-  { step: '05', title: 'Refinement', desc: 'Coachmarks, result analysis, caregiver telemetry.' },
-  { step: '06', title: 'Presentation', desc: 'Showcase build, documentation and evaluator demonstration.' }
+  {
+    step: '01',
+    title: 'One house, not a lab',
+    desc:
+      'The environment was built as a single kampung home with named rooms — Ruang Tamu, Ruang Makan, Bilik Air, Bilik Utiliti, Dapur — so a hazard could be described by where it lives rather than by a level number.'
+  },
+  {
+    step: '02',
+    title: 'Two input paths, one scenario set',
+    desc:
+      'Rather than a cut-down gamepad version, input was normalised before anything downstream reads it. Mod VR and Mod Kawalan run the same hazards, the same tiers and the same scoring.'
+  },
+  {
+    step: '03',
+    title: 'Hard grew from eight hazards to ten',
+    desc:
+      'Older saved sessions still show Sukar scored out of 8. The tier was extended to ten — the bedside lamp, the indoor stairs, the heater by the curtain, the unstable chair — and XRHazardMapData now holds 3 + 5 + 10.'
+  },
+  {
+    step: '04',
+    title: 'Correction had to be physical',
+    desc:
+      'Looking at a hazard stopped being enough to clear it. The state only advances once the action is performed and verified, which is why the meal scenario ends with a trolley being fetched rather than a button labelled “fix”.'
+  },
+  {
+    step: '05',
+    title: 'Hazard rooms were re-read from the asset',
+    desc:
+      'Several were wrong in earlier documentation — the folded carpet is in the dining room, the medicine cabinet is in the kitchen, the blocked walkway is the utility room. The catalogue on this page is generated from XRHazardMapData, not from a screenshot.'
+  },
+  {
+    step: '06',
+    title: 'The report had to answer “which room”',
+    desc:
+      'A score alone did not tell a family anything actionable. Peta Bahaya pins every hazard to the floor plan, and selecting one opens its room, risk level, status and recommendation.'
+  }
 ];
