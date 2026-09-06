@@ -83,20 +83,26 @@
          The sequence is in two acts and the join between them is a person, not
          a timer:
 
-           ACT I  — the brand resolves, parks at the top of the stage, and a
-                    RumahKuVR house builds itself in the middle of it. Pure CSS
-                    on a delay ladder; it runs whether or not the bundle has
-                    arrived. Measured from first paint: the mark resolves by
-                    520ms, the wordmark and its details by 860ms, and the house
-                    is standing and clickable at 1100ms (720ms on a phone).
+           ACT I  — the brand resolves, parks at the top of the stage, and the
+                    RumahKuVR house builds itself in the middle of it: a
+                    miniature of House4, the house the VR application actually
+                    puts the player inside, rebuilt from the prefab's own module
+                    grid. Pure CSS on a delay ladder; it runs whether or not the
+                    bundle has arrived. Measured from first paint: the mark
+                    resolves by 520ms, the wordmark and its details by 860ms,
+                    and the house is standing and clickable at 1100ms (720ms on
+                    a phone). Pointing at it thins the walls and brings the plan
+                    and its hazards up through them.
 
-           ACT II — the visitor clicks the house. The volume ignites for 150ms,
-                    then the curtain parts from the centre outward while the
-                    hero begins its own entrance in the same frame; the stage
-                    is removed 820ms later. Clicking at the first possible
-                    moment puts the whole opening at ~2.1s on a desktop and
-                    ~1.36s on a phone, and there is no upper bound — the stage
-                    will wait as long as somebody wants to look at the house.
+           ACT II — the visitor clicks the house. It comes apart for 260ms — the
+                    roof lifts clear, the porch slides out, the scan runs the
+                    volume — then the curtain parts from the centre outward
+                    while the hero begins its own entrance in the same frame;
+                    the stage is removed 820ms later. Clicking at the first
+                    possible moment puts the whole opening at ~2.2s on a desktop
+                    and ~1.4s on a phone, and there is no upper bound — the
+                    stage will wait as long as somebody wants to look at the
+                    house.
 
          Nothing here is a loading screen. The page underneath is fully rendered
          and its LCP capture was requested before this stylesheet was even read;
@@ -115,6 +121,16 @@
             --rkv-fill: rgba(228, 235, 242, 0.055);
             --rkv-accent: #dbe2ea;
             --rkv-glow: rgba(214, 224, 235, 0.32);
+            /* Glass, and the light behind it. Both stay on the same silver as
+               everything else — the stage is graphite end to end. */
+            --rkv-win: rgba(232, 239, 246, 0.32);
+            --rkv-lit: rgba(226, 236, 246, 0.15);
+            /* The window rhythms, kept as properties so a face can pick one up
+               with a single declaration. `bay1` is a window every 2.5 m module,
+               `bay2` every second one — which is what House4 actually has down
+               its flanks. Both put a 12px opening in the middle of the bay. */
+            --rkv-bay1: repeating-linear-gradient(90deg, transparent 0 7px, var(--rkv-win) 7px 19px, transparent 19px 26px);
+            --rkv-bay2: repeating-linear-gradient(90deg, transparent 0 33px, var(--rkv-win) 33px 45px, transparent 45px 52px);
         }
 
         /* The dialog takes focus so the sequence is announced and the house is
@@ -130,6 +146,8 @@
             --rkv-fill: rgba(20, 26, 34, 0.05);
             --rkv-accent: #3b4552;
             --rkv-glow: rgba(30, 38, 48, 0.18);
+            --rkv-win: rgba(20, 26, 34, 0.22);
+            --rkv-lit: rgba(24, 32, 42, 0.11);
         }
 
         /* The curtain. Tiles are flex: 1 so hiding every other one on a phone
@@ -405,22 +423,27 @@
 
         /* A slow drift rather than a turntable. The volume never comes fully
            front-on — a house seen square is a rectangle — so the swing stays
-           inside a three-quarter view the whole way through. */
+           inside a three-quarter view the whole way through.
+
+           It swings negative, which puts the eastern flank toward the viewer
+           and keeps the door on the near half of the frontage: the thing you
+           are being asked to click should not be the part that is furthest
+           away and most foreshortened. */
         .rkv-house-orbit {
             position: absolute;
             inset: 0;
             transform-style: preserve-3d;
             animation: rkvOrbit 30s ease-in-out infinite;
             animation-play-state: paused;
-            transform: rotateY(20deg);
+            transform: rotateY(-22deg);
         }
 
         .rkv-intro.is-live .rkv-house-orbit { animation-play-state: running; }
 
         @keyframes rkvOrbit {
-            from { transform: rotateY(20deg); }
-            50% { transform: rotateY(42deg); }
-            to { transform: rotateY(20deg); }
+            from { transform: rotateY(-22deg); }
+            50% { transform: rotateY(-44deg); }
+            to { transform: rotateY(-22deg); }
         }
 
         .rkv-house {
@@ -431,129 +454,399 @@
             height: 0;
             transform-style: preserve-3d;
             /* Whole volume rises into place as one object. Transform only —
-               see the note on .rkv-house-btn for why the fade cannot be here. */
-            transform: translateY(30px) scale(0.9);
+               see the note on .rkv-house-btn for why the fade cannot be here.
+
+               The resting 26px is not padding: the model's origin is its
+               ground plane, and under the stage's -23° tilt the mass sits
+               that far above the origin on screen. Dropping it by 35 puts the
+               house in the middle of the frame rather than the yard.
+
+               The 1.18 is the model earning its stage: House4's plan is 15 by
+               17.5 metres, so at one cell to 26px it projects about 210px
+               wide into a 340px scene and reads as a specimen in a large
+               case. The scale lives here rather than on .rkv-house-lean
+               because the lean's `scale` property is what the ignition
+               animates, and a keyframe would overwrite it. */
+            transform: translateY(65px) scale(1.062);
             animation: rkvHouseRise 0.54s cubic-bezier(0.18, 1, 0.28, 1) 0.56s forwards;
         }
 
         @keyframes rkvHouseRise {
-            to { transform: translateY(0) scale(1); }
+            to { transform: translateY(35px) scale(1.18); }
         }
 
+        /* ==================================================================
+           THE HOUSE — a miniature of the RumahKuVR house, not a house shape
+
+           This is House4 from the project's ModularHousePack — `Houses/
+           House4 (1)` in XR_MainScene, the one the player is actually stood
+           inside — rebuilt from the module placements in the prefab rather
+           than drawn by eye. Nothing is exported: the pack builds on a 2.5 m
+           grid, so the whole thing is re-laid on that grid at 26px a cell and
+           the silhouette comes out on its own.
+
+           The plan is six cells across (15 m) by seven deep (17.5 m) and a
+           storey is one cell (2.5 m). Every number below is one of these:
+
+             cell x   0     1     2     3     4     5     6
+             px     -78   -52   -26     0    26    52    78
+
+             cell z   0     1     2     3     4     5     6     7
+             px      91    65    39    13   -13   -39   -65   -91
+
+           +z is toward the viewer, and that is the front — the elevation the
+           door is on. Up is negative y; the ground is y = 0.
+
+           What makes this House4 rather than a house in general:
+
+             · a two-storey block standing on rows 1–7, and in front of it a
+               single-storey wing one cell deep across the whole frontage —
+               the massing you read from the street, a low porch with the
+               block rising behind it;
+             · a slot cut clean through both at column 2, one cell wide and
+               two deep, open to the sky. The prefab leaves that cell out of
+               *both* floor decks and puts no roof over it: it is the corridor
+               bay, and it is the one feature nobody else's house has;
+             · a truncated hip roof — a one-cell slope falling away on all
+               four sides from a flat four-by-four deck. RoofA and RoofB
+               around the edge, RoofFlat in the middle, and the reason the
+               house reads as itself from a distance;
+             · a mono-pitch canopy over the front wing, stopping well below
+               the block's eaves so a band of the upper storey shows above it;
+             · windows every second bay down both long flanks on both floors,
+               staggered between them, and a front elevation that is blank
+               apart from the door.
+
+           The two vertical faces at x = -26 and x = 0 are not scenery: they
+           are the real corridor walls, the ones the plan on the floor plate
+           is drawn against.
+           ================================================================== */
+
+        /* Two knobs the whole model is lit by, so hover and the opening can
+           move every surface at once without touching a single transform.
+           `--solid` is how present the walls are; `--plan` is how present
+           everything underneath them is. Faces resolve their own opacity
+           against them, and transition the *result* — a custom property
+           cannot be interpolated, but the opacity computed from one can. */
+        .rkv-house { --solid: 1; --plan: 0.62; }
+
+        /* No border by default. A hairline on all six sides of nineteen
+           abutting faces is a wire cage, not a house: every shared edge gets
+           drawn twice and the model reads as a stack of glass trays. The
+           edges are put back below, and only on the surfaces whose outline is
+           actually doing work — the two the light is on, and the lid. */
         .rkv-face {
             position: absolute;
-            background: var(--rkv-fill);
+            background-color: var(--rkv-fill);
+            background-repeat: repeat-x;
+            border: 0;
+            box-sizing: border-box;
+            opacity: calc(var(--f, 1) * var(--solid));
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.32, 1);
+        }
+
+        /* Groups, so the roof can lift and the porch can part without every
+           face needing its own copy of the move. Transform only: an opacity
+           animation on a preserve-3d node collapses it (see .rkv-house-btn). */
+        .rkv-mass, .rkv-porch, .rkv-roof {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        /* ---- lighting by alpha ----
+
+           There is no light source. The orbit only ever shows the front and
+           the east flank, so those two carry the most fill and everything
+           the viewer is looking through recedes behind them. Cheap, and it
+           reads as a solid with a lit side rather than as a net. */
+        .rkv-f-front  { --f: 1;    border: 1px solid var(--rkv-line); }
+        .rkv-f-east   { --f: 0.9;  border: 1px solid var(--rkv-line-soft); }
+        /* The ceilings are here for the moment the roof comes off, not for the
+           resting state: under a translucent roof a lit lid at full strength
+           is just a second roof drawn 20px lower. */
+        .rkv-f-top    { --f: 0.34; }
+        /* The far half of the model: fill only. It is there so the volume has
+           a back to be seen through, not so it can be traced. */
+        .rkv-f-west   { --f: 0.44; }
+        .rkv-f-back   { --f: 0.3; }
+        .rkv-f-inner  { --f: 0.26; }
+        /* The wall at the back of the entrance slot. It faces the street, but
+           from two cells inside it, and lighting it like the rest of the
+           frontage turns the recess into a tower. */
+        .rkv-f-recess { --f: 0.4; }
+
+        /* ---- windows ----
+
+           Drawn into the faces as background layers rather than as elements:
+           twenty-odd more nodes for something the eye reads as a rhythm.
+           One bay is 2.5 m, and House4 puts a window in every second bay —
+           52px — with the two floors half a bay out of step. */
+        .rkv-flank {
+            background-image: var(--rkv-bay2), var(--rkv-bay2);
+            background-size: 100% 11px;
+            background-position: 26px 7px, 0 33px;
+        }
+
+        /* The front of the block above the canopy: upper floor only, which is
+           what the elevation actually has. */
+        .rkv-upperwin {
+            background-image: var(--rkv-bay2);
+            background-size: 100% 11px;
+            background-position: 13px 7px;
+        }
+
+        /* The back elevation carries a finer rhythm — three windows a floor
+           across a wall that is mostly seen through two others. */
+        .rkv-rearwin {
+            background-image: var(--rkv-bay1), var(--rkv-bay1);
+            background-size: 100% 10px;
+            background-position: 0 8px, 13px 34px;
+        }
+
+        /* ---- the two-storey block: west of the corridor ----
+           cells x 0–2, z 1–7. 52 wide, 156 deep, 52 tall. */
+        .rkv-wb-front { width: 52px;  height: 52px;  margin: -26px 0 0 -26px; transform: translate3d(-52px, -26px, 65px); }
+        .rkv-wb-back  { width: 52px;  height: 52px;  margin: -26px 0 0 -26px; transform: translate3d(-52px, -26px, -91px) rotateY(180deg); }
+        .rkv-wb-west  { width: 156px; height: 52px;  margin: -26px 0 0 -78px; transform: translate3d(-78px, -26px, -13px) rotateY(-90deg); }
+        .rkv-wb-inner { width: 156px; height: 52px;  margin: -26px 0 0 -78px; transform: translate3d(-26px, -26px, -13px) rotateY(90deg); }
+        .rkv-wb-top   { width: 52px;  height: 156px; margin: -78px 0 0 -26px; transform: translate3d(-52px, -52px, -13px) rotateX(90deg); }
+
+        /* ---- the corridor bay itself ----
+           cells x 2–3, z 2–7. Its side walls are the two faces above and
+           below it, so it only needs a front, a back and a lid. */
+        .rkv-cb-front { width: 26px;  height: 52px;  margin: -26px 0 0 -13px; transform: translate3d(-13px, -26px, 39px); }
+        .rkv-cb-back  { width: 26px;  height: 52px;  margin: -26px 0 0 -13px; transform: translate3d(-13px, -26px, -91px) rotateY(180deg); }
+        .rkv-cb-top   { width: 26px;  height: 130px; margin: -65px 0 0 -13px; transform: translate3d(-13px, -52px, -26px) rotateX(90deg); }
+
+        /* ---- the two-storey block: east of the corridor ----
+           cells x 3–6, z 1–7. The bathroom, the stair and the kitchen. */
+        .rkv-eb-front { width: 78px;  height: 52px;  margin: -26px 0 0 -39px; transform: translate3d(39px, -26px, 65px); }
+        .rkv-eb-back  { width: 78px;  height: 52px;  margin: -26px 0 0 -39px; transform: translate3d(39px, -26px, -91px) rotateY(180deg); }
+        .rkv-eb-inner { width: 156px; height: 52px;  margin: -26px 0 0 -78px; transform: translate3d(0, -26px, -13px) rotateY(-90deg); }
+        .rkv-eb-east  { width: 156px; height: 52px;  margin: -26px 0 0 -78px; transform: translate3d(78px, -26px, -13px) rotateY(90deg); }
+        .rkv-eb-top   { width: 78px;  height: 156px; margin: -78px 0 0 -39px; transform: translate3d(39px, -52px, -13px) rotateX(90deg); }
+
+        /* ---- the single-storey front wing ----
+           cells z 0–1, split either side of the slot. Half the height of the
+           block behind it, which is the whole point of it. */
+        .rkv-pw-front { width: 52px; height: 26px; margin: -13px 0 0 -26px; transform: translate3d(-52px, -13px, 91px); }
+        .rkv-pw-west  { width: 26px; height: 26px; margin: -13px 0 0 -13px; transform: translate3d(-78px, -13px, 78px) rotateY(-90deg); }
+        .rkv-pw-inner { width: 26px; height: 26px; margin: -13px 0 0 -13px; transform: translate3d(-26px, -13px, 78px) rotateY(90deg); }
+
+        .rkv-pe-front { width: 78px; height: 26px; margin: -13px 0 0 -39px; transform: translate3d(39px, -13px, 91px); }
+        .rkv-pe-inner { width: 26px; height: 26px; margin: -13px 0 0 -13px; transform: translate3d(0, -13px, 78px) rotateY(-90deg); }
+        .rkv-pe-east  { width: 26px; height: 26px; margin: -13px 0 0 -13px; transform: translate3d(78px, -13px, 78px) rotateY(90deg); }
+
+        /* ---- the door ----
+           House4 puts its entrance on the front wing at cell x 4.5, which is
+           dead centre of the eastern half of the frontage. It is drawn inside
+           the face rather than beside it, so it cannot drift off the wall. */
+        .rkv-door {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 13px;
+            height: 20px;
+            margin-left: -6.5px;
+            border: 1px solid var(--rkv-accent);
+            border-bottom: 0;
+            border-radius: 1px 1px 0 0;
+            /* Lit from inside and brightest at the threshold. It is the one
+               opening on the model that is meant to be read as a way in, so
+               it is the only one that glows rather than merely being cut. */
+            background: linear-gradient(0deg, var(--rkv-accent), var(--rkv-glow) 46%, transparent);
+            box-shadow: 0 0 9px 1px var(--rkv-glow);
+            opacity: calc(0.6 + 0.4 * var(--plan));
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.32, 1);
+        }
+
+        /* One window beside the door, and one on the western half — the only
+           two openings the front wing has. */
+        .rkv-pwin {
+            position: absolute;
+            top: 7px;
+            width: 12px;
+            height: 11px;
+            background: var(--rkv-win);
+        }
+
+        .rkv-pe-front .rkv-pwin { right: 13px; }
+        .rkv-pw-front .rkv-pwin { left: 20px; }
+
+        /* ---- the roof ----
+
+           A one-cell slope on all four sides falling from a four-by-four flat
+           deck: 14px of rise over 26px of run is a 28.3° pitch, so each slope
+           is 29.5px on the slant and sits at 61.7° off the horizontal. The
+           clip cuts the hips — 26px, exactly one cell, off each top corner. */
+        .rkv-slope {
+            position: absolute;
+            height: 32.8px;
+            margin: -16.4px 0 0 0;
+            clip-path: polygon(0 100%, 100% 100%, calc(100% - 26px) 0, 26px 0);
+            /* The hips are cut by the clip, so they get no border and the
+               silhouette has to come out of the fill itself — hence a good
+               deal more of it here than the walls carry. It brightens toward
+               the bottom, which is the eave: the edge of a roof is the part
+               that catches light, and it is also the line that has to survive
+               at 150px wide. The two borders that the clip *does* leave whole
+               are the eave and the deck edge, and both are wanted. */
+            background: linear-gradient(180deg, rgba(226, 233, 240, 0.075) 0 46%, rgba(226, 233, 240, 0.26));
+            border: 1px solid var(--rkv-line-soft);
+            border-bottom-color: var(--rkv-line);
+        }
+
+        [data-theme='light'] .rkv-slope,
+        [data-theme='light'] .rkv-canopy {
+            background: linear-gradient(180deg, rgba(20, 26, 34, 0.065) 0 46%, rgba(20, 26, 34, 0.22));
+        }
+
+        /* The front slope is in two pieces because the slot runs up through
+           it: the prefab has no roof module over that cell at all. */
+        .rkv-rf-fw   { width: 52px;  margin-left: -26px; clip-path: polygon(0 100%, 100% 100%, 100% 0, 26px 0);            transform: translate3d(-52px, -62px, 52px) rotateX(52.4deg); --f: 1; }
+        .rkv-rf-fe   { width: 78px;  margin-left: -39px; clip-path: polygon(0 100%, 100% 100%, calc(100% - 26px) 0, 0 0);  transform: translate3d(39px, -62px, 52px) rotateX(52.4deg);  --f: 1; }
+        .rkv-rf-back { width: 156px; margin-left: -78px; transform: translate3d(0, -62px, -78px) rotateX(-52.4deg); --f: 0.42; }
+        .rkv-rf-west { width: 156px; margin-left: -78px; transform: translate3d(-65px, -62px, -13px) rotateY(-90deg) rotateX(52.4deg); --f: 0.5; }
+        .rkv-rf-east { width: 156px; margin-left: -78px; transform: translate3d(65px, -62px, -13px) rotateY(90deg) rotateX(52.4deg); --f: 0.88; }
+
+        /* The flat deck. Cells x 1–5 by z 2–6 — a real roof terrace, and the
+           reason the silhouette has a shoulder instead of a ridge. */
+        .rkv-rf-deck {
+            width: 104px;
+            height: 104px;
+            margin: -52px 0 0 -52px;
+            transform: translate3d(0, -72px, -13px) rotateX(90deg);
+            background:
+                radial-gradient(72% 72% at 50% 44%, rgba(226, 236, 246, 0.11), transparent 76%),
+                var(--rkv-fill);
+            --f: 0.82;
+        }
+
+        [data-theme='light'] .rkv-rf-deck {
+            background:
+                radial-gradient(72% 72% at 50% 44%, rgba(20, 26, 34, 0.09), transparent 76%),
+                var(--rkv-fill);
+        }
+
+        /* The canopy over the front wing: a single fall toward the street,
+           10px over 26px — 21°, shallower than the block above it, which is
+           how the two roofs read as two roofs. */
+        .rkv-canopy {
+            position: absolute;
+            height: 29.1px;
+            margin: -14.55px 0 0 0;
+            background: linear-gradient(180deg, rgba(226, 233, 240, 0.08) 0 44%, rgba(226, 233, 240, 0.3));
+            border: 1px solid var(--rkv-line-soft);
+            border-bottom-color: var(--rkv-line);
+            --f: 1;
+        }
+
+        .rkv-cn-west { width: 52px; margin-left: -26px; clip-path: polygon(0 100%, 100% 100%, 100% 0, 10px 0);           transform: translate3d(-52px, -32.5px, 78px) rotateX(63.4deg); }
+        .rkv-cn-east { width: 78px; margin-left: -39px; clip-path: polygon(0 100%, 100% 100%, calc(100% - 10px) 0, 0 0); transform: translate3d(39px, -32.5px, 78px) rotateX(63.4deg); }
+
+        /* ---- soft light inside ----
+
+           The first-floor slab, carrying nothing but a gradient. It is what
+           stops the translucent walls from reading as an empty shell: there
+           is a lit plane halfway up the volume, so the house has an inside. */
+        .rkv-lightpad {
+            position: absolute;
+            width: 156px;
+            height: 156px;
+            margin: -78px 0 0 -78px;
+            transform: translate3d(0, -26px, -13px) rotateX(90deg);
+            background: radial-gradient(66% 66% at 46% 52%, var(--rkv-lit), transparent 78%);
+            /* The hairline is not decoration: it is the only thing that says
+               there are two floors in here rather than one tall room, and
+               House4 is emphatically two floors. */
             border: 1px solid var(--rkv-line-soft);
             box-sizing: border-box;
+            opacity: calc(0.55 + 0.45 * var(--plan));
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.32, 1);
+            pointer-events: none;
         }
 
-        /* Faces are lit by alpha rather than by a light source: the two the
-           viewer sees most of the time are the brightest, the far ones recede.
-           Cheap, and it reads as form rather than as a flat net. */
-        .rkv-wall-f, .rkv-wall-b { width: 190px; height: 96px; margin: -48px 0 0 -95px; }
-        .rkv-wall-l, .rkv-wall-r { width: 150px; height: 96px; margin: -48px 0 0 -75px; }
-
-        .rkv-wall-f { transform: translateZ(75px); border-color: var(--rkv-line); }
-        .rkv-wall-b { transform: translateZ(-75px) rotateY(180deg); opacity: 0.5; }
-        .rkv-wall-l { transform: translateX(-95px) rotateY(-90deg); opacity: 0.72; }
-        .rkv-wall-r { transform: translateX(95px) rotateY(90deg); opacity: 0.72; }
-
-        /* Gable ends. 150 wide, 58 tall, clipped to the triangle above the
-           eave line — the shape that makes the silhouette a house and not a
-           box with a lid. */
-        .rkv-gable-l, .rkv-gable-r {
-            width: 150px;
-            height: 58px;
-            margin: -29px 0 0 -75px;
-            clip-path: polygon(50% 0, 100% 100%, 0 100%);
-            border: 0;
-            background: linear-gradient(180deg, rgba(228, 235, 242, 0.20), rgba(228, 235, 242, 0.06));
-        }
-
-        [data-theme='light'] .rkv-gable-l,
-        [data-theme='light'] .rkv-gable-r {
-            background: linear-gradient(180deg, rgba(20, 26, 34, 0.17), rgba(20, 26, 34, 0.05));
-        }
-
-        .rkv-gable-l { transform: translateX(-95px) translateY(-77px) rotateY(-90deg); }
-        .rkv-gable-r { transform: translateX(95px) translateY(-77px) rotateY(90deg); opacity: 0.62; }
-
-        /* 37.7° pitch: 58 of rise over 75 of run, which is 52.3° off vertical. */
-        .rkv-roof-f, .rkv-roof-b {
-            width: 190px;
-            height: 95px;
-            margin: -47.5px 0 0 -95px;
-            background: linear-gradient(180deg, rgba(226, 233, 240, 0.14), rgba(226, 233, 240, 0.03));
-            border: 1px solid var(--rkv-line);
-        }
-
-        [data-theme='light'] .rkv-roof-f,
-        [data-theme='light'] .rkv-roof-b {
-            background: linear-gradient(180deg, rgba(20, 26, 34, 0.12), rgba(20, 26, 34, 0.03));
-        }
-
-        .rkv-roof-f { transform: translateY(-77px) translateZ(37.5px) rotateX(52.3deg); }
-        .rkv-roof-b { transform: translateY(-77px) translateZ(-37.5px) rotateX(-52.3deg); opacity: 0.55; }
-
-        /* The ridge, drawn as its own hairline so the two slopes meet on a
-           bright edge instead of a seam. */
-        .rkv-ridge {
-            position: absolute;
-            width: 192px;
-            height: 2px;
-            margin: -108px 0 0 -96px;
-            border-radius: 2px;
-            background: linear-gradient(90deg, transparent, var(--rkv-accent) 22%, var(--rkv-accent) 78%, transparent);
-            opacity: 0.75;
-        }
-
-        /* ---- floor plate: the plan, and the hazards on it ---- */
+        /* ---- floor plate: the real plan, and the real hazards on it ---- */
         .rkv-plate {
             position: absolute;
-            width: 250px;
-            height: 205px;
-            margin: -102.5px 0 0 -125px;
-            transform: translateY(49px) rotateX(90deg);
+            width: 180px;
+            height: 206px;
+            margin: -103px 0 0 -90px;
+            transform: rotateX(90deg);
             /* Deliberately flat: the grid, the partitions and the hazard pins
                all belong in the plate's own plane, and leaving it flat means
                their fade-ins cannot flatten anything above them. */
-            background:
-                radial-gradient(80% 80% at 50% 50%, rgba(226, 233, 240, 0.07), transparent 72%);
-            border: 1px solid var(--rkv-line-soft);
+            background: radial-gradient(74% 74% at 50% 50%, rgba(226, 233, 240, 0.075), transparent 74%);
             border-radius: 2px;
         }
 
         [data-theme='light'] .rkv-plate {
-            background: radial-gradient(80% 80% at 50% 50%, rgba(20, 26, 34, 0.06), transparent 72%);
+            background: radial-gradient(74% 74% at 50% 50%, rgba(20, 26, 34, 0.06), transparent 74%);
         }
 
+        /* 26px squares — one module of the pack, so the plate is the same
+           graph paper the house was built on. */
         .rkv-plate-grid {
             position: absolute;
             inset: 0;
             background-image:
-                repeating-linear-gradient(90deg, var(--rkv-line-soft) 0 1px, transparent 1px 25px),
-                repeating-linear-gradient(0deg, var(--rkv-line-soft) 0 1px, transparent 1px 25px);
-            opacity: 0.5;
-            -webkit-mask: radial-gradient(70% 70% at 50% 50%, #000 30%, transparent 78%);
-            mask: radial-gradient(70% 70% at 50% 50%, #000 30%, transparent 78%);
+                repeating-linear-gradient(90deg, var(--rkv-line-soft) 0 1px, transparent 1px 26px),
+                repeating-linear-gradient(0deg, var(--rkv-line-soft) 0 1px, transparent 1px 26px);
+            background-position: 12px 12px;
+            opacity: calc(0.34 * var(--plan));
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.32, 1);
+            -webkit-mask: radial-gradient(58% 58% at 50% 50%, #000 20%, transparent 76%);
+            mask: radial-gradient(58% 58% at 50% 50%, #000 20%, transparent 76%);
         }
 
-        /* Four partition lines: enough for the plate to read as a plan of a
-           house rather than as graph paper. */
-        .rkv-plan i {
+        /* The footprint, and inside it the ground-floor partitions — every
+           one of them a wall module from the prefab, converted the same way
+           the volume above was. Left/top are measured from the plate's own
+           corner, which sits one cell outside the house on every side. */
+        .rkv-plan i, .rkv-plan b {
             position: absolute;
             background: var(--rkv-line);
-            opacity: 0.8;
+            opacity: calc(var(--plan) + 0.2);
+            transition: opacity 0.45s cubic-bezier(0.22, 1, 0.32, 1);
         }
 
-        .rkv-plan i:nth-child(1) { left: 30px; top: 28px; width: 1px; height: 82px; }
-        .rkv-plan i:nth-child(2) { left: 30px; top: 110px; width: 118px; height: 1px; }
-        .rkv-plan i:nth-child(3) { left: 148px; top: 46px; width: 1px; height: 132px; }
-        .rkv-plan i:nth-child(4) { left: 76px; top: 46px; width: 72px; height: 1px; }
+        .rkv-plan b {
+            left: 12px;
+            top: 12px;
+            width: 156px;
+            height: 182px;
+            background: none;
+            border: 1px solid var(--rkv-line);
+            box-sizing: border-box;
+        }
 
-        /* Hazard markers, straight out of Peta Bahaya. They sit in the plan and
-           pulse in sequence, so the volume above them reads as a home with
-           something wrong in it rather than as a piece of geometry. */
+        /* cross wall at z 6.25 — living room / corridor, doors at x 5 and 10 */
+        .rkv-plan i:nth-of-type(1) { left: 12px;  top: 142px; width: 104px; height: 1px; }
+        /* the corridor's west wall, x 6.25, running z 6.25 → 16.25 */
+        .rkv-plan i:nth-of-type(2) { left: 64px;  top: 38px;  width: 1px;   height: 104px; }
+        /* x 11.25, front segment — the bathroom's west wall */
+        .rkv-plan i:nth-of-type(3) { left: 116px; top: 155px; width: 1px;   height: 26px; }
+        /* x 11.25, rear segment */
+        .rkv-plan i:nth-of-type(4) { left: 116px; top: 38px;  width: 1px;   height: 39px; }
+        /* cross wall at z 11.25 */
+        .rkv-plan i:nth-of-type(5) { left: 64px;  top: 90px;  width: 78px;  height: 1px; }
+        /* x 13.75, the east rooms */
+        .rkv-plan i:nth-of-type(6) { left: 142px; top: 64px;  width: 1px;   height: 52px; }
+        /* cross wall at z 16.25 — the kitchen's south wall */
+        .rkv-plan i:nth-of-type(7) { left: 64px;  top: 38px;  width: 52px;  height: 1px; }
+        /* cross wall at z 13.75, west and east segments */
+        .rkv-plan i:nth-of-type(8) { left: 12px;  top: 64px;  width: 26px;  height: 1px; }
+        .rkv-plan i:nth-of-type(9) { left: 142px; top: 64px;  width: 26px;  height: 1px; }
+        /* z 3.75 — the bathroom's north wall */
+        .rkv-plan i:nth-of-type(10){ left: 116px; top: 168px; width: 52px;  height: 1px; }
+
+        /* Hazard markers, straight out of Peta Bahaya — and these are the
+           actual ones: the wet bathroom floor, the folded rug in the living
+           room, the exposed cable in the corridor, the medicine on the east
+           side, the gas ring in the kitchen and the slippers at the door,
+           each at its own coordinate in XR_MainScene converted onto the
+           plate. They pulse in sequence, so the volume above them reads as a
+           home with something wrong in it rather than as geometry. */
         .rkv-pin {
             position: absolute;
             left: 50%;
@@ -565,7 +858,9 @@
             background: var(--rkv-accent);
             box-shadow: 0 0 10px 2px var(--rkv-glow);
             translate: var(--x) var(--z);
+            scale: calc(0.72 + 0.42 * var(--plan));
             opacity: 0;
+            transition: scale 0.45s cubic-bezier(0.22, 1, 0.32, 1);
             animation: rkvPinIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             animation-delay: calc(860ms + var(--n) * 80ms);
         }
@@ -592,38 +887,48 @@
         /* ---- the Safety Scan, restated on the volume ----
 
            A horizontal plane, not a line: it rises through the house from the
-           floor to the ridge, and because it is a real plane in the same 3D
-           space it stays legible from every angle of the turntable instead of
-           going edge-on. Same motif as the line that draws the mark, one
+           apron to the roof deck, and because it is a real plane in the same
+           3D space it stays legible from every angle of the turntable instead
+           of going edge-on. Same motif as the line that draws the mark, one
            dimension up. */
         .rkv-scanplane {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 252px;
-            height: 207px;
-            margin: -103.5px 0 0 -126px;
+            width: 184px;
+            height: 210px;
+            margin: -105px 0 0 -92px;
             border: 1px solid var(--rkv-accent);
             border-radius: 2px;
-            background: radial-gradient(60% 60% at 50% 50%, var(--rkv-glow), transparent 74%);
+            background: radial-gradient(62% 62% at 50% 50%, var(--rkv-glow), transparent 74%);
             box-shadow: 0 0 22px 1px var(--rkv-glow);
             opacity: 0;
             animation: rkvVolumeScan 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.62s forwards;
         }
 
         @keyframes rkvVolumeScan {
-            0% { transform: translateY(56px) rotateX(90deg); opacity: 0; }
+            0% { transform: translate3d(0, 8px, 0) rotateX(90deg); opacity: 0; }
             16% { opacity: 0.8; }
             76% { opacity: 0.8; }
-            100% { transform: translateY(-120px) rotateX(90deg); opacity: 0; }
+            100% { transform: translate3d(0, -96px, 0) rotateX(90deg); opacity: 0; }
         }
 
-        /* Hover / focus: the volume brightens and lifts a little. Nothing
-           bounces, nothing spins faster — it acknowledges the pointer and
-           stops there. */
+        /* Hover / focus: the volume lifts a little, and — the part that
+           matters — the walls give way. `--solid` drops, so every face thins
+           at once, and `--plan` rises, so the plan, the partitions, the light
+           on the first-floor slab and the six hazard pins come forward
+           through them. You are not looking at a house that has brightened;
+           you are looking into one. Nothing bounces and nothing spins faster.
+
+           Both knobs live on .rkv-house, so this is two declarations for
+           forty-odd surfaces and no transform is touched. */
         .rkv-house-btn:hover .rkv-house-lean,
         .rkv-house-btn:focus-visible .rkv-house-lean {
             transform: rotateX(calc(-23deg + var(--rkv-py, 0) * 5deg)) rotateY(calc(var(--rkv-px, 0) * 11deg)) translateY(-8px) scale(1.035);
+        }
+
+        .rkv-house-btn:hover .rkv-house,
+        .rkv-house-btn:focus-visible .rkv-house {
+            --solid: 0.5;
+            --plan: 1;
         }
 
         .rkv-house-btn:hover .rkv-face,
@@ -645,10 +950,10 @@
         .rkv-house-shadow {
             position: absolute;
             left: 50%;
-            bottom: 58px;
-            width: 200px;
-            height: 24px;
-            margin-left: -100px;
+            bottom: 80px;
+            width: 248px;
+            height: 38px;
+            margin-left: -124px;
             border-radius: 50%;
             background: radial-gradient(closest-side, var(--rkv-glow), transparent 78%);
             /* The button owns the entrance fade for everything inside it, so
@@ -746,26 +1051,79 @@
            button outside the 3D chain. Putting both on one element would
            flatten the house at exactly the moment it is most visible. */
         .rkv-intro.is-entering .rkv-house-lean {
-            animation: rkvIgnite 0.62s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+            animation: rkvIgnite 0.78s cubic-bezier(0.3, 0, 0.2, 1) forwards;
         }
 
+        /* The swell and the push are separate properties on purpose: `scale`
+           magnifies the model, `translate`'s z-component moves it *through*
+           the stage's perspective, and the two together read as the camera
+           travelling into the volume rather than the volume growing. */
         @keyframes rkvIgnite {
-            0% { scale: 1; }
-            24% { scale: 1.07; }
-            100% { scale: 1.26; }
+            0% { scale: 1; translate: 0; }
+            22% { scale: 1.06; }
+            100% { scale: 1.42; translate: 0 0 96px; }
+        }
+
+        /* The house comes apart before it goes. The roof lifts clear as one
+           piece — the same gesture as pulling the lid off an architectural
+           model — the porch slides out toward the street, and the walls thin
+           to almost nothing so that what is left standing in the frame at
+           the moment the curtain moves is the plan and its six hazards. That
+           is the last thing on the stage and the first thing in the site. */
+        .rkv-intro.is-entering .rkv-house {
+            --solid: 0.14;
+            --plan: 1;
+        }
+
+        .rkv-intro.is-entering .rkv-roof {
+            animation: rkvRoofLift 0.66s cubic-bezier(0.24, 0.9, 0.26, 1) forwards;
+            /* The lid keeps its own `--solid`, so it does not dissolve with
+               the walls. The whole gesture is a roof being lifted off a model
+               — it has to still be a roof while it is in the air. */
+            --solid: 0.8;
+        }
+
+        @keyframes rkvRoofLift {
+            to { transform: translate3d(0, -52px, 0); }
+        }
+
+        .rkv-intro.is-entering .rkv-porch {
+            animation: rkvPorchPart 0.66s cubic-bezier(0.24, 0.9, 0.26, 1) forwards;
+            --solid: 0.46;
+        }
+
+        @keyframes rkvPorchPart {
+            to { transform: translate3d(0, 0, 40px); }
+        }
+
+        /* A second pass of the scan, this time on the way out: it starts at
+           the floor the moment the roof leaves and clears the eaves as the
+           curtain parts. Its own keyframes rather than the entrance's, so
+           replaying it does not depend on restarting an animation. */
+        .rkv-intro.is-entering .rkv-scanplane {
+            animation: rkvVolumeScanOut 0.66s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes rkvVolumeScanOut {
+            0% { transform: translate3d(0, 8px, 0) rotateX(90deg); opacity: 0; }
+            22% { opacity: 0.9; }
+            100% { transform: translate3d(0, -104px, 0) rotateX(90deg); opacity: 0; }
         }
 
         .rkv-intro.is-entering .rkv-house-btn {
-            animation: rkvHouseOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.12s forwards;
+            animation: rkvHouseOut 0.46s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
         }
 
         @keyframes rkvHouseOut { to { opacity: 0; } }
 
         .rkv-intro.is-entering .rkv-face,
         .rkv-intro.is-entering .rkv-plate,
-        .rkv-intro.is-entering .rkv-ridge {
+        .rkv-intro.is-entering .rkv-door {
             border-color: var(--rkv-accent);
-            transition: border-color 0.18s linear;
+            /* The opacity leg has to be restated: this rule replaces the
+               transition the faces carry, and without it the walls would
+               snap to 0.14 instead of thinning. */
+            transition: border-color 0.18s linear, opacity 0.42s cubic-bezier(0.22, 1, 0.32, 1);
         }
 
         /* One ring off the volume as it opens. It is the only thing on the
@@ -830,10 +1188,10 @@
             .rkv-intro-brand { animation-delay: 0.36s; animation-duration: 0.42s; }
 
             .rkv-house-scene { width: 268px; height: 208px; }
-            .rkv-house-lean { scale: 0.76; }
+            .rkv-house-lean { scale: 0.66; }
             .rkv-house { animation-delay: 0.38s; animation-duration: 0.34s; }
             .rkv-house-btn { margin-top: 22px; animation-delay: 0.38s; animation-duration: 0.32s; }
-            .rkv-house-shadow { bottom: 46px; width: 156px; margin-left: -78px; }
+            .rkv-house-shadow { bottom: 68px; width: 166px; height: 26px; margin-left: -83px; }
             .rkv-intro-ring { width: 190px; height: 190px; margin: -95px 0 0 -95px; }
             .rkv-scanplane { animation-delay: 0.42s; animation-duration: 0.85s; }
             .rkv-pin { animation-delay: calc(600ms + var(--n) * 60ms); }
@@ -842,7 +1200,14 @@
             /* The turntable is the first thing to go on a phone: it is the one
                continuously running animation in the sequence, and the volume
                reads perfectly well held still at this size. */
-            .rkv-house-orbit { animation: none; transform: rotateY(26deg); }
+            .rkv-house-orbit { animation: none; transform: rotateY(-30deg); }
+
+            /* And the far side of the model goes with it. At this size the
+               back and interior faces are three or four pixels of texture
+               nobody can resolve, but they are still surfaces the compositor
+               has to sort and paint on the device least able to. The
+               silhouette is unchanged without them. */
+            .rkv-f-back, .rkv-f-inner { display: none; }
         }
 
         /* The volume is scaled rather than re-laid-out on a short screen, so
@@ -953,19 +1318,22 @@
 
                    LIVE  — the moment the house has finished building and the
                            invitation appears. Nothing is clickable before it.
-                   IGNITE— how long the volume is allowed to swell on its own
-                           before the curtain starts moving behind it.
+                   IGNITE— how long the house is allowed to come apart on its
+                           own before the curtain starts moving behind it. It
+                           buys the roof lift and the outgoing scan a clear
+                           beat: the model has to be seen opening, or the
+                           click reads as a fade rather than as a way in.
                    PART  — how long after that the curtain takes to clear the
                            viewport, which is the tile animation plus its
                            centre-outward stagger plus a few frames of slack.
 
                    Earliest possible completion, measured from first paint:
-                   desktop 1100 + 150 + 820 = ~2.07s, mobile 720 + 100 + 510 =
-                   ~1.33s. Both sit inside the intended window with the whole
+                   desktop 1100 + 260 + 820 = ~2.18s, mobile 720 + 180 + 510 =
+                   ~1.41s. Both sit inside the intended window with the whole
                    brand ladder read at a deliberate pace rather than rushed. */
                 var LIVE = isMobile ? 720 : 1100;
                 var PATIENT = isMobile ? 5200 : 4600;
-                var IGNITE = isMobile ? 100 : 150;
+                var IGNITE = isMobile ? 180 : 260;
                 var PART = isMobile ? 510 : 820;
 
                 /* The CSS ladder is timed from first paint, so the wait is
@@ -1164,27 +1532,89 @@
                             <span class="rkv-house">
                                 {{-- Floor plate first: the plan and its hazards
                                      are what the translucent walls are seen
-                                     through. --}}
+                                     through.
+
+                                     The ten partitions are House4's own
+                                     ground-floor walls and the six pins are
+                                     the six hazards XR_MainScene actually
+                                     places — wet bathroom floor, folded rug,
+                                     exposed cable in the corridor, the
+                                     medicine shelf, the gas ring and the
+                                     slippers at the door — each converted
+                                     from its scene coordinate onto the
+                                     plate. See the block comment above. --}}
                                 <span class="rkv-plate">
                                     <span class="rkv-plate-grid"></span>
-                                    <span class="rkv-plan"><i></i><i></i><i></i><i></i></span>
-                                    <span class="rkv-pin" style="--x: -62px; --z: -30px; --n: 0"></span>
-                                    <span class="rkv-pin" style="--x: 34px; --z: 14px; --n: 1"></span>
-                                    <span class="rkv-pin" style="--x: -18px; --z: 52px; --n: 2"></span>
-                                    <span class="rkv-pin" style="--x: 70px; --z: -46px; --n: 3"></span>
+                                    <span class="rkv-plan">
+                                        <b></b>
+                                        <i></i><i></i><i></i><i></i><i></i>
+                                        <i></i><i></i><i></i><i></i><i></i>
+                                    </span>
+                                    <span class="rkv-pin" style="--x: 37px;  --z: 53px;  --n: 0"></span>
+                                    <span class="rkv-pin" style="--x: -28px; --z: 38px;  --n: 1"></span>
+                                    <span class="rkv-pin" style="--x: 51px;  --z: 86px;  --n: 2"></span>
+                                    <span class="rkv-pin" style="--x: 13px;  --z: -8px;  --n: 3"></span>
+                                    <span class="rkv-pin" style="--x: 50px;  --z: -23px; --n: 4"></span>
+                                    <span class="rkv-pin" style="--x: 51px;  --z: -65px; --n: 5"></span>
                                 </span>
 
-                                <span class="rkv-face rkv-wall-b"></span>
-                                <span class="rkv-face rkv-wall-l"></span>
-                                <span class="rkv-face rkv-wall-r"></span>
-                                <span class="rkv-face rkv-roof-b"></span>
-                                <span class="rkv-face rkv-gable-l"></span>
-                                <span class="rkv-face rkv-gable-r"></span>
-                                <span class="rkv-face rkv-roof-f"></span>
-                                <span class="rkv-face rkv-wall-f"></span>
-                                <span class="rkv-ridge"></span>
+                                {{-- The light on the first-floor slab, between
+                                     the plan and the walls, so the volume has
+                                     an inside rather than being a shell. --}}
+                                <span class="rkv-lightpad"></span>
+
+                                {{-- The two-storey block, in three parts so
+                                     the corridor bay can be a slot rather
+                                     than a decal. Far surfaces first: with
+                                     translucent faces the paint order is what
+                                     the depth reads as. --}}
+                                <span class="rkv-mass">
+                                    <span class="rkv-face rkv-f-back rkv-rearwin rkv-wb-back"></span>
+                                    <span class="rkv-face rkv-f-back rkv-rearwin rkv-cb-back"></span>
+                                    <span class="rkv-face rkv-f-back rkv-rearwin rkv-eb-back"></span>
+
+                                    <span class="rkv-face rkv-f-west rkv-flank rkv-wb-west"></span>
+                                    <span class="rkv-face rkv-f-inner rkv-wb-inner"></span>
+                                    <span class="rkv-face rkv-f-inner rkv-eb-inner"></span>
+
+                                    <span class="rkv-face rkv-f-top rkv-wb-top"></span>
+                                    <span class="rkv-face rkv-f-top rkv-cb-top"></span>
+                                    <span class="rkv-face rkv-f-top rkv-eb-top"></span>
+
+                                    <span class="rkv-face rkv-f-recess rkv-cb-front"></span>
+                                    <span class="rkv-face rkv-f-front rkv-upperwin rkv-wb-front"></span>
+                                    <span class="rkv-face rkv-f-front rkv-upperwin rkv-eb-front"></span>
+                                    <span class="rkv-face rkv-f-east rkv-flank rkv-eb-east"></span>
+                                </span>
+
+                                {{-- The single-storey front wing, split by the
+                                     same slot. Its own group so it can slide
+                                     out of the way when the house opens. --}}
+                                <span class="rkv-porch">
+                                    <span class="rkv-face rkv-f-west rkv-pw-west"></span>
+                                    <span class="rkv-face rkv-f-inner rkv-pw-inner"></span>
+                                    <span class="rkv-face rkv-f-inner rkv-pe-inner"></span>
+                                    <span class="rkv-face rkv-f-front rkv-pw-front"><i class="rkv-pwin"></i></span>
+                                    <span class="rkv-face rkv-f-front rkv-pe-front"><i class="rkv-pwin"></i><i class="rkv-door"></i></span>
+                                    <span class="rkv-face rkv-f-east rkv-pe-east"></span>
+                                </span>
+
+                                {{-- Truncated hip over the block, mono-pitch
+                                     over the wing. Grouped so the whole lid
+                                     can come off in one move. --}}
+                                <span class="rkv-roof">
+                                    <span class="rkv-face rkv-slope rkv-rf-back"></span>
+                                    <span class="rkv-face rkv-slope rkv-rf-west"></span>
+                                    <span class="rkv-face rkv-rf-deck"></span>
+                                    <span class="rkv-face rkv-slope rkv-rf-east"></span>
+                                    <span class="rkv-face rkv-slope rkv-rf-fw"></span>
+                                    <span class="rkv-face rkv-slope rkv-rf-fe"></span>
+                                    <span class="rkv-face rkv-canopy rkv-cn-west"></span>
+                                    <span class="rkv-face rkv-canopy rkv-cn-east"></span>
+                                </span>
+
+                                <span class="rkv-scanplane"></span>
                             </span>
-                            <span class="rkv-scanplane"></span>
                         </span>
                     </span>
                 </span>
