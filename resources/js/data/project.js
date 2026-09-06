@@ -41,7 +41,11 @@ export const TIERS = [
     alt: 'Easy tier in RumahKuVR: a floor hazard is spotlighted and a Malay instruction reads “Bersihkan lantai”',
     desc:
       'Built for a senior who has never held a controller. Hazards are spotlighted, there is no timer, and every instruction is available as text or spoken Malay.',
-    features: ['No time limit', 'Clear on-screen markers', 'Text or spoken Malay guidance']
+    features: ['No time limit', 'Clear on-screen markers', 'Text or spoken Malay guidance'],
+    /* How much help stays on screen, as a fraction. Derived from the features
+       above, which come from the in-game tier panel — not an invented score. */
+    guidance: 1,
+    guidanceLabel: 'Markers, no timer, spoken Malay'
   },
   {
     id: 'medium',
@@ -55,7 +59,9 @@ export const TIERS = [
     alt: 'Medium tier in RumahKuVR: a coachmark points to the Peta Rumah house-map button',
     desc:
       'Markers thin out and the search area widens. Help is still there — but the senior has to open the house map and ask for it.',
-    features: ['Wider search area', 'Fewer visual markers', 'Guidance on request']
+    features: ['Wider search area', 'Fewer visual markers', 'Guidance on request'],
+    guidance: 0.55,
+    guidanceLabel: 'Fewer markers, help on request'
   },
   {
     id: 'hard',
@@ -69,7 +75,9 @@ export const TIERS = [
     alt: 'Hard tier in RumahKuVR: a dim corridor with the hazard counter reading 0 of 10',
     desc:
       'Low light, a running clock and symbol-only prompts. The tier that shows whether the habit actually transferred.',
-    features: ['Reduced lighting', 'Timed session', 'Symbol-only prompts']
+    features: ['Reduced lighting', 'Timed session', 'Symbol-only prompts'],
+    guidance: 0.18,
+    guidanceLabel: 'Symbols only, on a clock'
   }
 ];
 
@@ -304,13 +312,52 @@ export const A11Y_PRINCIPLES = [
 ];
 
 /* Interaction pipeline for the System section. */
+/* Interaction pipeline. `detail` is what the System section shows when a stage
+   is selected — each line describes something the build actually does, not a
+   generic description of how VR works in general. */
 export const PIPELINE = [
-  { step: '01', title: 'Input', sub: 'Quest 3 or gamepad' },
-  { step: '02', title: 'Unity XR', sub: 'Physics & 6DoF' },
-  { step: '03', title: 'Detection', sub: 'Proximity & gaze' },
-  { step: '04', title: 'Correction', sub: 'Action verified' },
-  { step: '05', title: 'Fuzzy analysis', sub: 'On-device inference' },
-  { step: '06', title: 'Reporting', sub: 'Caregiver portal' }
+  {
+    step: '01',
+    title: 'Input',
+    sub: 'Quest 3 or gamepad',
+    detail:
+      'Two input paths, one codebase. The headset reports head and hand pose through OpenXR; a gamepad reports sticks and buttons. Both are normalised before anything downstream sees them, which is why the controller build runs the same scenarios rather than a cut-down version of them.'
+  },
+  {
+    step: '02',
+    title: 'Unity XR',
+    sub: 'Physics & 6DoF',
+    detail:
+      'Built on the XR Interaction Toolkit. Hazard objects are grabbable rigidbodies with their own colliders, so a mop is picked up, carried and used rather than triggered — the physics is the interaction, not a wrapper around a button press.'
+  },
+  {
+    step: '03',
+    title: 'Detection',
+    sub: 'Proximity & gaze',
+    detail:
+      'A hazard raises its card when the senior is near it and looking at it. Proximity alone would fire while walking past; gaze alone would fire across the room. Requiring both is what keeps the prompt tied to intent.'
+  },
+  {
+    step: '04',
+    title: 'Correction',
+    sub: 'Action verified',
+    detail:
+      'Seeing a hazard does not clear it. The state only advances once the corrective action is performed and verified — the burner actually off, the floor actually mopped, the tray actually on the trolley.'
+  },
+  {
+    step: '05',
+    title: 'Fuzzy analysis',
+    sub: 'On-device inference',
+    detail:
+      'At the end of a session a Sugeno-style fuzzy expert system grades four dimensions: safety performance, independence, attention and recovery. Every rule fires in proportion to how true it is, so one missed hazard moves the result without flipping it. It runs on the headset — no API, no network, no model file.'
+  },
+  {
+    step: '06',
+    title: 'Reporting',
+    sub: 'Caregiver portal',
+    detail:
+      'The graded session is written to the device store and becomes the caregiver view: the session log, average score per tier, and Peta Bahaya — the same hazards placed back onto the floor plan of the house they happened in.'
+  }
 ];
 
 export const JOURNEY = [

@@ -451,6 +451,29 @@ function Training() {
                   </li>
                 ))}
               </ol>
+
+              {/* The section's claim, made measurable. The bar is how much help
+                  stays on screen in the tier you are currently looking at, so
+                  scrolling Mudah → Sederhana → Sukar visibly drains it. */}
+              <div className="guidance-meter" data-reveal="up" style={{ transitionDelay: '300ms' }}>
+                <div className="guidance-meter-head">
+                  <span>On-screen guidance</span>
+                  <strong aria-live="polite">{TIERS[activeTier].guidanceLabel}</strong>
+                </div>
+                <div
+                  className="guidance-meter-track"
+                  role="meter"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={Math.round(TIERS[activeTier].guidance * 100)}
+                  aria-label={`On-screen guidance in ${TIERS[activeTier].malay}`}
+                >
+                  <span
+                    className={`guidance-meter-fill ${TIERS[activeTier].badgeClass}`}
+                    style={{ width: `${TIERS[activeTier].guidance * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -999,6 +1022,59 @@ function SeniorDesign() {
 function System() {
   const [railRef, railIn] = useInView({ threshold: 0.3 });
 
+  /* Selected pipeline stage. Arrow keys move the selection and take focus with
+     them, which is the expected tablist behaviour — Home/End jump to the ends. */
+  const [activeStage, setActiveStage] = useState(0);
+  const stageRefs = useRef([]);
+
+  const focusStage = i => {
+    setActiveStage(i);
+    stageRefs.current[i]?.focus();
+  };
+
+  /* Cursor-tracked glow behind the stage row. One rAF-coalesced handler that
+     writes two custom properties — no state, so pointer movement never causes
+     a React render, and nothing runs at all under reduced motion. */
+  const reducedMotion = usePrefersReducedMotion();
+  const glowFrame = useRef(0);
+
+  useEffect(
+    () => () => {
+      if (glowFrame.current) cancelAnimationFrame(glowFrame.current);
+    },
+    []
+  );
+
+  const onPipelinePointerMove = e => {
+    if (reducedMotion || e.pointerType === 'touch') return;
+    const el = e.currentTarget;
+    const { clientX, clientY } = e;
+    if (glowFrame.current) return;
+    glowFrame.current = requestAnimationFrame(() => {
+      glowFrame.current = 0;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${(((clientX - r.left) / r.width) * 100).toFixed(2)}%`);
+      el.style.setProperty('--my', `${(((clientY - r.top) / r.height) * 100).toFixed(2)}%`);
+    });
+  };
+
+  const onPipelineKeyDown = e => {
+    const last = PIPELINE.length - 1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      focusStage(activeStage === last ? 0 : activeStage + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      focusStage(activeStage === 0 ? last : activeStage - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      focusStage(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      focusStage(last);
+    }
+  };
+
   return (
     <section id="system" className="section section-alt">
       <div className="container">
@@ -1012,19 +1088,62 @@ function System() {
             that makes this more than a scoring screen. */}
         <div className="architecture" data-reveal="scale">
           <span className="kicker">Interaction pipeline</span>
-          <div ref={railRef} className={`pipeline ${railIn ? 'is-live' : ''}`}>
+
+          {/* A real tablist. Each stage is a button, arrow keys move between
+              them, and the panel below explains what that stage actually does
+              in this build. The stages were static text before, which made the
+              row look like a diagram of a system rather than a way into it. */}
+          <div
+            ref={railRef}
+            className={`pipeline ${railIn ? 'is-live' : ''}`}
+            role="tablist"
+            aria-label="Interaction pipeline stages"
+            onKeyDown={onPipelineKeyDown}
+            onPointerMove={onPipelinePointerMove}
+          >
+            <span className="pipeline-glow" aria-hidden="true" />
             <span className="pipeline-rail" aria-hidden="true" />
+            {/* Width is resolved here rather than in calc(): the rail spans 4%
+                to 96%, so the travelled part is that 92% scaled by progress. */}
+            <span
+              className="pipeline-rail-fill"
+              aria-hidden="true"
+              style={{ width: `${(activeStage / (PIPELINE.length - 1)) * 92}%` }}
+            />
             {PIPELINE.map((node, i) => (
-              <div
-                className={`pipeline-node${node.step === '05' ? ' pipeline-node-key' : ''}`}
+              <button
+                type="button"
+                role="tab"
+                id={`pipeline-tab-${node.step}`}
+                aria-selected={i === activeStage}
+                aria-controls="pipeline-panel"
+                tabIndex={i === activeStage ? 0 : -1}
+                ref={el => {
+                  stageRefs.current[i] = el;
+                }}
+                className={`pipeline-node${i === activeStage ? ' is-active' : ''}${i < activeStage ? ' is-passed' : ''}`}
                 key={node.step}
                 style={{ '--i': i }}
+                onClick={() => setActiveStage(i)}
               >
                 <small>{node.step}</small>
                 <strong>{node.title}</strong>
                 <span>{node.sub}</span>
-              </div>
+              </button>
             ))}
+          </div>
+
+          <div
+            className="pipeline-panel"
+            id="pipeline-panel"
+            role="tabpanel"
+            aria-labelledby={`pipeline-tab-${PIPELINE[activeStage].step}`}
+            key={activeStage}
+          >
+            <p className="pipeline-panel-step" aria-hidden="true">
+              {PIPELINE[activeStage].step} · {PIPELINE[activeStage].title}
+            </p>
+            <p className="pipeline-panel-body">{PIPELINE[activeStage].detail}</p>
           </div>
         </div>
 
