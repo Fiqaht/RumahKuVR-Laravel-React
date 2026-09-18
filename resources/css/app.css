@@ -3722,7 +3722,7 @@ p {
 
    Those tokens invert: in light mode --glass-text is #0e1116, which put a
    near-black label and a near-black play glyph on top of a scrim that stays
-   dark in every theme, and made "Play the walkthrough" unreadable over the
+   dark in every theme, and made "Watch the RumahKuVR trailer" unreadable over the
    footage. The closing panel below has always been pinned this way for the
    same reason; this is the rest of the overlay catching up.
 
@@ -4011,6 +4011,9 @@ html.high-contrast .demo-frame {
 [data-state='paused'] .demo-bar {
   opacity: 1;
   translate: none;
+  /* The bar used to be a read-out and could stay inert. It owns the sound
+     toggle now, so it has to take the pointer back. */
+  pointer-events: auto;
 }
 
 .demo-bar-beat {
@@ -4038,13 +4041,35 @@ html.high-contrast .demo-frame {
   transform: scaleX(0);
 }
 
-.demo-bar-silent {
-  font-family: var(--font-heading);
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+/* Replaces the old "silent" badge. The walkthrough this reel used to hold had
+   no audio track, so a label was honest and a control would have been a lie;
+   the trailer has a designed mix, so it is the other way round. */
+.demo-bar-sound {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0 -4px -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
   color: var(--on-video-dim);
+  cursor: pointer;
+  transition:
+    color 0.3s var(--ease),
+    background-color 0.3s var(--ease);
+}
+
+.demo-bar-sound:hover {
+  color: var(--on-video);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.demo-bar-sound:focus-visible {
+  outline: 2px solid var(--on-video);
+  outline-offset: 2px;
 }
 
 .demo-caption {
@@ -4102,10 +4127,9 @@ html.high-contrast .demo-frame {
     gap: 10px;
     padding: 7px 12px;
   }
-  /* Room label and "silent" tag both go: on a 390px frame the progress line
-     is the only part of the bar that still says anything useful. */
-  .demo-bar-beat,
-  .demo-bar-silent {
+  /* The beat label goes: on a 390px frame the progress line and the sound
+     toggle are the only parts of the bar still earning their space. */
+  .demo-bar-beat {
     display: none;
   }
   .demo-end-actions .btn {
@@ -5088,7 +5112,7 @@ html.high-contrast .demo-frame {
 
        The hero should not leave as one flat panel, so the stage lifts and
        falls back as it exits, which reads as the composition stepping out of
-       the way of the walkthrough below it.
+       the way of the trailer below it.
 
        It used to choreograph two children at different rates, the stage and
        the difficulty inset parting ahead of it. The inset is gone, so the

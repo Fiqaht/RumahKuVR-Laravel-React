@@ -25,11 +25,11 @@ import Lightbox from './components/Lightbox';
 
 /* Reading order, and the order the page renders in.
 
-   The walkthrough used to sit fifth, four screens down, which meant the one
-   piece of evidence that answers "what is this actually like" was reached
-   only by visitors who had already decided to keep reading. It is second now:
-   the hero makes the claim, the clip shows the house, and every section after
-   it is read by somebody who has already seen the thing being described. */
+   The reel used to sit fifth, four screens down, which meant the one piece of
+   evidence that answers "what is this actually like" was reached only by
+   visitors who had already decided to keep reading. It is second now: the hero
+   makes the claim, the trailer shows the house, and every section after it is
+   read by somebody who has already seen the thing being described. */
 const NAV_LINKS = [
   ['home', 'Home'],
   ['demo', 'Demo'],
@@ -251,13 +251,13 @@ function Hero() {
             </p>
 
             {/* "See it running" pointed at the gallery of stills, which is not
-                it running. It goes to the clip now, and it leads — the
-                walkthrough is the next section, so the primary call to action
-                and the reading order agree. */}
+                it running. It goes to the clip now, and it leads — the trailer
+                is the next section, so the primary call to action and the
+                reading order agree. */}
             <div className="hero-actions" data-reveal="up" style={{ '--d': '350ms' }}>
               <a href="#demo" className="btn btn-primary btn-magnetic" {...magneticPrimary}>
                 <MonitorPlay size={16} strokeWidth={2} />
-                <span>Watch the walkthrough</span>
+                <span>Watch the trailer</span>
               </a>
               <a href="#training" className="btn btn-secondary btn-magnetic" {...magneticSecondary}>
                 <span>Explore the training</span>
