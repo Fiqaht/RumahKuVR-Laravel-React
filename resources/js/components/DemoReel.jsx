@@ -26,7 +26,7 @@
    -------------------------------------------------------------------------- */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRight, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { SplitText } from './primitives';
 
 const SRC = '/video/rumahkuvr-trailer.mp4';
@@ -59,10 +59,63 @@ const BEATS = [
 
 export default function DemoReel() {
   const videoRef = useRef(null);
+  const playerRef = useRef(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [canFullscreen, setCanFullscreen] = useState(false);
+  const [fullscreenError, setFullscreenError] = useState('');
   const [state, setState] = useState('idle'); // idle | playing | paused | ended
   const [progress, setProgress] = useState(0);
   const [beat, setBeat] = useState(0);
   const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    const video = videoRef.current;
+    const available = () => setCanFullscreen(Boolean(
+      (player.requestFullscreen && document.fullscreenEnabled !== false) ||
+      (player.webkitRequestFullscreen && document.webkitFullscreenEnabled !== false) ||
+      video.webkitEnterFullscreen
+    ));
+    const sync = () => setFullscreen(
+      document.fullscreenElement === player || document.webkitFullscreenElement === player ||
+      Boolean(video.webkitDisplayingFullscreen)
+    );
+    const begin = () => setFullscreen(true);
+    const end = () => setFullscreen(false);
+    available();
+    document.addEventListener('fullscreenchange', sync);
+    document.addEventListener('webkitfullscreenchange', sync);
+    video.addEventListener('loadedmetadata', available);
+    video.addEventListener('webkitbeginfullscreen', begin);
+    video.addEventListener('webkitendfullscreen', end);
+    return () => {
+      document.removeEventListener('fullscreenchange', sync);
+      document.removeEventListener('webkitfullscreenchange', sync);
+      video.removeEventListener('loadedmetadata', available);
+      video.removeEventListener('webkitbeginfullscreen', begin);
+      video.removeEventListener('webkitendfullscreen', end);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    const player = playerRef.current;
+    const video = videoRef.current;
+    setFullscreenError('');
+    try {
+      let result;
+      if (document.fullscreenElement === player) result = document.exitFullscreen?.();
+      else if (document.webkitFullscreenElement === player) result = document.webkitExitFullscreen?.();
+      else if (video.webkitDisplayingFullscreen) result = video.webkitExitFullscreen?.();
+      else if (player.requestFullscreen && document.fullscreenEnabled !== false) result = player.requestFullscreen();
+      else if (player.webkitRequestFullscreen && document.webkitFullscreenEnabled !== false) result = player.webkitRequestFullscreen();
+      else if (video.webkitEnterFullscreen) result = video.webkitEnterFullscreen();
+      else return;
+      // Keep the request in the tap handler; retrying asynchronously can lose user activation.
+      Promise.resolve(result).catch(() => setFullscreenError('Fullscreen could not open. Try again after starting the trailer.'));
+    } catch {
+      setFullscreenError('Fullscreen could not open. Try again after starting the trailer.');
+    }
+  };
 
   const play = useCallback(() => {
     const v = videoRef.current;
@@ -94,6 +147,8 @@ export default function DemoReel() {
     const v = videoRef.current;
     if (!v) return;
     v.currentTime = 0;
+    setProgress(0);
+    setBeat(0);
     play();
   }, [play]);
 
@@ -123,17 +178,20 @@ export default function DemoReel() {
       setBeat(i);
     };
     const onEnded = () => setState('ended');
+    const onPlay = () => setState('playing');
     const onPause = () => setState(s => (s === 'playing' ? 'paused' : s));
     /* The element is the source of truth for sound: a keyboard user reaching
        the native controls, or a browser muting the tab, both change it without
        going through the button above. */
     const onVolume = () => setMuted(v.muted);
 
+    v.addEventListener('play', onPlay);
     v.addEventListener('timeupdate', onTime);
     v.addEventListener('ended', onEnded);
     v.addEventListener('pause', onPause);
     v.addEventListener('volumechange', onVolume);
     return () => {
+      v.removeEventListener('play', onPlay);
       v.removeEventListener('timeupdate', onTime);
       v.removeEventListener('ended', onEnded);
       v.removeEventListener('pause', onPause);
@@ -145,7 +203,19 @@ export default function DemoReel() {
      dropping the visitor at a blank one. The form owns its own state, so this
      goes through the window as an event instead of lifting that state up
      through four components that have no other reason to know about it. */
-  const requestDemo = () => {
+  const requestDemo = async event => {
+    const player = playerRef.current;
+    if (document.fullscreenElement === player || document.webkitFullscreenElement === player) {
+      event.preventDefault();
+      try {
+        if (document.fullscreenElement === player) await document.exitFullscreen?.();
+        else await document.webkitExitFullscreen?.();
+      } catch {
+        setFullscreenError('Exit fullscreen to open the contact form.');
+        return;
+      }
+      document.getElementById('contact')?.scrollIntoView();
+    }
     window.dispatchEvent(
       new CustomEvent('rkv:contact-prefill', {
         detail: { subject: 'Request a RumahKuVR demo session' }
@@ -179,86 +249,84 @@ export default function DemoReel() {
             `className` on play would wipe that mark and drop the whole frame
             back to opacity 0 the instant the clip started. */}
         <figure className="demo-frame" data-state={state} data-reveal="scale">
-          <div className="demo-media">
-            {/* Only while nothing has been played: once the clip has frames of
-                its own, the still would cover a paused frame. */}
-            {idle ? (
-              <img
-                className="demo-poster"
-                sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, min(1280px, 88vw)"
-                srcSet={`${POSTER_SM} 800w, ${POSTER} 1600w`}
-                src={POSTER_SM}
-                alt=""
-                width={1600}
-                height={900}
-                loading="lazy"
-                decoding="async"
-              />
-            ) : null}
-
-            <video
-              ref={videoRef}
-              className="demo-video"
-              src={SRC}
-              preload="none"
-              playsInline
-              /* Not a control surface itself — the overlay button below owns
-                 the interaction, so native chrome would be a second, worse
-                 set of controls sitting on top of it. */
-              controls={false}
-              aria-label="RumahKuVR gameplay trailer: sixty seconds of in-engine footage, from the darkened kampung house through the hazards the build detects, the corrections a senior carries out, the session analysis, the three difficulty tiers, VR and controller play, and the senior and caregiver interfaces"
-            >
-              <track kind="captions" srcLang="en" label="No dialogue" />
-            </video>
-
-            {/* The one control. It is the whole frame while the poster is up,
-                and shrinks to a corner button once the clip is running. */}
-            <button
-              type="button"
-              className="demo-trigger"
-              onClick={toggle}
-              aria-label={
-                state === 'playing' ? 'Pause the trailer' : ended ? 'Replay the trailer' : 'Play the trailer'
-              }
-            >
-              <span className="demo-trigger-face" aria-hidden="true">
-                {state === 'playing' ? <Pause size={20} strokeWidth={2} /> : <Play size={20} strokeWidth={2} />}
-              </span>
+          <div className="demo-player" ref={playerRef}>
+            <div className="demo-media">
+              {/* Only while nothing has been played: once the clip has frames of
+                  its own, the still would cover a paused frame. */}
               {idle ? (
-                <span className="demo-trigger-label" aria-hidden="true">
-                  Watch the RumahKuVR trailer
-                  <small>60 seconds · in-engine · with sound</small>
-                </span>
+                <img
+                  className="demo-poster"
+                  sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, min(1280px, 88vw)"
+                  srcSet={`${POSTER_SM} 800w, ${POSTER} 1600w`}
+                  src={POSTER_SM}
+                  alt=""
+                  width={1600}
+                  height={900}
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : null}
-            </button>
 
-            {/* Closing panel. Held out of the accessibility tree until it is on
-                screen, so the two calls to action are not announced or
-                tabbable while the clip is still running. */}
-            <div className="demo-end" hidden={!ended}>
-              <p className="demo-end-kicker">You have seen the house</p>
-              <p className="demo-end-title">Eighteen hazards are hidden in it.</p>
-              <div className="demo-end-actions">
-                <a href="#contact" className="btn btn-primary" onClick={requestDemo}>
-                  <span>Request a demo session</span>
-                  <ArrowRight size={16} strokeWidth={2.2} />
-                </a>
-                <button type="button" className="btn btn-secondary" onClick={replay}>
-                  <Play size={15} strokeWidth={2.2} />
-                  <span>Watch again</span>
-                </button>
+              <video
+                ref={videoRef}
+                className="demo-video"
+                src={SRC}
+                preload="none"
+                playsInline
+                /* Not a control surface itself — the overlay button below owns
+                   the interaction, so native chrome would be a second, worse
+                   set of controls sitting on top of it. */
+                controls={false}
+                aria-label="RumahKuVR gameplay trailer: sixty seconds of in-engine footage, from the darkened kampung house through the hazards the build detects, the corrections a senior carries out, the session analysis, the three difficulty tiers, VR and controller play, and the senior and caregiver interfaces"
+              >
+                <track kind="captions" srcLang="en" label="No dialogue" />
+              </video>
+
+              {/* The poster is a play target; the strip owns playback afterwards. */}
+              <button
+                type="button"
+                className="demo-trigger"
+                hidden={!idle}
+                onClick={toggle}
+                aria-label={
+                  state === 'playing' ? 'Pause the trailer' : ended ? 'Replay the trailer' : 'Play the trailer'
+                }
+              >
+                <span className="demo-trigger-face" aria-hidden="true">
+                  {state === 'playing' ? <Pause size={20} strokeWidth={2} /> : <Play size={20} strokeWidth={2} />}
+                </span>
+                {idle ? (
+                  <span className="demo-trigger-label" aria-hidden="true">
+                    Watch the RumahKuVR trailer
+                    <small>60 seconds · in-engine · with sound</small>
+                  </span>
+                ) : null}
+              </button>
+
+              {/* Closing panel. Held out of the accessibility tree until it is on
+                  screen, so the two calls to action are not announced or
+                  tabbable while the clip is still running. */}
+              <div className="demo-end" hidden={!ended}>
+                <p className="demo-end-kicker">You have seen the house</p>
+                <p className="demo-end-title">Eighteen hazards are hidden in it.</p>
+                <div className="demo-end-actions">
+                  <a href="#contact" className="btn btn-primary" onClick={requestDemo}>
+                    <span>Request a demo session</span>
+                    <ArrowRight size={16} strokeWidth={2.2} />
+                  </a>
+                  <button type="button" className="btn btn-secondary" onClick={replay}>
+                    <Play size={15} strokeWidth={2.2} />
+                    <span>Watch again</span>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Playing chrome: where you are in the clip, which beat, and the
-                one thing about this reel a visitor may actually need to change. */}
-            <div className="demo-bar">
-              {/* Sound leads the bar rather than closing it. At the right-hand
-                  end it sat underneath the page's fixed accessibility dock,
-                  which is also pinned bottom-right: the button rendered, but a
-                  real click landed on the dock and never reached it. Here it is
-                  clear of the dock and next to the play control, which is where
-                  the rest of the transport already lives. */}
+            </div>
+            <div className="demo-bar" role="group" aria-label="Trailer controls">
+              <button type="button" className="demo-bar-sound" onClick={toggle}
+                aria-label={state === 'playing' ? 'Pause the trailer' : ended ? 'Replay the trailer' : 'Play the trailer'}>
+                {state === 'playing' ? <Pause size={18} /> : <Play size={18} />}
+              </button>
               <button
                 type="button"
                 className="demo-bar-sound"
@@ -268,13 +336,19 @@ export default function DemoReel() {
               >
                 {muted ? <VolumeX size={15} strokeWidth={2.1} /> : <Volume2 size={15} strokeWidth={2.1} />}
               </button>
-              <span className="demo-bar-beat" aria-hidden="true">
+              <button type="button" className="demo-bar-sound" onClick={toggleFullscreen}
+                disabled={!canFullscreen}
+                aria-label={!canFullscreen ? 'Fullscreen unavailable in this browser' : fullscreen ? 'Exit trailer fullscreen' : 'View trailer fullscreen'}>
+                {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+              </button>
+              <span className="demo-bar-beat">
                 {BEATS[beat].label}
               </span>
               <span className="demo-bar-track" aria-hidden="true">
                 <i style={{ transform: `scaleX(${progress})` }} />
               </span>
             </div>
+            {fullscreenError ? <p className="demo-error" role="status">{fullscreenError}</p> : null}
           </div>
 
           <figcaption className="demo-caption">

@@ -246,8 +246,8 @@ function Hero() {
             />
 
             <p className="lede" data-reveal="up" style={{ '--d': '290ms' }}>
-              Seniors walk a familiar kampung home, find the hazards themselves — a wet floor, a live
-              wire, a burner left running — and fix each one by hand, on {PROJECT.headset} or a gamepad.
+              Seniors explore a familiar kampung home and find hazards such as a wet floor, a live
+              wire or a burner left running. They fix each one by hand using {PROJECT.headset} or a gamepad.
             </p>
 
             {/* "See it running" pointed at the gallery of stills, which is not
@@ -345,7 +345,7 @@ function Overview() {
      and the columns are deliberately unequal, sized to the text each one
      actually carries rather than to a grid. */
   const loop = [
-    { num: '01', title: 'Spot it', desc: 'Find the risk where it lives — on the floor, the worktop, the wall.' },
+    { num: '01', title: 'Spot it', desc: 'Find the risk on the floor, the worktop or the wall.' },
     { num: '02', title: 'Fix it', desc: 'Do the correction by hand: move it, mop it, switch it off, put it away.' },
     { num: '03', title: 'Repeat it', desc: 'Read the graded breakdown the headset works out on its own, then go again until the safe choice stops needing thought.' }
   ];
@@ -388,9 +388,9 @@ function Overview() {
               <li className={`case-step${i === 1 ? ' case-step-lead' : ''}`} key={step.num} data-reveal="up" style={{ '--i': i }}>
                 <div className="case-step-media">
                   <ZoomTrigger
-                    label={`${step.tag} — ${step.title}`}
+                    label={`${step.tag}: ${step.title}`}
                     item={{ file: step.image, alt: `${step.title}: ${step.desc}`,
-                            title: `Meal transport — ${step.title}`, tag: step.tag, desc: step.desc }}
+                            title: `Meal transport: ${step.title}`, tag: step.tag, desc: step.desc }}
                   >
                     <img src={step.image} alt={`${step.title}: ${step.desc}`} loading="lazy" decoding="async" />
                   </ZoomTrigger>
@@ -549,8 +549,8 @@ function Training() {
               >
                 <div className="tier-panel-media">
                   <ZoomTrigger
-                    label={`${tier.tier} mode — ${tier.malay}`}
-                    item={{ file: tier.image, alt: tier.alt, title: `${tier.title} — ${tier.malay}`,
+                    label={`${tier.tier} mode: ${tier.malay}`}
+                    item={{ file: tier.image, alt: tier.alt, title: `${tier.title}: ${tier.malay}`,
                             tag: `${tier.tier} · ${tier.stat}`, desc: tier.desc }}
                   >
                     <img src={tier.image} alt={tier.alt} loading="lazy" decoding="async" width={900} height={506} />
@@ -631,7 +631,7 @@ function Training() {
             <p className="footnote">
               <span className="dot dot-hard" aria-hidden="true" /> The remaining ten are Mod Sukar. They are
               drawn from across the whole house, under reduced lighting and a running clock, and they are
-              not listed here on purpose — that tier is the test of whether the habit transferred.
+              not listed here on purpose. That tier is the test of whether the habit transferred.
             </p>
           </div>
 
@@ -644,7 +644,7 @@ function Training() {
             srcSet="/images/ui/difficulty-select-1400w.webp 1400w, /images/ui/difficulty-select.webp 3483w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 40vw"
             alt="RumahKuVR difficulty panel offering Mod Mudah with 3 hazards, Mod Sederhana with 5, and Mod Sukar with 10"
-            caption="Pilih Mod Simulasi — the tier panel as it appears in the headset"
+            caption="Pilih Mod Simulasi: the tier panel as it appears in the headset"
             width={3483}
             height={2085}
           />
@@ -700,7 +700,7 @@ function Gameplay() {
     <section id="gameplay" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead variant="centered" kicker="In-engine captures" title="Inside RumahKuVR.">
-          Ten captures taken from the running Unity build — hazard cards, corrective actions, the house map
+          Ten captures taken from the running Unity build: hazard cards, corrective actions, the house map
           and the session breakdown. No mock-ups, no renders.
         </SectionHead>
 
@@ -760,7 +760,7 @@ function Platform() {
               item={{
                 file: '/images/ui/mode-select.webp',
                 alt: 'RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller',
-                title: 'Pilih Mod Permainan — mode selection',
+                title: 'Pilih Mod Permainan: mode selection',
                 tag: 'In-headset UI',
                 desc: 'The first screen of the app: Mod VR for Meta Quest 3, or Mod Kawalan for an Xbox or PlayStation controller.'
               }}
@@ -793,7 +793,7 @@ function Platform() {
               <span className="kicker">VR Mode · Mod VR</span>
               <h3>{PROJECT.headset}</h3>
               <p>
-                Room-scale training with two-handed interaction and real depth — the senior reaches for the
+                Room-scale training with two-handed interaction and real depth. The senior reaches for the
                 stool, the mop and the burner dial rather than pressing a button labelled “fix”.
               </p>
             </header>
@@ -847,7 +847,7 @@ function Platform() {
               <ZoomTrigger
                 label={`${current.label} controller guide`}
                 item={{ file: current.src, alt: current.alt,
-                        title: `Panduan Alat Kawalan — ${current.label}`, tag: 'Controller guide',
+                        title: `Panduan Alat Kawalan: ${current.label}`, tag: 'Controller guide',
                         desc: current.note }}
               >
                 <img
@@ -865,7 +865,7 @@ function Platform() {
             </div>
 
             <p className="platform-note">
-              {current.note} — RumahKuVR accepts generic Bluetooth gamepads using the same mapping.
+              {current.note}. RumahKuVR accepts generic Bluetooth gamepads using the same mapping.
             </p>
           </TiltCard>
         </div>
@@ -1000,10 +1000,10 @@ function Roles() {
           <p>
             The headset grades the session as it ends and writes the result to its own store; the portal
             reads it from there. <strong>Peta Bahaya</strong> is the screen that answers the question a
-            family actually asks — not what the score was, but <em>which room keeps causing trouble</em>.
+            family actually asks: <em>which room keeps causing trouble</em>, beyond the score alone.
           </p>
           <p>
-            Below, marker 01 is selected: Karpet Terlipat, Ruang Makan, a trip risk, cleared — and the
+            Below, marker 01 is selected: Karpet Terlipat, Ruang Makan, a trip risk, cleared, and the
             recommendation that goes with it. The two panels beside it hold the history.
           </p>
         </div>
@@ -1020,11 +1020,11 @@ function Roles() {
             srcSet="/images/caregiver/hazard-map-1400w.webp 1400w, /images/caregiver/hazard-map.webp 3382w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 52vw"
             alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session scoring 100 out of 100, with markers 01 to 05 on a labelled floor plan — Ruang Tamu, Ruang Makan, Bilik Tidur, Bilik Utiliti, Bilik Air — the five-hazard Senarai Bahaya beside it all marked Selesai, and marker 01 selected so the Butiran Bahaya Terpilih panel shows Karpet Terlipat, Ruang Makan, Tersandung, Risiko Sederhana, Selesai, with the recommendation to flatten the carpet and secure it with tape or an anti-slip pad"
-            caption="Peta Bahaya — marker 01 selected, with its detail panel open"
+            caption="Peta Bahaya: marker 01 selected, with its detail panel open"
             reveal="up"
             zoomable
             zoomTag="Caregiver portal"
-            zoomDesc="Five hazards from one Sederhana session, each pinned to the room it was found in. Marker 01 is selected here, so Butiran Bahaya Terpilih is showing Karpet Terlipat — Ruang Makan, a trip risk, rated Risiko Sederhana and marked Selesai — beside the recommendation for it. Zoom in to read the Malay labels."
+            zoomDesc="Five hazards from one Sederhana session, each pinned to the room it was found in. Marker 01 is selected here, so Butiran Bahaya Terpilih is showing Karpet Terlipat (Ruang Makan, a trip risk, rated Risiko Sederhana and marked Selesai) beside the recommendation for it. Zoom in to read the Malay labels."
             width={3382}
             height={2085}
           />
@@ -1034,12 +1034,12 @@ function Roles() {
               {
                 key: 'alerts',
                 alt: 'Makluman in the caregiver portal: fourteen stored sessions listed with status, tier, score, date and a one-line summary — "Sesi selesai dengan jayanya" for a finished run, "Sesi tidak lengkap — perlu perhatian" for an abandoned one',
-                caption: 'Makluman — every saved session, newest first'
+                caption: 'Makluman: every saved session, newest first'
               },
               {
                 key: 'tier-performance',
                 alt: 'Prestasi Ikut Tahap in the caregiver portal: average score and session count per tier — Mudah 66 out of 100 over 9 sessions, Sederhana 98 over 4, Sukar 100 over 1, and 77 out of 100 across all 14',
-                caption: 'Prestasi Ikut Tahap — average score per tier'
+                caption: 'Prestasi Ikut Tahap: average score per tier'
               }
             ].map(shot => (
               <Figure
@@ -1073,7 +1073,7 @@ function SeniorDesign() {
       <div className="container">
         <SectionHead variant="split" kicker="Designed for older users" title="Built to be understood on the first try.">
           One question decided every screen: could someone who has never worn a headset finish a session
-          without being told what to do? This is the first screen a senior sees — every claim below is
+          without being told what to do? This is the first screen a senior sees. Every claim below is
           something on it.
         </SectionHead>
 
@@ -1093,7 +1093,7 @@ function SeniorDesign() {
             srcSet="/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 54vw"
             alt="The RumahKuVR Warga Emas menu: a Bantuan Suara voice-help button in the header, a welcome line, a large Mula Latihan button reading “Tekan untuk memulakan”, a Tutorial button, cards showing Skor Terakhir 100 out of 100 and Sesi Selesai 6, and a row of five buttons that each pair an icon with a word — Lihat Kemajuan, Bantuan, Panduan Alat, Log Keluar and Keluar"
-            caption="Menu Warga Emas — the whole home screen, uncropped"
+            caption="Menu Warga Emas: the whole home screen, uncropped"
             zoomDesc="The senior home screen in full. One dominant action, spoken-Malay help in the header, and every button carrying a word beside its icon."
             width={3483}
             height={2085}
@@ -1203,7 +1203,7 @@ function System() {
           <div className="architecture-head">
             <span className="kicker">Interaction pipeline</span>
             <p className="architecture-hint">
-              Pick a stage — or use <kbd>←</kbd> <kbd>→</kbd>
+              Pick a stage or use <kbd>←</kbd> <kbd>→</kbd>
             </p>
           </div>
 
@@ -1294,7 +1294,7 @@ function System() {
               zoomTag="In-headset result"
               src="/images/ui/session-result.webp"
               alt="Keputusan Sesi in RumahKuVR: a session scored 80 out of 100 beside an Analisis AI panel with four headed lines — Tahap Prestasi, Kekuatan, Perlu Diberi Perhatian and Cadangan — over a footer reading 08:24 elapsed, 4 hazards and 18 selesai"
-              caption="Keputusan Sesi — the four lines the analyser writes, on the headset"
+              caption="Keputusan Sesi: the four lines the analyser writes, on the headset"
             />
             <Figure
               className="system-figure"
@@ -1302,7 +1302,7 @@ function System() {
               zoomTag="Caregiver portal"
               src="/images/caregiver/iris-trend.webp"
               alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, based on the three most recent Mudah sessions, noting that safety and attention improved"
-              caption="Trend Prestasi — the same records read across sessions"
+              caption="Trend Prestasi: the same records read across sessions"
             />
           </div>
 
@@ -1315,13 +1315,13 @@ function System() {
               result rather than flipping it.
             </p>
             <p>
-              The trend reads the same stored records across sessions, and compares like with like — one
+              The trend reads the same stored records across sessions, and compares like with like, one
               difficulty at a time, named on screen.
             </p>
             <ul className="feature-list">
               <li>
                 <Cpu size={14} strokeWidth={2.4} aria-hidden="true" />
-                Entirely on-device — no API, no network, no model file
+                Entirely on-device, with no API, network or model file
               </li>
               <li>
                 <Radar size={14} strokeWidth={2.4} aria-hidden="true" />
@@ -1484,8 +1484,8 @@ function Contact() {
               <li>
                 <strong>Ask about the project</strong>
                 <span>
-                  The Unity build, the hazard model, the fuzzy analyser, the caregiver portal — for
-                  evaluators, supervisors and anyone building something similar.
+                  Ask about the Unity build, hazard model, fuzzy analyser or caregiver portal.
+                  Evaluators, supervisors and anyone building something similar are welcome.
                 </span>
               </li>
               <li>
@@ -1572,8 +1572,43 @@ function AccessibilityDock() {
     localStorage.setItem('rumahkuvr-large', large ? '1' : '0');
   }, [large]);
 
+  const dockRef = useRef(null);
+  useEffect(() => {
+    const dock = dockRef.current;
+    const player = document.querySelector('.demo-player');
+    if (!dock || !player) return undefined;
+    let frame;
+    const place = () => {
+      dock.style.bottom = '';
+      const d = dock.getBoundingClientRect();
+      const p = player.getBoundingClientRect();
+      if (d.left < p.right && d.right > p.left && d.top < p.bottom && d.bottom > p.top) {
+        // Prefer clear space above the player; keep the dock on screen in landscape.
+        const bar = player.querySelector('.demo-bar').getBoundingClientRect();
+        const top = p.top >= d.height + 8 ? p.top : bar.top;
+        dock.style.bottom = `${window.innerHeight - top + 8}px`;
+      }
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(place);
+    };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(player);
+    observer.observe(dock);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, []);
+
   return (
-    <div className="a11y-dock" role="group" aria-label="Display options">
+    <div ref={dockRef} className="a11y-dock" role="group" aria-label="Display options">
       <button
         type="button"
         className="a11y-dock-btn"

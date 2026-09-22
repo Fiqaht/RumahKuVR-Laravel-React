@@ -3692,7 +3692,7 @@ p {
    poster, the running clip and the closing panel are all painted inside the
    same 16:9 frame. A player that grows a panel underneath itself at the end
    pushes the page under the reader at exactly the moment they are deciding
-   whether to act on it.
+   whether to act on it. Controls sit in a separate strip below that frame.
    ========================================================================== */
 .demo-head {
   display: grid;
@@ -3745,18 +3745,23 @@ html.high-contrast .demo-frame {
   --on-video-border: #ffffff;
 }
 
+.demo-player {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background: #101318;
+  box-shadow: var(--shadow-showcase);
+}
+
 .demo-media {
   position: relative;
   aspect-ratio: 16 / 9;
-  border-radius: var(--radius-xl);
   overflow: hidden;
-  border: 1px solid var(--border);
-  background: var(--image-backdrop);
-  box-shadow: var(--shadow-showcase);
+  background: #000;
   transition: border-color var(--duration) var(--ease);
 }
 
-.demo-frame:hover .demo-media {
+.demo-frame:hover .demo-player {
   border-color: var(--border-strong);
 }
 
@@ -3783,9 +3788,7 @@ html.high-contrast .demo-frame {
 /* THE TRIGGER.
 
    While the poster is up it is the whole frame — a play control the size of a
-   billboard, which is what makes the section read as one object rather than a
-   video with a button on it. Once the clip runs it becomes a 46px disc in the
-   corner and gets out of the way. */
+   billboard. Once the clip runs, the control strip owns playback. */
 .demo-trigger {
   position: absolute;
   inset: 0;
@@ -3876,28 +3879,8 @@ html.high-contrast .demo-frame {
   color: var(--on-video-dim);
 }
 
-/* Running: the trigger retreats to a corner and the scrim goes with it, so
-   nothing is painted over the capture while it plays. */
-[data-state='playing'] .demo-trigger,
-[data-state='paused'] .demo-trigger {
-  inset: auto auto 14px 14px;
-  width: 46px;
-  height: 46px;
-  background: none;
-  border-radius: 50%;
-}
-
-[data-state='playing'] .demo-trigger-face,
-[data-state='paused'] .demo-trigger-face {
-  width: 46px;
-  height: 46px;
-}
-
-/* Not needed once the closing panel has its own controls, and it would sit
-   under them. */
-[data-state='ended'] .demo-trigger {
-  opacity: 0;
-  pointer-events: none;
+.demo-trigger[hidden] {
+  display: none;
 }
 
 /* THE CLOSING PANEL.
@@ -3986,34 +3969,12 @@ html.high-contrast .demo-frame {
 
 /* THE RUNNING BAR. */
 .demo-bar {
-  position: absolute;
-  z-index: 2;
-  right: 14px;
-  bottom: 14px;
-  left: 74px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 9px 15px;
-  border-radius: var(--radius-pill);
+  gap: 8px;
+  padding: 6px 10px;
   background: var(--on-video-bg);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--on-video-border);
   color: var(--on-video);
-  opacity: 0;
-  translate: 0 8px;
-  pointer-events: none;
-  transition: opacity 0.4s var(--ease), translate 0.4s var(--ease);
-}
-
-[data-state='playing'] .demo-bar,
-[data-state='paused'] .demo-bar {
-  opacity: 1;
-  translate: none;
-  /* The bar used to be a read-out and could stay inert. It owns the sound
-     toggle now, so it has to take the pointer back. */
-  pointer-events: auto;
 }
 
 .demo-bar-beat {
@@ -4021,7 +3982,10 @@ html.high-contrast .demo-frame {
   font-size: 0.71875rem;
   font-weight: 600;
   letter-spacing: -0.005em;
-  white-space: nowrap;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
 .demo-bar-track {
@@ -4048,9 +4012,9 @@ html.high-contrast .demo-frame {
   display: grid;
   place-items: center;
   flex: none;
-  width: 28px;
-  height: 28px;
-  margin: -4px 0 -4px -6px;
+  width: 44px;
+  height: 44px;
+  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -4091,9 +4055,6 @@ html.high-contrast .demo-frame {
 }
 
 @media (max-width: 720px) {
-  .demo-media {
-    border-radius: var(--radius-lg);
-  }
   /* The label beside a 64px disc does not fit beside it on a phone, so the
      two stack and the disc leads. */
   .demo-trigger {
@@ -4109,32 +4070,94 @@ html.high-contrast .demo-frame {
     align-items: center;
     font-size: 0.9375rem;
   }
-  [data-state='playing'] .demo-trigger,
-  [data-state='paused'] .demo-trigger {
-    inset: auto auto 10px 10px;
-    width: 40px;
-    height: 40px;
-  }
-  [data-state='playing'] .demo-trigger-face,
-  [data-state='paused'] .demo-trigger-face {
-    width: 40px;
-    height: 40px;
+  .demo-player {
+    border-radius: var(--radius-lg);
   }
   .demo-bar {
-    left: 60px;
-    right: 10px;
-    bottom: 10px;
-    gap: 10px;
-    padding: 7px 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 44px) minmax(0, 1fr);
+    gap: 4px;
+    padding: 6px 8px 10px;
   }
-  /* The beat label goes: on a 390px frame the progress line and the sound
-     toggle are the only parts of the bar still earning their space. */
   .demo-bar-beat {
-    display: none;
+    font-size: 0.75rem;
+    padding-left: 4px;
+  }
+  .demo-bar-track {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 2px;
+  }
+  .demo-end {
+    padding: 10px;
+    gap: 4px;
+    justify-content: safe center;
+    overflow-y: auto;
+  }
+  .demo-end-kicker {
+    font-size: 0.5625rem;
+    margin: 0;
+  }
+  .demo-end-title {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .demo-end-actions {
+    gap: 4px;
+    margin-top: 4px;
   }
   .demo-end-actions .btn {
-    width: 100%;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 0.6875rem;
   }
+}
+
+/* Fullscreen contains the picture and custom controls, with letterboxing. */
+.demo-player:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+.demo-player:-webkit-full-screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+.demo-player:is(:fullscreen, :-webkit-full-screen) .demo-media {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+.demo-player:is(:fullscreen, :-webkit-full-screen) .demo-video,
+.demo-player:is(:fullscreen, :-webkit-full-screen) .demo-poster {
+  object-fit: contain;
+}
+.demo-player:is(:fullscreen, :-webkit-full-screen) .demo-bar {
+  flex: none;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  padding-left: max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
+}
+.demo-bar-sound:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.demo-error {
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--on-video);
+  font-size: 0.75rem;
 }
 
 /* ==========================================================================

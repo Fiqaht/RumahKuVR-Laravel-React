@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#08090b">
 
-    <title>RumahKuVR — VR Home-Safety Training for Malaysian Seniors</title>
+    <title>RumahKuVR: VR Home-Safety Training for Malaysian Seniors</title>
     <meta name="description" content="RumahKuVR is an AI-assisted virtual reality home-safety application that teaches Malaysian seniors to find and fix household hazards, built in Unity 6.3 for Meta Quest 3 and gamepad.">
     <meta name="author" content="Muhammad Thaqif Fahmi Bin Rafie'e">
     <link rel="canonical" href="https://rumahkuvr.app/">
 
-    <meta property="og:title" content="RumahKuVR — VR Home-Safety Training for Malaysian Seniors">
+    <meta property="og:title" content="RumahKuVR: VR Home-Safety Training for Malaysian Seniors">
     <meta property="og:description" content="Eighteen household hazards across three difficulty tiers. Built in Unity 6.3 for Meta Quest 3 and gamepad, with a caregiver reporting portal.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://rumahkuvr.app/">
@@ -21,7 +21,7 @@
     <meta property="og:locale" content="en_MY">
     <meta property="og:image:alt" content="First-person view inside RumahKuVR showing a kampung kitchen with three hazard markers and the session HUD">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="RumahKuVR — VR Home-Safety Training for Malaysian Seniors">
+    <meta name="twitter:title" content="RumahKuVR: VR Home-Safety Training for Malaysian Seniors">
     <meta name="twitter:description" content="Eighteen household hazards across three difficulty tiers. Built in Unity 6.3 for Meta Quest 3 and gamepad.">
     <meta name="twitter:image" content="https://rumahkuvr.app/images/project/hero-hazard-scan.webp">
 

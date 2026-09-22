@@ -64,7 +64,7 @@ export const TIERS = [
     image: '/images/gameplay/medium-map-coachmark.webp',
     alt: 'Medium tier in RumahKuVR: a coachmark points to the Peta Rumah house-map button',
     desc:
-      'Markers thin out and the search area widens. Help is still there — but the senior has to open the house map and ask for it.',
+      'Markers thin out and the search area widens. Help is still there, but the senior has to open the house map and ask for it.',
     features: ['Wider search area', 'Fewer visual markers', 'Guidance on request'],
     guidanceLevel: 'Reduced guidance',
     guidanceStep: 2,
@@ -141,7 +141,7 @@ export const GALLERY = [
     ms: 'Laluan terhalang',
     tag: 'Obstacle management',
     desc:
-      'A pet bowl and boxes narrow the hallway between the stairs and the door — the route a senior walks at night.'
+      'A pet bowl and boxes narrow the hallway between the stairs and the door along the route a senior walks at night.'
   },
   {
     file: '/images/gameplay/hazard-coil.webp',
@@ -165,7 +165,7 @@ export const GALLERY = [
     ms: 'Pengangkutan makanan',
     tag: 'Corrective action',
     desc:
-      'Rather than carrying a hot, loaded tray by hand, the trolley is fetched and guided — the safe habit the scenario is built to teach.'
+      'Rather than carrying a hot, loaded tray by hand, the senior fetches and guides the trolley. This is the safe habit the scenario teaches.'
   },
   {
     file: '/images/gameplay/house-map.webp',
@@ -173,7 +173,7 @@ export const GALLERY = [
     ms: 'Peta Rumah',
     tag: 'In-session navigation',
     desc:
-      'The floor plan with its legend — Lantai Basah, Wayar Terdedah, Dapur Gas, Zon Selamat — and a live count of what is still outstanding.'
+      'The floor plan shows a legend (Lantai Basah, Wayar Terdedah, Dapur Gas, Zon Selamat) and a live count of what is still outstanding.'
   },
   {
     file: '/images/gameplay/briefing.webp',
@@ -189,7 +189,7 @@ export const GALLERY = [
     ms: 'Keputusan Sesi · Analisis AI',
     tag: 'Feedback',
     desc:
-      'Score, elapsed time and hazards cleared, then the four lines the fuzzy analyser produces — performance band, strength, what needs attention, and one concrete suggestion. Computed on the headset, with no network involved.'
+      'Score, elapsed time and hazards cleared, then the four lines the fuzzy analyser produces: performance band, strength, what needs attention, and one concrete suggestion. Computed on the headset, with no network involved.'
   },
   {
     file: '/images/ui/tutorial-complete.webp',
@@ -197,7 +197,7 @@ export const GALLERY = [
     ms: 'Tutorial Selesai',
     tag: 'Onboarding',
     desc:
-      'The tutorial ends only once the senior has moved, inspected and cleared a hazard unaided — then the real simulation opens.'
+      'The tutorial ends only once the senior has moved, inspected and cleared a hazard unaided. Then the real simulation opens.'
   }
 ];
 
@@ -243,7 +243,7 @@ export const ROLES = {
     kicker: 'Warga Emas',
     title: 'Start a session in two taps.',
     body:
-      'One screen, four large actions, and the two numbers that matter — the last score and how many sessions are done. Nothing else competes for attention.',
+      'One screen, four large actions, and the two numbers that matter: the last score and how many sessions are done. Nothing else competes for attention.',
     image: '/images/ui/senior-menu.webp',
     imageSrcSet: '/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w',
     alt: 'RumahKuVR senior menu showing a welcome message, a large “Mula Latihan” button and last score of 80 out of 100',
@@ -254,7 +254,7 @@ export const ROLES = {
        them here said the same thing twice about one picture. They are about
        the role now: what signing in as Warga Emas actually gets you. */
     points: [
-      'Signs in as Warga Emas and lands straight on this menu — no dashboard in between',
+      'Signs in as Warga Emas and lands straight on this menu, with no dashboard in between',
       'Mula Latihan, then a difficulty: a session is two taps from here',
       'Score and session count are read from the device store, so they survive a restart'
     ]
@@ -286,13 +286,13 @@ export const ROLES = {
     kicker: 'Tetamu',
     title: 'Try it without making an account.',
     body:
-      'A guest gives a name and nothing else — no password, no record kept. They land on the same Senior menu and play the same house, which is what makes the app demonstrable to a visitor in under a minute.',
+      'A guest gives only a name. No password is required and no record is kept. They land on the same Senior menu and play the same house, which is what makes the app demonstrable to a visitor in under a minute.',
     image: '/images/ui/login.webp',
     imageSrcSet: '/images/ui/login-1400w.webp 1400w, /images/ui/login.webp 3772w',
     alt: 'RumahKuVR sign-in screen with Warga Emas, Tetamu and Penjaga to choose from, above the username and password fields',
     caption: 'Log Masuk · the role is chosen before signing in',
     points: [
-      'Name only — the password field switches itself off for a guest',
+      'Name only: the password field switches itself off for a guest',
       'Same difficulty panel, tutorials, guidance and result screen as a senior',
       'Nothing is written to the account store, so no history accumulates'
     ]
@@ -312,7 +312,7 @@ export const SENIOR_DESIGN_NOTES = [
     find: 'Mula Latihan',
     title: 'One action is obviously the main one',
     desc:
-      'The button that starts a session is the largest element on the screen and carries its own instruction — “Tekan untuk memulakan”. Nothing else competes for it.'
+      'The button that starts a session is the largest element on the screen and carries its own instruction: “Tekan untuk memulakan”. Nothing else competes for it.'
   },
   {
     num: '02',
@@ -333,7 +333,7 @@ export const SENIOR_DESIGN_NOTES = [
     find: 'Panduan Alat',
     title: 'The controller guide is one tap away',
     desc:
-      'The button mapping is reachable from the menu rather than buried in settings — the same guide the Platform section shows for both pad layouts.'
+      'The button mapping is reachable from the menu rather than buried in settings. It is the same guide the Platform section shows for both pad layouts.'
   },
   {
     num: '05',
@@ -361,7 +361,7 @@ export const PIPELINE = [
     title: 'Unity XR',
     sub: 'Physics & 6DoF',
     detail:
-      'Built on the XR Interaction Toolkit. Hazard objects are grabbable rigidbodies with their own colliders, so a mop is picked up, carried and used rather than triggered — the physics is the interaction, not a wrapper around a button press.'
+      'Built on the XR Interaction Toolkit. Hazard objects are grabbable rigidbodies with their own colliders, so a mop is picked up, carried and used rather than triggered. The physics is the interaction, not a wrapper around a button press.'
   },
   {
     step: '03',
@@ -375,21 +375,21 @@ export const PIPELINE = [
     title: 'Correction',
     sub: 'Action verified',
     detail:
-      'Seeing a hazard does not clear it. The state only advances once the corrective action is performed and verified — the burner actually off, the floor actually mopped, the tray actually on the trolley.'
+      'Seeing a hazard does not clear it. The state only advances once the corrective action is performed and verified: the burner actually off, the floor actually mopped, the tray actually on the trolley.'
   },
   {
     step: '05',
     title: 'Fuzzy analysis',
     sub: 'On-device inference',
     detail:
-      'At the end of a session a Sugeno-style fuzzy expert system grades four dimensions: safety performance, independence, attention and recovery. Every rule fires in proportion to how true it is, so one missed hazard moves the result without flipping it. It runs on the headset — no API, no network, no model file.'
+      'At the end of a session a Sugeno-style fuzzy expert system grades four dimensions: safety performance, independence, attention and recovery. Every rule fires in proportion to how true it is, so one missed hazard moves the result without flipping it. It runs on the headset without an API, network or model file.'
   },
   {
     step: '06',
     title: 'Reporting',
     sub: 'Caregiver portal',
     detail:
-      'The graded session is written to the device store and becomes the caregiver view: the session log, average score per tier, and Peta Bahaya — the same hazards placed back onto the floor plan of the house they happened in.'
+      'The graded session is written to the device store and becomes the caregiver view: the session log, average score per tier, and Peta Bahaya, which places the same hazards back onto the floor plan of the house they happened in.'
   }
 ];
 
@@ -404,7 +404,7 @@ export const JOURNEY = [
     step: '01',
     title: 'One house, not a lab',
     desc:
-      'The environment was built as a single kampung home with named rooms — Ruang Tamu, Ruang Makan, Bilik Air, Bilik Utiliti, Dapur — so a hazard could be described by where it lives rather than by a level number.'
+      'The environment was built as a single kampung home with named rooms (Ruang Tamu, Ruang Makan, Bilik Air, Bilik Utiliti, Dapur), so a hazard could be described by where it lives rather than by a level number.'
   },
   {
     step: '02',
@@ -416,7 +416,7 @@ export const JOURNEY = [
     step: '03',
     title: 'Hard grew from eight hazards to ten',
     desc:
-      'Older saved sessions still show Sukar scored out of 8. The tier was extended to ten — the bedside lamp, the indoor stairs, the heater by the curtain, the unstable chair — and XRHazardMapData now holds 3 + 5 + 10.'
+      'Older saved sessions still show Sukar scored out of 8. The tier was extended to ten, including the bedside lamp, the indoor stairs, the heater by the curtain and the unstable chair. XRHazardMapData now holds 3 + 5 + 10.'
   },
   {
     step: '04',
@@ -428,7 +428,7 @@ export const JOURNEY = [
     step: '05',
     title: 'Hazard rooms were re-read from the asset',
     desc:
-      'Several were wrong in earlier documentation — the folded carpet is in the dining room, the medicine cabinet is in the kitchen, the blocked walkway is the utility room. The catalogue on this page is generated from XRHazardMapData, not from a screenshot.'
+      'Several locations were wrong in earlier documentation. The folded carpet is in the dining room, the medicine cabinet is in the kitchen, the blocked walkway is the utility room. The catalogue on this page is generated from XRHazardMapData, not from a screenshot.'
   },
   {
     step: '06',
