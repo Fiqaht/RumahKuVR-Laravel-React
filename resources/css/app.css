@@ -400,9 +400,7 @@ p {
 }
 
 .kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
+  display: inline-block;
   font-family: var(--font-heading);
   font-size: 0.71875rem;
   font-weight: 700;
@@ -410,24 +408,6 @@ p {
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 14px;
-}
-
-/* The rule draws itself in as its section arrives. It defaults to full width
-   so a kicker that sits outside any reveal container is never left clipped. */
-.kicker::before {
-  content: '';
-  width: 22px;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-  transform-origin: left center;
-  transform: scaleX(1);
-  transition: transform 0.7s var(--ease) 0.1s;
-}
-
-[data-reveal]:not(.is-visible) .kicker::before,
-.kicker[data-reveal]:not(.is-visible)::before {
-  transform: scaleX(0.22);
 }
 
 .chip {
@@ -495,10 +475,6 @@ p {
 .section-head-centered {
   margin-inline: auto;
   text-align: center;
-}
-
-.section-head-centered .kicker {
-  justify-content: center;
 }
 
 /* Title left, supporting line right, sharing a baseline. Breaks the
@@ -5207,7 +5183,6 @@ html.high-contrast .demo-frame {
     overflow: visible;
   }
 
-  .kicker::before,
   .pipeline-rail,
   .timeline-item::before {
     transform: scaleX(1) !important;
