@@ -3,16 +3,9 @@
 
    One clip, one frame, one decision at the end of it.
 
-   The clip is the sixty-second gameplay trailer. Every shot in it is a real
-   capture out of the Unity 6.3 build — first-person passes through the kampung
-   house with the hands and the HUD the headset actually draws, the build's own
-   hazard cards, its session result and its caregiver portal. The motion
-   graphics around them are the only thing that was added.
-
-   Unlike the walkthrough this replaced, it has a soundtrack: house ambience,
-   the build's own interaction SFX and a score cut to the same grid as the
-   picture. So the reel now owns a sound control, and the play button says what
-   is about to happen before it happens.
+   Real controller mode gameplay captured from the Unity 6.3 LTS build:
+   controller interaction, hazard detection and correction, Mod Mudah,
+   Mod Sederhana, Mod Sukar and session results.
 
    Three states, and the frame never moves between them:
      idle    — the poster, with the play control over it.
@@ -29,7 +22,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { SplitText } from './primitives';
 
-const SRC = '/video/rumahkuvr-trailer.mp4';
+const SRC = '/video/RumahKuVR_Controller_Mode_Trailer.mp4';
 
 /* The still is an <img>, not the video's `poster` attribute.
 
@@ -38,24 +31,8 @@ const SRC = '/video/rumahkuvr-trailer.mp4';
    down. As an image it can be lazy and responsive: it is not requested until
    the reel is near the viewport, and a phone takes the smaller candidate
    instead of the full one. */
-const POSTER = '/video/rumahkuvr-trailer-poster.webp';
-const POSTER_SM = '/video/rumahkuvr-trailer-poster-800w.webp';
-
-/* Chapters, in seconds, matched to the trailer's cut points. They are labels
-   rather than controls: the reel is sixty seconds long, and a scrubbing UI on
-   sixty seconds would be furniture. */
-const BEATS = [
-  { at: 0, label: 'A home should feel safe' },
-  { at: 5.5, label: 'Risks in plain sight' },
-  { at: 10.5, label: 'RumahKuVR' },
-  { at: 14.5, label: 'Spot the risk' },
-  { at: 22.5, label: 'Take action' },
-  { at: 30.5, label: 'Learn from every session' },
-  { at: 36.5, label: 'Three tiers · eighteen hazards' },
-  { at: 42.5, label: 'VR and controller' },
-  { at: 47.5, label: 'Seniors and caregivers' },
-  { at: 52.5, label: 'Practise · Recognise · Respond' }
-];
+const POSTER = '/images/project/hero-hazard-scan.webp';
+const POSTER_SM = '/images/project/hero-hazard-scan-800w.webp';
 
 export default function DemoReel() {
   const videoRef = useRef(null);
@@ -65,7 +42,6 @@ export default function DemoReel() {
   const [fullscreenError, setFullscreenError] = useState('');
   const [state, setState] = useState('idle'); // idle | playing | paused | ended
   const [progress, setProgress] = useState(0);
-  const [beat, setBeat] = useState(0);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
@@ -148,7 +124,6 @@ export default function DemoReel() {
     if (!v) return;
     v.currentTime = 0;
     setProgress(0);
-    setBeat(0);
     play();
   }, [play]);
 
@@ -173,9 +148,6 @@ export default function DemoReel() {
     const onTime = () => {
       if (!v.duration) return;
       setProgress(v.currentTime / v.duration);
-      let i = 0;
-      for (let n = 0; n < BEATS.length; n += 1) if (v.currentTime >= BEATS[n].at) i = n;
-      setBeat(i);
     };
     const onEnded = () => setState('ended');
     const onPlay = () => setState('playing');
@@ -232,14 +204,13 @@ export default function DemoReel() {
         <div className="demo-head">
           <div>
             <span className="kicker" data-reveal="up">
-              Gameplay trailer
+              Real controller mode gameplay
             </span>
-            <SplitText as="h2" text="Sixty seconds inside the house." delay={90} />
+            <SplitText as="h2" text="Controller gameplay in action." delay={90} />
           </div>
           <p className="lede demo-head-note" data-reveal="up" style={{ transitionDelay: '160ms' }}>
-            Cut entirely from in-engine Unity 6.3 captures across all three tiers: the hazards as the
-            build flags them, the corrections as a senior performs them, and the session analysis the
-            headset writes afterwards.
+            Real gameplay from the RumahKuVR build: controller interaction, hazard detection and
+            correction across Mod Mudah, Mod Sederhana and Mod Sukar, followed by the session result.
           </p>
         </div>
 
@@ -257,11 +228,11 @@ export default function DemoReel() {
                 <img
                   className="demo-poster"
                   sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, min(1280px, 88vw)"
-                  srcSet={`${POSTER_SM} 800w, ${POSTER} 1600w`}
+                  srcSet={`${POSTER_SM} 800w, ${POSTER} 1500w`}
                   src={POSTER_SM}
                   alt=""
-                  width={1600}
-                  height={900}
+                  width={1500}
+                  height={844}
                   loading="lazy"
                   decoding="async"
                 />
@@ -277,7 +248,7 @@ export default function DemoReel() {
                    the interaction, so native chrome would be a second, worse
                    set of controls sitting on top of it. */
                 controls={false}
-                aria-label="RumahKuVR gameplay trailer: sixty seconds of in-engine footage, from the darkened kampung house through the hazards the build detects, the corrections a senior carries out, the session analysis, the three difficulty tiers, VR and controller play, and the senior and caregiver interfaces"
+                aria-label="RumahKuVR controller mode gameplay trailer showing hazard detection, corrections, difficulty modes and session results"
               >
                 <track kind="captions" srcLang="en" label="No dialogue" />
               </video>
@@ -289,7 +260,7 @@ export default function DemoReel() {
                 hidden={!idle}
                 onClick={toggle}
                 aria-label={
-                  state === 'playing' ? 'Pause the trailer' : ended ? 'Replay the trailer' : 'Play the trailer'
+                  state === 'playing' ? 'Pause the controller mode trailer' : ended ? 'Replay the controller mode trailer' : 'Play the controller mode trailer'
                 }
               >
                 <span className="demo-trigger-face" aria-hidden="true">
@@ -297,8 +268,8 @@ export default function DemoReel() {
                 </span>
                 {idle ? (
                   <span className="demo-trigger-label" aria-hidden="true">
-                    Watch the RumahKuVR trailer
-                    <small>60 seconds · in-engine · with sound</small>
+                    Watch controller mode gameplay
+                    <small>In-engine capture · with sound</small>
                   </span>
                 ) : null}
               </button>
@@ -307,8 +278,8 @@ export default function DemoReel() {
                   screen, so the two calls to action are not announced or
                   tabbable while the clip is still running. */}
               <div className="demo-end" hidden={!ended}>
-                <p className="demo-end-kicker">You have seen the house</p>
-                <p className="demo-end-title">Eighteen hazards are hidden in it.</p>
+                <p className="demo-end-kicker">Controller mode gameplay</p>
+                <p className="demo-end-title">Detect hazards. Practise corrections.</p>
                 <div className="demo-end-actions">
                   <a href="#contact" className="btn btn-primary" onClick={requestDemo}>
                     <span>Request a demo session</span>
@@ -322,9 +293,9 @@ export default function DemoReel() {
               </div>
 
             </div>
-            <div className="demo-bar" role="group" aria-label="Trailer controls">
+            <div className="demo-bar" role="group" aria-label="Controller mode trailer controls">
               <button type="button" className="demo-bar-sound" onClick={toggle}
-                aria-label={state === 'playing' ? 'Pause the trailer' : ended ? 'Replay the trailer' : 'Play the trailer'}>
+                aria-label={state === 'playing' ? 'Pause the controller mode trailer' : ended ? 'Replay the controller mode trailer' : 'Play the controller mode trailer'}>
                 {state === 'playing' ? <Pause size={18} /> : <Play size={18} />}
               </button>
               <button
@@ -332,17 +303,17 @@ export default function DemoReel() {
                 className="demo-bar-sound"
                 onClick={toggleSound}
                 aria-pressed={muted}
-                aria-label={muted ? 'Unmute the trailer' : 'Mute the trailer'}
+                aria-label={muted ? 'Unmute the controller mode trailer' : 'Mute the controller mode trailer'}
               >
                 {muted ? <VolumeX size={15} strokeWidth={2.1} /> : <Volume2 size={15} strokeWidth={2.1} />}
               </button>
               <button type="button" className="demo-bar-sound" onClick={toggleFullscreen}
                 disabled={!canFullscreen}
-                aria-label={!canFullscreen ? 'Fullscreen unavailable in this browser' : fullscreen ? 'Exit trailer fullscreen' : 'View trailer fullscreen'}>
+                aria-label={!canFullscreen ? 'Fullscreen unavailable in this browser' : fullscreen ? 'Exit controller mode trailer fullscreen' : 'View controller mode trailer fullscreen'}>
                 {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
               </button>
               <span className="demo-bar-beat">
-                {BEATS[beat].label}
+                Controller mode gameplay
               </span>
               <span className="demo-bar-track" aria-hidden="true">
                 <i style={{ transform: `scaleX(${progress})` }} />
@@ -352,8 +323,8 @@ export default function DemoReel() {
           </div>
 
           <figcaption className="demo-caption">
-            In-engine capture · Unity 6.3 LTS · Mod Mudah, Sederhana and Sukar · sound built from the
-            project's own audio library
+            In-engine controller gameplay capture · Unity 6.3 LTS · Mod Mudah, Sederhana and Sukar ·
+            recorded from the RumahKuVR build
           </figcaption>
         </figure>
       </div>
