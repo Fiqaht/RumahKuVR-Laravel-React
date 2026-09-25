@@ -22,7 +22,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Maximize2, Minimize2, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { SplitText } from './primitives';
 
-const SRC = '/video/RumahKuVR_Controller_Mode_Trailer.mp4';
+const SRC = '/video/RumahKuVR_Controller_Mode_Trailer_Web.mp4';
 
 /* The still is an <img>, not the video's `poster` attribute.
 
