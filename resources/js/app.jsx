@@ -305,7 +305,7 @@ function Hero() {
                   sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, (min-width: 1400px) 600px, 52vw"
                   srcSet="/images/project/hero-hazard-scan-800w.webp 800w, /images/project/hero-hazard-scan.webp 1500w"
                   src="/images/project/hero-hazard-scan.webp"
-                  alt="First-person view inside RumahKuVR: a kampung kitchen with three hazard markers, the senior's hands in frame, and the session HUD showing hazards cleared and time remaining"
+                  alt="First-person view inside RumahKuVR in Mod Sukar: a cat and its food bowl in the walkway at the foot of the stairs, a warning symbol over the cat, the senior's hands in frame, and the HUD showing 1 of 10 hazards cleared with the countdown running"
                   width={1500}
                   height={844}
                   loading="eager"
@@ -317,7 +317,7 @@ function Hero() {
 
               {/* Reads the capture it sits on rather than repeating the stat
                   row below it: this frame is a Mod Sukar session, and its HUD
-                  shows the 0/10 counter for exactly these ten hazards. */}
+                  counts against exactly these ten hazards. */}
               <div className="hero-float" data-reveal="up" style={{ '--d': '480ms' }}>
                 <span className="hero-float-num">
                   <Counter value={10} pad={false} />
@@ -337,7 +337,7 @@ function Hero() {
 }
 
 /* --------------------------------------------------------------------------
-   02 OVERVIEW — intent and the meal-transport case study
+   02 OVERVIEW — intent and the exposed-wire case study
    -------------------------------------------------------------------------- */
 function Overview() {
   /* The three moves a session is built around. They used to be three identical
@@ -380,7 +380,7 @@ function Overview() {
         <div className="case-strip" data-reveal="up">
           <div className="case-strip-head">
             <span className="kicker">One hazard, end to end</span>
-            <h3>Carrying a meal without carrying the tray</h3>
+            <h3>Making a live wire safe without touching it</h3>
           </div>
 
           <ol className="case-steps">
@@ -390,7 +390,7 @@ function Overview() {
                   <ZoomTrigger
                     label={`${step.tag}: ${step.title}`}
                     item={{ file: step.image, alt: `${step.title}: ${step.desc}`,
-                            title: `Meal transport: ${step.title}`, tag: step.tag, desc: step.desc }}
+                            title: `Exposed wire: ${step.title}`, tag: step.tag, desc: step.desc }}
                   >
                     <img src={step.image} alt={`${step.title}: ${step.desc}`} loading="lazy" decoding="async" />
                   </ZoomTrigger>
@@ -700,8 +700,8 @@ function Gameplay() {
     <section id="gameplay" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead variant="centered" kicker="In-engine captures" title="Inside RumahKuVR.">
-          Ten captures taken from the running Unity build: hazard cards, corrective actions, the house map
-          and the session breakdown. No mock-ups, no renders.
+          Ten captures from the running Unity build, played in Controller Mode: hazards found, corrections
+          made, the house map, the session result and the tutorial. No mock-ups, no renders.
         </SectionHead>
 
         <div data-reveal="up">
@@ -759,17 +759,17 @@ function Platform() {
               label="Pilih Mod Permainan"
               item={{
                 file: '/images/ui/mode-select.webp',
-                alt: 'RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller',
+                alt: 'RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PS4 controller, with a Bahasa Melayu or English switch in the corner',
                 title: 'Pilih Mod Permainan: mode selection',
                 tag: 'In-headset UI',
-                desc: 'The first screen of the app: Mod VR for Meta Quest 3, or Mod Kawalan for an Xbox or PlayStation controller.'
+                desc: 'The first screen of the app: Mod VR for Meta Quest 3, or Mod Kawalan for an Xbox or PS4 controller. The language switch sits top right.'
               }}
             >
               <img
                 sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 46vw"
                 srcSet="/images/ui/mode-select-1400w.webp 1400w, /images/ui/mode-select.webp 3508w"
                 src="/images/ui/mode-select.webp"
-                alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PlayStation controller"
+                alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PS4 controller, with a Bahasa Melayu or English switch in the corner"
                 width={3508}
                 height={2008}
                 loading="lazy"
@@ -987,13 +987,14 @@ function Roles() {
           </div>
         </div>
 
-        {/* The three captures below used to arrive with no introduction at
-            all: a reader who had just been reading about sign-in roles met a
-            floor plan covered in Malay labels and had to work out for
-            themselves what it was, when it was produced, and who reads it.
-            This says all three before the images, in the order the reader
-            needs them — what happens when a session ends, what the map is,
-            and what the two panels beside it answer. */}
+        {/* The captures below used to arrive with no introduction at all: a
+            reader who had just been reading about sign-in roles met a floor
+            plan covered in Malay labels and had to work out for themselves
+            what it was, when it was produced, and who reads it. This says it
+            before the images, in the order the reader needs it — what happens
+            when a session ends, what the map is, and what the home screen
+            beside it shows. Prestasi Tahap and Makluman are left out: in the
+            current build they show a contradictory footer and stale labels. */}
         <div className="roles-evidence-intro" data-reveal="up">
           <span className="kicker">After a session</span>
           <h3>What the caregiver sees once the headset comes off.</h3>
@@ -1004,7 +1005,7 @@ function Roles() {
           </p>
           <p>
             Below, marker 01 is selected: Karpet Terlipat, Ruang Makan, a trip risk, cleared, and the
-            recommendation that goes with it. The two panels beside it hold the history.
+            recommendation that goes with it. Beside it is the portal's home screen for the same senior.
           </p>
         </div>
 
@@ -1019,7 +1020,7 @@ function Roles() {
             src="/images/caregiver/hazard-map.webp"
             srcSet="/images/caregiver/hazard-map-1400w.webp 1400w, /images/caregiver/hazard-map.webp 3382w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 52vw"
-            alt="Peta Bahaya in the caregiver portal: the Sederhana tab of a completed session scoring 100 out of 100, with markers 01 to 05 on a labelled floor plan — Ruang Tamu, Ruang Makan, Bilik Tidur, Bilik Utiliti, Bilik Air — the five-hazard Senarai Bahaya beside it all marked Selesai, and marker 01 selected so the Butiran Bahaya Terpilih panel shows Karpet Terlipat, Ruang Makan, Tersandung, Risiko Sederhana, Selesai, with the recommendation to flatten the carpet and secure it with tape or an anti-slip pad"
+            alt="Peta Bahaya in the caregiver portal for Warga Emas qp: the Sederhana tab, using the 27 Sep 2026 session that scored 100 out of 100, with markers 01 to 05 on a labelled floor plan (Ruang Tamu, Dapur, Ruang Makan, Bilik Tetamu, Bilik Tidur, Bilik Utiliti), the Senarai Bahaya list beside it with every hazard marked Selesai, and marker 01 selected so the Butiran Bahaya Terpilih panel shows Karpet Terlipat, Ruang Makan, Tersandung, Risiko Sederhana, Selesai, with the recommendation to flatten the carpet and secure it with tape or an anti-slip pad"
             caption="Peta Bahaya: marker 01 selected, with its detail panel open"
             reveal="up"
             zoomable
@@ -1032,14 +1033,9 @@ function Roles() {
           <div className="roles-extra-support">
             {[
               {
-                key: 'alerts',
-                alt: 'Makluman in the caregiver portal: fourteen stored sessions listed with status, tier, score, date and a one-line summary — "Sesi selesai dengan jayanya" for a finished run, "Sesi tidak lengkap — perlu perhatian" for an abandoned one',
-                caption: 'Makluman: every saved session, newest first'
-              },
-              {
-                key: 'tier-performance',
-                alt: 'Prestasi Ikut Tahap in the caregiver portal: average score and session count per tier — Mudah 66 out of 100 over 9 sessions, Sederhana 98 over 4, Sukar 100 over 1, and 77 out of 100 across all 14',
-                caption: 'Prestasi Ikut Tahap: average score per tier'
+                key: 'dashboard',
+                alt: 'The caregiver home screen in RumahKuVR: Warga Emas Dipantau qp, Skor Keselamatan 80 out of 100 rated Cemerlang, Sesi Selesai 4, Purata Markah 80, Bahaya Kerap Terlepas Lampu Katil Terlalu Jauh (1×), Jumlah Masa 41m, and buttons for Rekod Sesi, Peta Bahaya, Laporan Prestasi and Tetapan Pengguna',
+                caption: 'Papan pemuka penjaga: the monitored senior at a glance'
               }
             ].map(shot => (
               <Figure
@@ -1092,7 +1088,7 @@ function SeniorDesign() {
             src="/images/ui/senior-menu.webp"
             srcSet="/images/ui/senior-menu-1400w.webp 1400w, /images/ui/senior-menu.webp 3483w"
             sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 54vw"
-            alt="The RumahKuVR Warga Emas menu: a Bantuan Suara voice-help button in the header, a welcome line, a large Mula Latihan button reading “Tekan untuk memulakan”, a Tutorial button, cards showing Skor Terakhir 100 out of 100 and Sesi Selesai 6, and a row of five buttons that each pair an icon with a word — Lihat Kemajuan, Bantuan, Panduan Alat, Log Keluar and Keluar"
+            alt="The RumahKuVR Warga Emas menu: a Tetapan button in the header, a welcome line for qp, a large Mula Latihan button reading “Tekan untuk memulakan”, a Tutorial button, cards showing Skor Terakhir 18 out of 100 and Sesi Selesai 4, a row of five buttons that each pair an icon with a word (Lihat Kemajuan, Bantuan, Panduan Alat, Log Keluar and Keluar) and a line naming the pad controls"
             caption="Menu Warga Emas: the whole home screen, uncropped"
             zoomDesc="The senior home screen in full. One dominant action, spoken-Malay help in the header, and every button carrying a word beside its icon."
             width={3483}
@@ -1284,25 +1280,25 @@ function System() {
         <div className="system-split">
           {/* Two captures rather than one. The result card is the analyser's
               actual output — the four lines the copy used to describe from
-              memory — and the trend panel is what those same records become
-              across sessions. With both on the page the prose beside them can
-              be about a third of what it was. */}
+              memory — and the Cadangan IRIS card is what those same records
+              become on the caregiver side. With both on the page the prose
+              beside them can be about a third of what it was. */}
           <div className="system-evidence" data-reveal="left">
             <Figure
               className="system-figure"
               zoomable
               zoomTag="In-headset result"
-              src="/images/ui/session-result.webp"
-              alt="Keputusan Sesi in RumahKuVR: a session scored 80 out of 100 beside an Analisis AI panel with four headed lines — Tahap Prestasi, Kekuatan, Perlu Diberi Perhatian and Cadangan — over a footer reading 08:24 elapsed, 4 hazards and 18 selesai"
-              caption="Keputusan Sesi: the four lines the analyser writes, on the headset"
+              src="/images/ui/session-analysis-sukar.webp"
+              alt="Keputusan Sesi from a Mod Sukar run that ran out of time: Masa Tamat, 18 out of 100, 2 of 10 hazards cleared, beside the Analisis Sesi panel with Prestasi, Kekuatan, Perlu Diperbaiki naming the unfinished clothes rack (Ampaian Baju Menghalang Laluan), and Cadangan to bring the clothes in one at a time and retry Sederhana before Sukar"
+              caption="Analisis Sesi: the four lines the analyser writes, here for an unfinished Sukar run"
             />
             <Figure
               className="system-figure"
               zoomable
               zoomTag="Caregiver portal"
-              src="/images/caregiver/iris-trend.webp"
-              alt="Caregiver trend panel reading “Trend Prestasi — Meningkat”, based on the three most recent Mudah sessions, noting that safety and attention improved"
-              caption="Trend Prestasi: the same records read across sessions"
+              src="/images/caregiver/iris-recommendation.webp"
+              alt="The Cadangan IRIS card in the caregiver portal's Laporan Prestasi: “Prestasi cemerlang (purata 80/100). Boleh mencuba tahap Sukar. Masih perlu perhatian pada Lampu Katil Terlalu Jauh.” — an excellent average of 80, ready to try Sukar, with the bedside lamp hazard still needing attention"
+              caption="Cadangan IRIS: the same records, read for the caregiver"
             />
           </div>
 
@@ -1315,8 +1311,8 @@ function System() {
               result rather than flipping it.
             </p>
             <p>
-              The trend reads the same stored records across sessions, and compares like with like, one
-              difficulty at a time, named on screen.
+              The caregiver side reads the same stored records: Cadangan IRIS turns the average and the
+              most-missed hazard into one line of advice.
             </p>
             <ul className="feature-list">
               <li>
