@@ -1460,7 +1460,7 @@ function Contact() {
         <div className="contact-grid">
           <div className="contact-info" data-reveal="left">
             <span className="kicker">Get in touch</span>
-            <SplitText as="h2" text="One student, one house, eighteen hazards." />
+            <SplitText as="h2" text="One player, one house, eighteen hazards." />
             <p className="lede">
               RumahKuVR is a Final Year Project by <strong>{PROJECT.author}</strong>, {PROJECT.programme}.
             </p>
