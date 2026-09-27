@@ -8,7 +8,7 @@ Route::get('/', fn () => view('app'))->name('home');
 Route::get('/api/project', function () {
     return response()->json([
         'name' => 'RumahKuVR',
-        'title' => 'AI-Assisted Virtual Reality Home Safety Application for Personalised Hazard Detection Among Seniors',
+        'title' => 'AI-Driven Virtual Reality Home Safety Application for Personalised Performance Analysis Among Seniors',
         'platform' => 'Meta Quest 3',
         'engine' => 'Unity 6.3 LTS',
         'modes' => ['VR Mode', 'Controller Mode'],

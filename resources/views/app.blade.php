@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#08090b">
 
     <title>RumahKuVR: VR Home-Safety Training for Malaysian Seniors</title>
-    <meta name="description" content="RumahKuVR is an AI-assisted virtual reality home-safety application that teaches Malaysian seniors to find and fix household hazards, built in Unity 6.3 for Meta Quest 3 and gamepad.">
+    <meta name="description" content="RumahKuVR is an AI-Driven virtual reality home-safety application for Malaysian seniors. Players recognise and respond to household hazards; IRIS analyses their performance and provides personalised feedback.">
     <meta name="author" content="Muhammad Thaqif Fahmi Bin Rafie'e">
     <link rel="canonical" href="https://rumahkuvr.app/">
 

@@ -11,7 +11,7 @@
 export const PROJECT = {
   name: 'RumahKuVR',
   title:
-    'AI-Assisted Virtual Reality Home Safety Application for Personalised Hazard Detection Among Seniors',
+    'AI-Driven Virtual Reality Home Safety Application for Personalised Performance Analysis Among Seniors',
   author: "Muhammad Thaqif Fahmi Bin Rafie'e, Muhammad Hakimi bin Shah Buddin, Muhammad Faiq Azim Bin Mohamad Zin ",
   programme: 'Diploma in Information Technology (Software Application Development)',
   year: '2026',
@@ -134,7 +134,7 @@ export const GALLERY = [
     file: '/images/gameplay/gas-stove.webp',
     title: 'Gas stove left on',
     ms: 'Dapur gas',
-    tag: 'Hazard detection',
+    tag: 'Hazard recognition',
     desc:
       'Inspecting the stove rings every knob and gives the first step in Malay: “Tutup semua tombol dapur.” The regulator and the window come after, in that order.'
   },
@@ -188,7 +188,7 @@ export const GALLERY = [
   },
   {
     file: '/images/ui/session-result.webp',
-    title: 'Session result & AI analysis',
+    title: 'Session result & IRIS performance analysis',
     ms: 'Keputusan Sesi · Analisis Sesi',
     tag: 'Feedback',
     desc:
@@ -210,7 +210,7 @@ export const CASE_STEPS = [
   {
     num: '01',
     title: 'Notice',
-    tag: 'Step 01 · Detection',
+    tag: 'Step 01 · Recognition',
     desc: 'A live wire by the dining-room socket. Inspecting it gives one instruction: take the wooden stick.',
     image: '/images/gameplay/case-wire-01.webp'
   },
@@ -369,10 +369,10 @@ export const PIPELINE = [
   },
   {
     step: '03',
-    title: 'Detection',
+    title: 'Player recognition',
     sub: 'Proximity & gaze',
     detail:
-      'A hazard raises its card when the senior is near it and looking at it. Proximity alone would fire while walking past; gaze alone would fire across the room. Requiring both is what keeps the prompt tied to intent.'
+      'The player recognises hazards and interacts with them in the virtual home. Proximity and gaze checks trigger in-game prompts; IRIS analyses the recorded player performance after the session.'
   },
   {
     step: '04',
@@ -386,7 +386,7 @@ export const PIPELINE = [
     title: 'Fuzzy analysis',
     sub: 'On-device inference',
     detail:
-      'At the end of a session a Sugeno-style fuzzy expert system grades four dimensions: safety performance, independence, attention and recovery. Every rule fires in proportion to how true it is, so one missed hazard moves the result without flipping it. It runs on the headset without an API, network or model file.'
+      'At the end of a session, IRIS analyses player performance using a Sugeno-style fuzzy expert system. Weighted rule outputs grade safety performance, independence, attention and recovery. Session pace has a small influence on attention analysis. It runs on the headset without an API, network or model file.'
   },
   {
     step: '06',

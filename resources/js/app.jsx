@@ -1306,9 +1306,9 @@ function System() {
             <span className="kicker">Offline behaviour analysis</span>
             <h3>Four graded dimensions, worked out on the headset.</h3>
             <p>
-              A Sugeno-style fuzzy expert system grades safety performance, independence, attention and
-              recovery. Every rule fires in proportion to how true it is, so one missed hazard nudges the
-              result rather than flipping it.
+              IRIS analyses the player's hazard-recognition and response performance using a Sugeno-style
+              fuzzy expert system. It grades safety performance, independence, attention and recovery
+              using weighted rule outputs.
             </p>
             <p>
               The caregiver side reads the same stored records: Cadangan IRIS turns the average and the
@@ -1325,7 +1325,7 @@ function System() {
               </li>
               <li>
                 <Timer size={14} strokeWidth={2.4} aria-hidden="true" />
-                Slow sessions are never penalised
+                Pace influences attention analysis; Hard mode can end before all hazards are cleared
               </li>
               <li>
                 <Volume2 size={14} strokeWidth={2.4} aria-hidden="true" />
