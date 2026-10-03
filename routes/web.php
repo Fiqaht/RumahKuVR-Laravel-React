@@ -9,9 +9,10 @@ Route::get('/api/project', function () {
     return response()->json([
         'name' => 'RumahKuVR',
         'title' => 'AI-Driven Virtual Reality Home Safety Application for Personalised Performance Analysis Among Seniors',
-        'platform' => 'Meta Quest 3',
+        'platform' => 'Meta Quest 3 · gamepad · Android tablet',
+        'platforms' => ['Meta Quest 3', 'Xbox / PlayStation-style gamepad', 'Android tablet touchscreen'],
         'engine' => 'Unity 6.3 LTS',
-        'modes' => ['VR Mode', 'Controller Mode'],
+        'modes' => ['VR Mode', 'Controller Mode', 'Tablet Mode'],
         'roles' => ['Warga Emas', 'Penjaga', 'Tetamu'],
         'difficulty' => [
             ['name' => 'Easy', 'malay' => 'Mod Mudah', 'hazards' => 3],
@@ -24,10 +25,27 @@ Route::get('/api/project', function () {
             'hard' => 'complete',
         ],
         'analysis' => [
-            'type' => 'fuzzy expert system',
-            'runs' => 'on-device',
-            'network' => false,
+            'brand' => 'SATRIA AI 2.0',
+            'type' => 'hybrid: deterministic scoring + fuzzy logic + generative feedback',
+            'runs' => 'on-device scoring and fuzzy analysis; server-side Gemini feedback',
+            'network' => true,
+            'network_required_for' => 'optional Gemini feedback only',
+            'gameplay_requires_network' => false,
+            'pipeline' => [
+                'Gameplay Session', 'Gameplay Metrics', 'Deterministic Scoring',
+                'Fuzzy Logic Analysis', 'Gemini Generative AI', 'SATRIA Personalised Feedback',
+            ],
             'dimensions' => ['safety', 'independence', 'attention', 'recovery'],
+            'generative' => [
+                'provider' => 'Gemini',
+                'role' => 'personalised feedback from structured session metrics and fuzzy summaries',
+                'endpoint' => route('satria.analyze', [], false),
+            ],
+            'fallback' => [
+                'flow' => ['Fuzzy Logic Analysis', 'SATRIA structured/rule-based feedback'],
+                'handled_by' => 'game client retains its existing fuzzy result',
+                'backend_failure' => '503 satria_unavailable',
+            ],
         ],
     ]);
 });

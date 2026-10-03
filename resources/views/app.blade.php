@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#08090b">
 
-    <title>RumahKuVR: VR Home-Safety Training for Malaysian Seniors</title>
-    <meta name="description" content="RumahKuVR is an AI-Driven virtual reality home-safety application for Malaysian seniors. Players recognise and respond to household hazards; IRIS analyses their performance and provides personalised feedback.">
+    <title>RumahKuVR: VR, Controller &amp; Tablet Home-Safety Training</title>
+    <meta name="description" content="RumahKuVR offers VR, Controller and Android Tablet Touch modes for Malaysian seniors. Players recognise household hazards; SATRIA AI 2.0 uses local scoring, fuzzy analysis and optional Gemini personalised feedback.">
     <meta name="author" content="Muhammad Thaqif Fahmi Bin Rafie'e">
     <link rel="canonical" href="https://rumahkuvr.app/">
 

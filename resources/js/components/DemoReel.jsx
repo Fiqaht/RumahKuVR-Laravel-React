@@ -4,7 +4,7 @@
    One clip, one frame, one decision at the end of it.
 
    Real controller mode gameplay captured from the Unity 6.3 LTS build:
-   controller interaction, hazard detection and correction, Mod Mudah,
+   controller interaction, player hazard recognition and correction, Mod Mudah,
    Mod Sederhana, Mod Sukar and session results.
 
    Three states, and the frame never moves between them:
@@ -209,7 +209,7 @@ export default function DemoReel() {
             <SplitText as="h2" text="Controller gameplay in action." delay={90} />
           </div>
           <p className="lede demo-head-note" data-reveal="up" style={{ transitionDelay: '160ms' }}>
-            Real gameplay from the RumahKuVR build: controller interaction, hazard detection and
+            Real gameplay from the RumahKuVR build: controller interaction, player hazard recognition and
             correction across Mod Mudah, Mod Sederhana and Mod Sukar, followed by the session result.
           </p>
         </div>
@@ -248,7 +248,7 @@ export default function DemoReel() {
                    the interaction, so native chrome would be a second, worse
                    set of controls sitting on top of it. */
                 controls={false}
-                aria-label="RumahKuVR controller mode gameplay trailer showing hazard detection, corrections, difficulty modes and session results"
+                aria-label="RumahKuVR controller mode gameplay trailer showing player hazard recognition, corrections, difficulty modes and session results"
               >
                 <track kind="captions" srcLang="en" label="No dialogue" />
               </video>

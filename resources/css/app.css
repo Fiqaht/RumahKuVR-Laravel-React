@@ -2639,12 +2639,13 @@ p {
 
 .platform-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
 }
 
 .platform-card {
   padding: clamp(20px, 2.8vw, 32px);
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -2720,6 +2721,34 @@ p {
   animation: fadeSlide 0.4s var(--ease);
 }
 
+/* Text overview until a genuine Tablet Mode capture is supplied. */
+.platform-media-touch {
+  aspect-ratio: auto;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 18px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.platform-media-touch .kicker {
+  margin-bottom: 0;
+}
+
+.platform-media-touch strong {
+  font-family: var(--font-heading);
+  color: var(--text);
+}
+
+.platform-media-touch p {
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
 .pad-switch {
   display: inline-flex;
   gap: 4px;
@@ -2728,13 +2757,16 @@ p {
   background: var(--surface-alt);
   border: 1px solid var(--border-subtle);
   width: max-content;
+  max-width: 100%;
 }
 
 .pad-switch-btn {
+  min-width: 0;
+  flex: 1;
   font-family: var(--font-heading);
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 7px 14px;
+  padding: 7px 10px;
   border-radius: var(--radius-xs);
   border: 0;
   background: transparent;
@@ -2764,6 +2796,14 @@ p {
   display: grid;
   grid-template-columns: 0.92fr 1.08fr;
   margin-bottom: 22px;
+}
+
+.roles-wrapper-text {
+  grid-template-columns: 1fr;
+}
+
+.roles-wrapper-text .role-detail {
+  max-width: 65ch;
 }
 
 .roles-copy {
@@ -3177,7 +3217,7 @@ p {
 .pipeline {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
   margin-top: 22px;
 }
@@ -3204,6 +3244,8 @@ p {
 
 .pipeline-node {
   position: relative;
+  min-width: 0;
+  overflow-wrap: anywhere;
   z-index: 1;
   background: var(--surface-alt);
   border: 1px solid var(--border-subtle);
@@ -3376,6 +3418,7 @@ p {
 
 .pipeline-panel-step {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 11px;
   font-family: var(--font-heading);
@@ -3402,6 +3445,7 @@ p {
 }
 
 .pipeline-panel-of {
+  white-space: nowrap;
   margin-left: auto;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -3416,6 +3460,14 @@ p {
   /* Trails the header by a beat, so the panel resolves in two steps rather
      than arriving as one block. */
   animation: pipelineBodyIn 0.55s var(--ease) 0.08s backwards;
+}
+
+.pipeline-fallback {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 }
 
 @keyframes pipelineBodyIn {
@@ -3460,9 +3512,7 @@ p {
   margin-bottom: clamp(28px, 3.5vw, 48px);
 }
 
-/* Two captures stacked in the left column: the analyser's own output, then
-   what those records become across sessions. Sized so the pair finishes near
-   the height of the copy beside it. */
+/* Genuine session evidence beside the SATRIA feedback explanation. */
 .system-evidence {
   display: grid;
   gap: clamp(12px, 1.4vw, 18px);
@@ -3484,6 +3534,11 @@ p {
   padding-top: 0;
 }
 
+.system-privacy {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
 
 .journey {
   margin-top: clamp(64px, 7vw, 108px);
@@ -4637,7 +4692,7 @@ html.high-contrast .demo-frame {
     align-items: start;
   }
   .pipeline {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   /* The stages wrap onto multiple rows below this width, so a single
      horizontal rail no longer describes the sequence. The progress fill goes
@@ -4777,7 +4832,7 @@ html.high-contrast .demo-frame {
     grid-template-columns: repeat(2, 1fr);
   }
   .pipeline {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   /* The active capture is the whole point of this section, and at 74vw on a
      390px screen it was 289px wide — an in-engine screenshot rendered smaller

@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import { createRoot } from 'react-dom/client';
 import {
   Accessibility, ArrowRight, ArrowUpRight, Boxes, Check, ClipboardList, Cpu,
-  Gamepad2, GraduationCap, Hand, Layers, Menu, MonitorPlay, Moon, Pause, Play,
-  Radar, ScanEye, ShieldAlert, ShieldCheck, Sun, Timer, Volume2, X
+  Gamepad2, GraduationCap, Layers, Menu, MonitorPlay, Moon, Pause, Play,
+  Radar, ShieldAlert, ShieldCheck, Sun, Tablet, Timer, Volume2, X
 } from 'lucide-react';
 
 import {
@@ -247,7 +247,7 @@ function Hero() {
 
             <p className="lede" data-reveal="up" style={{ '--d': '290ms' }}>
               Seniors explore a familiar kampung home and find hazards such as a wet floor, a live
-              wire or a burner left running. They fix each one by hand using {PROJECT.headset} or a gamepad.
+              wire or a burner left running. They act using {PROJECT.headset}, a gamepad or an Android tablet.
             </p>
 
             {/* "See it running" pointed at the gallery of stills, which is not
@@ -347,7 +347,7 @@ function Overview() {
   const loop = [
     { num: '01', title: 'Spot it', desc: 'Find the risk on the floor, the worktop or the wall.' },
     { num: '02', title: 'Fix it', desc: 'Do the correction by hand: move it, mop it, switch it off, put it away.' },
-    { num: '03', title: 'Repeat it', desc: 'Read the graded breakdown the headset works out on its own, then go again until the safe choice stops needing thought.' }
+    { num: '03', title: 'Repeat it', desc: 'Read the SATRIA performance feedback, then go again until the safe choice stops needing thought.' }
   ];
 
   return (
@@ -721,7 +721,7 @@ function Gameplay() {
 }
 
 /* --------------------------------------------------------------------------
-   05 PLATFORM — headset and gamepad
+   05 PLATFORM — headset, gamepad and tablet touch
    -------------------------------------------------------------------------- */
 function Platform() {
   const [pad, setPad] = useState('ps');
@@ -748,9 +748,9 @@ function Platform() {
   return (
     <section id="platform" className="section" data-reveal="edge">
       <div className="container">
-        <SectionHead variant="split" kicker="Hardware" title="Two ways into the same house.">
-          Not every senior can stand for twenty minutes. The controller build runs the identical scenarios
-          seated, with the same hazards and the same scoring.
+        <SectionHead variant="split" kicker="Hardware" title="Three ways into the same house.">
+          VR, controller and tablet touch are alternative input methods for the same RumahKuVR training:
+          the same scenarios, household hazards, difficulty tiers, scoring and gameplay objectives.
         </SectionHead>
 
         <div className="platform-choice" data-reveal="up">
@@ -759,19 +759,19 @@ function Platform() {
               label="Pilih Mod Permainan"
               item={{
                 file: '/images/ui/mode-select.webp',
-                alt: 'RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PS4 controller, with a Bahasa Melayu or English switch in the corner',
-                title: 'Pilih Mod Permainan: mode selection',
-                tag: 'In-headset UI',
-                desc: 'The first screen of the app: Mod VR for Meta Quest 3, or Mod Kawalan for an Xbox or PS4 controller. The language switch sits top right.'
+                alt: 'Current RumahKuVR mode-selection screen showing Mod VR, Mod Kawalan and Mod Tablet with Skrin Sentuh, alongside Bahasa Melayu and English language choices',
+                title: 'Pilih Mod Permainan: three play modes',
+                tag: 'Unity capture · 3 Oct 2026',
+                desc: 'A genuine capture of the current Unity mode-selection UI: Mod VR for Meta Quest 3, Mod Kawalan for a gamepad and Mod Tablet / Skrin Sentuh for an Android touchscreen.'
               }}
             >
               <img
                 sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 46vw"
-                srcSet="/images/ui/mode-select-1400w.webp 1400w, /images/ui/mode-select.webp 3508w"
+                srcSet="/images/ui/mode-select-1400w.webp 1400w, /images/ui/mode-select.webp 3840w"
                 src="/images/ui/mode-select.webp"
-                alt="RumahKuVR mode select screen offering Mod VR, recommended for Meta Quest 3, and Mod Kawalan for an Xbox or PS4 controller, with a Bahasa Melayu or English switch in the corner"
-                width={3508}
-                height={2008}
+                alt="Current RumahKuVR mode-selection screen with Mod VR, Mod Kawalan and Mod Tablet / Skrin Sentuh"
+                width={3840}
+                height={2160}
                 loading="lazy"
                 decoding="async"
               />
@@ -779,10 +779,10 @@ function Platform() {
           </div>
           <div className="platform-choice-copy">
             <span className="kicker">Pilih Mod Permainan</span>
-            <h3>Mod VR or Mod Kawalan is the first screen the app shows.</h3>
+            <h3>Mod VR, Mod Kawalan or Mod Tablet / Skrin Sentuh.</h3>
             <p>
-              Before anything else the app asks how the senior wants to play. Both routes lead to the same
-              scenarios, the same hazard list and the same session record.
+              Choose the input method that suits the player. All three modes share the same training
+              experience. This current Unity capture shows all three choices.
             </p>
           </div>
         </div>
@@ -793,8 +793,8 @@ function Platform() {
               <span className="kicker">VR Mode · Mod VR</span>
               <h3>{PROJECT.headset}</h3>
               <p>
-                Room-scale training with two-handed interaction and real depth. The senior reaches for the
-                stool, the mop and the burner dial rather than pressing a button labelled “fix”.
+                Immersive room-scale training with head and hand tracking through the existing VR input
+                system. The senior reaches for the stool, the mop and the burner dial in the virtual home.
               </p>
             </header>
 
@@ -824,8 +824,8 @@ function Platform() {
               <span className="kicker">Controller Mode · Mod Kawalan</span>
               <h3>Gamepad mode</h3>
               <p>
-                The in-headset control guide is built into the app: pick your pad, and every button is
-                labelled in Malay with the action it performs.
+                Use an Xbox or PlayStation-style gamepad for movement and interaction. The built-in
+                Malay control guide labels each action; hazards, difficulty tiers and scoring stay the same.
               </p>
             </header>
 
@@ -852,7 +852,7 @@ function Platform() {
               >
                 <img
                   key={pad}
-                  sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 46vw, 30vw"
+                  sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1024px) 86vw, 28vw"
                   srcSet={current.srcSet}
                   src={current.src}
                   alt={current.alt}
@@ -866,6 +866,38 @@ function Platform() {
 
             <p className="platform-note">
               {current.note}. RumahKuVR accepts generic Bluetooth gamepads using the same mapping.
+            </p>
+          </TiltCard>
+
+          <TiltCard as="article" className="platform-card" data-reveal="up" max={3}>
+            <header className="platform-card-head">
+              <span className="kicker">Tablet Mode · Skrin Sentuh</span>
+              <h3>Tablet Touch Mode</h3>
+              <p>
+                Access the same RumahKuVR safety training on an Android tablet. Use the touchscreen for
+                movement, navigation and contextual interactions in landscape orientation.
+              </p>
+            </header>
+
+            {/* Reserved for a future real tablet-touch.webp capture. This text
+                panel is an overview, never a substituted gameplay screenshot. */}
+            <div className="platform-media platform-media-touch">
+              <Tablet size={32} strokeWidth={1.5} aria-hidden="true" />
+              <span className="kicker">Android · Mod Tablet</span>
+              <strong>Landscape touch interface</strong>
+              <p>Touch movement · contextual action controls</p>
+              <span className="platform-note">Control overview · not a gameplay capture</span>
+            </div>
+
+            <div className="chip-row">
+              <span className="chip">Touch navigation</span>
+              <span className="chip">Touch interaction</span>
+              <span className="chip">Same training objectives</span>
+            </div>
+
+            <p className="platform-note">
+              Touch controls work directly on the tablet; no headset or physical gamepad is required.
+              A real Tablet Mode capture will be added when available.
             </p>
           </TiltCard>
         </div>
@@ -913,7 +945,7 @@ function Roles() {
           creating an account at all.
         </SectionHead>
 
-        <div className="roles-wrapper" data-reveal="scale">
+        <div className={`roles-wrapper${current.image ? '' : ' roles-wrapper-text'}`} data-reveal="scale">
           <div className="roles-copy">
             <div className="role-tabs" ref={tabsRef} role="tablist" aria-label="User roles" onKeyDown={onTabKeyDown}>
               {keys.map(key => (
@@ -968,23 +1000,25 @@ function Roles() {
             </div>
           </div>
 
-          <div className="roles-media" key={`media-${role}`}>
-            <ZoomTrigger
-              label={current.caption}
-              item={{ file: current.image, alt: current.alt, title: current.caption,
-                      tag: `${current.label} · ${current.malay}`, desc: current.body }}
-            >
-              <img
-                sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 48vw"
-                srcSet={current.imageSrcSet}
-                src={current.image}
-                alt={current.alt}
-                loading="lazy"
-                decoding="async"
-              />
-            </ZoomTrigger>
-            <span className="roles-media-caption">{current.caption}</span>
-          </div>
+          {current.image ? (
+            <div className="roles-media" key={`media-${role}`}>
+              <ZoomTrigger
+                label={current.caption}
+                item={{ file: current.image, alt: current.alt, title: current.caption,
+                        tag: `${current.label} · ${current.malay}`, desc: current.body }}
+              >
+                <img
+                  sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1024px) 92vw, 48vw"
+                  srcSet={current.imageSrcSet}
+                  src={current.image}
+                  alt={current.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </ZoomTrigger>
+              <span className="roles-media-caption">{current.caption}</span>
+            </div>
+          ) : null}
         </div>
 
         {/* The captures below used to arrive with no introduction at all: a
@@ -997,15 +1031,17 @@ function Roles() {
             current build they show a contradictory footer and stale labels. */}
         <div className="roles-evidence-intro" data-reveal="up">
           <span className="kicker">After a session</span>
-          <h3>What the caregiver sees once the headset comes off.</h3>
+          <h3>What the caregiver sees after a session.</h3>
           <p>
-            The headset grades the session as it ends and writes the result to its own store; the portal
+            The game grades the session as it ends and writes the result to its local store; the portal
             reads it from there. <strong>Peta Bahaya</strong> is the screen that answers the question a
             family actually asks: <em>which room keeps causing trouble</em>, beyond the score alone.
           </p>
           <p>
             Below, marker 01 is selected: Karpet Terlipat, Ruang Makan, a trip risk, cleared, and the
             recommendation that goes with it. Beside it is the portal's home screen for the same senior.
+            SATRIA AI 2.0 adds personalised performance feedback based on gameplay results to help
+            caregivers understand strengths and the next training focus.
           </p>
         </div>
 
@@ -1122,8 +1158,8 @@ function SeniorDesign() {
 const PIPELINE_ICONS = {
   '01': Gamepad2,
   '02': Boxes,
-  '03': ScanEye,
-  '04': Hand,
+  '03': ShieldCheck,
+  '04': Radar,
   '05': Cpu,
   '06': ClipboardList
 };
@@ -1188,16 +1224,15 @@ function System() {
     <section id="system" className="section section-alt" data-reveal="edge">
       <div className="container">
         <SectionHead variant="statement" kicker="How it works" title="From the senior's hands to the caregiver's report.">
-          Input, physics, hazard state, verification and telemetry are one chain. What a senior does with
-          their hands is what ends up in the caregiver's report.
+          The player recognises and corrects hazards. The game records and scores those actions;
+          fuzzy analysis and optional Gemini feedback turn the results into SATRIA AI 2.0 performance feedback.
         </SectionHead>
 
         {/* A flow, drawn as a flow: one continuous line the nodes sit on, with
-            the on-device analysis stage carrying the weight — it is the step
-            that makes this more than a scoring screen. */}
+            local scoring and fuzzy analysis come before optional online feedback. */}
         <div className="architecture" data-reveal="scale">
           <div className="architecture-head">
-            <span className="kicker">Interaction pipeline</span>
+            <span className="kicker">SATRIA AI 2.0 · Analisis Prestasi</span>
             <p className="architecture-hint">
               Pick a stage or use <kbd>←</kbd> <kbd>→</kbd>
             </p>
@@ -1211,7 +1246,7 @@ function System() {
             ref={railRef}
             className={`pipeline ${railIn ? 'is-live' : ''}`}
             role="tablist"
-            aria-label="Interaction pipeline stages"
+            aria-label="SATRIA performance analysis pipeline stages"
             onKeyDown={onPipelineKeyDown}
             onPointerMove={onPipelinePointerMove}
           >
@@ -1275,14 +1310,16 @@ function System() {
             </p>
             <p className="pipeline-panel-body">{PIPELINE[activeStage].detail}</p>
           </div>
+
+          <p className="pipeline-fallback">
+            <strong>Fallback · Maklum balas berasaskan peraturan:</strong> Fuzzy Logic → SATRIA structured
+            feedback. If Gemini is unavailable, the existing fuzzy result remains available in the game.
+          </p>
         </div>
 
         <div className="system-split">
-          {/* Two captures rather than one. The result card is the analyser's
-              actual output — the four lines the copy used to describe from
-              memory — and the Cadangan IRIS card is what those same records
-              become on the caregiver side. With both on the page the prose
-              beside them can be about a third of what it was. */}
+          {/* Genuine session evidence; personalised feedback is explained in
+              the SATRIA content beside it without an outdated branded capture. */}
           <div className="system-evidence" data-reveal="left">
             <Figure
               className="system-figure"
@@ -1290,48 +1327,47 @@ function System() {
               zoomTag="In-headset result"
               src="/images/ui/session-analysis-sukar.webp"
               alt="Keputusan Sesi from a Mod Sukar run that ran out of time: Masa Tamat, 18 out of 100, 2 of 10 hazards cleared, beside the Analisis Sesi panel with Prestasi, Kekuatan, Perlu Diperbaiki naming the unfinished clothes rack (Ampaian Baju Menghalang Laluan), and Cadangan to bring the clothes in one at a time and retry Sederhana before Sukar"
-              caption="Analisis Sesi: the four lines the analyser writes, here for an unfinished Sukar run"
-            />
-            <Figure
-              className="system-figure"
-              zoomable
-              zoomTag="Caregiver portal"
-              src="/images/caregiver/iris-recommendation.webp"
-              alt="The Cadangan IRIS card in the caregiver portal's Laporan Prestasi: “Prestasi cemerlang (purata 80/100). Boleh mencuba tahap Sukar. Masih perlu perhatian pada Lampu Katil Terlalu Jauh.” — an excellent average of 80, ready to try Sukar, with the bedside lamp hazard still needing attention"
-              caption="Cadangan IRIS: the same records, read for the caregiver"
+              caption="SATRIA performance analysis · earlier rule-based capture of an unfinished Sukar run"
             />
           </div>
 
           <div className="system-copy" data-reveal="right">
-            <span className="kicker">Offline behaviour analysis</span>
-            <h3>Four graded dimensions, worked out on the headset.</h3>
+            <span className="kicker">SATRIA AI 2.0 · Maklum Balas Peribadi</span>
+            <h3>Fuzzy Logic + Generative AI.</h3>
             <p>
-              IRIS analyses the player's hazard-recognition and response performance using a Sugeno-style
-              fuzzy expert system. It grades safety performance, independence, attention and recovery
-              using weighted rule outputs.
+              Core gameplay scoring and Sugeno-style fuzzy analysis run locally. The existing weighted
+              rules grade Safety Performance, Independence, Attention and Recovery, producing structured
+              results for SATRIA.
             </p>
             <p>
-              The caregiver side reads the same stored records: Cadangan IRIS turns the average and the
-              most-missed hazard into one line of advice.
+              After analysis, the Laravel service can use Gemini to turn session metrics and fuzzy summaries
+              into natural personalised Bahasa Melayu feedback. SATRIA presents strengths, areas to
+              improve and a next training focus for the player and caregiver.
             </p>
             <ul className="feature-list">
               <li>
                 <Cpu size={14} strokeWidth={2.4} aria-hidden="true" />
-                Entirely on-device, with no API, network or model file
+                Deterministic scoring and fuzzy analysis remain local
               </li>
               <li>
                 <Radar size={14} strokeWidth={2.4} aria-hidden="true" />
-                Four graded dimensions rather than one pass or fail
+                Four dimensions: Safety Performance, Independence, Attention, Recovery
               </li>
               <li>
                 <Timer size={14} strokeWidth={2.4} aria-hidden="true" />
-                Pace influences attention analysis; Hard mode can end before all hazards are cleared
+                Gemini works after the session; gameplay rules and scoring stay fixed
               </li>
               <li>
                 <Volume2 size={14} strokeWidth={2.4} aria-hidden="true" />
-                Four plain-Malay lines: band, strength, attention, suggestion
+                Offline or timed out? SATRIA retains the existing fuzzy/rule-based feedback
               </li>
             </ul>
+            <p className="system-privacy">
+              <strong>Data &amp; privacy · Privasi data.</strong> The feedback request uses scores,
+              completed and unfinished hazards, mistakes, retries, difficulty, completion time and fuzzy
+              summaries. Account passwords, hashes, email addresses, full names and medical information
+              are not required; the backend forwards only the defined session fields.
+            </p>
           </div>
         </div>
 
@@ -1473,14 +1509,14 @@ function Contact() {
               <li>
                 <strong>Book a demo</strong>
                 <span>
-                  A live session on {PROJECT.headset}, or on a gamepad if a headset is not practical.
+                  A live session with {PROJECT.headset}, a gamepad or Android Tablet Touch Mode.
                   Around fifteen minutes.
                 </span>
               </li>
               <li>
                 <strong>Ask about the project</strong>
                 <span>
-                  Ask about the Unity build, hazard model, fuzzy analyser or caregiver portal.
+                  Ask about the Unity build, hazard model, SATRIA feedback or caregiver portal.
                   Evaluators, supervisors and anyone building something similar are welcome.
                 </span>
               </li>
@@ -1500,7 +1536,7 @@ function Contact() {
               <div className="contact-meta-row">
                 <Layers size={18} strokeWidth={1.9} aria-hidden="true" />
                 <span>
-                  {PROJECT.engine} · {PROJECT.headset} · Laravel · React
+                  {PROJECT.engine} · VR · gamepad · Android tablet · Laravel · React
                 </span>
               </div>
               <div className="contact-meta-row">

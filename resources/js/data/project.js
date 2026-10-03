@@ -2,10 +2,11 @@
    RUMAHKUVR — PROJECT CONTENT
    Single source of truth for factual copy shown on the site.
 
-   Every figure and every Malay label below was read out of the running Unity
+   Gameplay figures and capture labels below were read out of the running Unity
    6.3 build over MCP — XRHazardMapData for the catalogue, the caregiver
    report panel for the session figures — rather than transcribed from a
-   screenshot. Do not add features here that the build does not have.
+   screenshot. Three-mode content follows the current system brief; SATRIA
+   feedback content follows the existing Laravel service. Do not invent captures.
    -------------------------------------------------------------------------- */
 
 export const PROJECT = {
@@ -24,7 +25,7 @@ export const PROJECT = {
 export const HERO_METRICS = [
   { value: 18, suffix: '', label: 'Household hazards', sub: 'Across three difficulty tiers' },
   { value: 3, suffix: '', label: 'Training tiers', sub: 'Mudah · Sederhana · Sukar' },
-  { value: 2, suffix: '', label: 'Play modes', sub: 'Meta Quest 3 & gamepad' }
+  { value: 3, suffix: '', label: 'Play modes', sub: 'Meta Quest 3 · gamepad · Android tablet' }
 ];
 
 /* Difficulty tiers — wording mirrors the in-game "Pilih Mod Simulasi" panel. */
@@ -188,11 +189,11 @@ export const GALLERY = [
   },
   {
     file: '/images/ui/session-result.webp',
-    title: 'Session result & IRIS performance analysis',
-    ms: 'Keputusan Sesi · Analisis Sesi',
+    title: 'Session Result & SATRIA Performance Analysis',
+    ms: 'Keputusan Sesi · Analisis Prestasi',
     tag: 'Feedback',
     desc:
-      'A finished Sederhana run: 100/100 in 12:39 with 5 of 5 cleared, then the four lines the analyser writes: Prestasi, Kekuatan, Perlu Diperbaiki and Cadangan. Computed on the device, with no network involved.'
+      'A finished Sederhana run: 100/100 in 12:39 with 5 of 5 cleared, followed by Prestasi, Kekuatan, Perlu Diperbaiki and Cadangan. This earlier capture shows local rule-based feedback; SATRIA AI 2.0 can personalise the structured results through Gemini after analysis.'
   },
   {
     file: '/images/ui/tutorial-controls.webp',
@@ -270,7 +271,7 @@ export const ROLES = {
     kicker: 'Penjaga',
     title: 'See which hazards keep coming back.',
     body:
-      'Laporan Prestasi is the caregiver view: a score for every saved session, averages per difficulty, and each hazard placed back on the floor plan of the room it happened in.',
+      'Laporan Prestasi is the caregiver view: saved session scores, averages per difficulty, a room-by-room hazard map and SATRIA AI 2.0 personalised performance feedback based on gameplay results.',
     image: '/images/caregiver/progress-graph.webp',
     imageSrcSet:
       '/images/caregiver/progress-graph-1400w.webp 1400w, /images/caregiver/progress-graph.webp 3483w',
@@ -291,10 +292,6 @@ export const ROLES = {
     title: 'Try it without making an account.',
     body:
       'A guest gives only a name. No password is required and no record is kept. They land on the same Senior menu and play the same house, which is what makes the app demonstrable to a visitor in under a minute.',
-    image: '/images/ui/login.webp',
-    imageSrcSet: '/images/ui/login-1400w.webp 1400w, /images/ui/login.webp 3772w',
-    alt: 'RumahKuVR sign-in screen with Tetamu selected from Warga Emas, Tetamu and Penjaga: the username field is open and the password field is greyed out, reading “Tidak perlu untuk Tetamu”',
-    caption: 'Log Masuk as Tetamu: no password needed',
     points: [
       'Name only: the password field switches itself off for a guest',
       'Same difficulty panel, tutorials, guidance and result screen as a senior',
@@ -348,52 +345,51 @@ export const SENIOR_DESIGN_NOTES = [
   }
 ];
 
-/* Interaction pipeline for the System section. */
-/* Interaction pipeline. `detail` is what the System section shows when a stage
-   is selected — each line describes something the build actually does, not a
-   generic description of how VR works in general. */
+/* Performance pipeline. Core scoring and fuzzy analysis belong to the game;
+   Gemini feedback uses the existing Laravel SATRIA endpoint after analysis.
+   `detail` appears when the corresponding stage is selected. */
 export const PIPELINE = [
   {
     step: '01',
-    title: 'Input',
-    sub: 'Quest 3 or gamepad',
+    title: 'Gameplay Session',
+    sub: 'VR · controller · tablet',
     detail:
-      'Two input paths, one codebase. The headset reports head and hand pose through OpenXR; a gamepad reports sticks and buttons. Both are normalised before anything downstream sees them, which is why the controller build runs the same scenarios rather than a cut-down version of them.'
+      'Three input methods access the same training: Meta Quest 3, a gamepad or an Android touchscreen. The player recognises hazards and performs the corrective actions. The system records these actions for performance analysis.'
   },
   {
     step: '02',
-    title: 'Unity XR',
-    sub: 'Physics & 6DoF',
+    title: 'Gameplay Metrics',
+    sub: 'Recorded session results',
     detail:
-      'Built on the XR Interaction Toolkit. Hazard objects are grabbable rigidbodies with their own colliders, so a mop is picked up, carried and used rather than triggered. The physics is the interaction, not a wrapper around a button press.'
+      'Session data includes completed and unfinished hazards, mistakes, retries, completion time and difficulty. These structured results describe what the player did; hazard recognition remains the player’s task.'
   },
   {
     step: '03',
-    title: 'Player recognition',
-    sub: 'Proximity & gaze',
+    title: 'Deterministic Scoring',
+    sub: 'Fixed gameplay rules',
     detail:
-      'The player recognises hazards and interacts with them in the virtual home. Proximity and gaze checks trigger in-game prompts; IRIS analyses the recorded player performance after the session.'
+      'The game calculates the score and verifies hazard completion using its existing rules. Mudah, Sederhana and Sukar retain the same hazards, timers and completion requirements across all three modes. The score is calculated before generative feedback.'
   },
   {
     step: '04',
-    title: 'Correction',
-    sub: 'Action verified',
+    title: 'Fuzzy Logic Analysis',
+    sub: 'Four performance dimensions',
     detail:
-      'Seeing a hazard does not clear it. The state only advances once the corrective action is performed and verified: the burner actually off, the floor actually mopped, the tray actually on the trolley.'
+      'The local Sugeno-style fuzzy expert system evaluates Safety Performance, Independence, Attention and Recovery using the existing weighted rules. It produces structured performance results and rule-based feedback for SATRIA. Session pace has a small influence on Attention.'
   },
   {
     step: '05',
-    title: 'Fuzzy analysis',
-    sub: 'On-device inference',
+    title: 'Gemini Generative AI',
+    sub: 'Optional online feedback',
     detail:
-      'At the end of a session, IRIS analyses player performance using a Sugeno-style fuzzy expert system. Weighted rule outputs grade safety performance, independence, attention and recovery. Session pace has a small influence on attention analysis. It runs on the headset without an API, network or model file.'
+      'After scoring and fuzzy analysis, the Laravel service can send validated session metrics and fuzzy summaries to Gemini for concise personalised Bahasa Melayu feedback. Gemini describes the supplied results; player recognition, gameplay control and scoring stay with the game.'
   },
   {
     step: '06',
-    title: 'Reporting',
-    sub: 'Caregiver portal',
+    title: 'SATRIA Personalised Feedback',
+    sub: 'Maklum Balas Peribadi',
     detail:
-      'The graded session is written to the device store and becomes the caregiver view: the session log, average score per tier, and Peta Bahaya, which places the same hazards back onto the floor plan of the house they happened in.'
+      'SATRIA AI 2.0 presents performance feedback for the player and caregiver. When Gemini is unavailable or times out, the game retains its existing fuzzy/rule-based feedback. Core gameplay, scoring and local analysis continue independently of the online feedback service.'
   }
 ];
 
@@ -412,9 +408,9 @@ export const JOURNEY = [
   },
   {
     step: '02',
-    title: 'Two input paths, one scenario set',
+    title: 'Three input paths, one scenario set',
     desc:
-      'Rather than a cut-down gamepad version, input was normalised before anything downstream reads it. Mod VR and Mod Kawalan run the same hazards, the same tiers and the same scoring.'
+      'Mod VR, Mod Kawalan and Mod Tablet / Skrin Sentuh offer alternative input methods for the same house, hazards, difficulty tiers, scoring and gameplay objectives.'
   },
   {
     step: '03',
